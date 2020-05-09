@@ -2,10 +2,10 @@ import React from 'react';
 
 import { Container } from './styles';
 
-function Button({nome, color, corTexto, borderRadius}) {
+function Button({click, nome, color, corTexto, borderRadius}) {
   return (
     <Container color={color} corTexto={corTexto} borderRadius={borderRadius}>
-        <button>{nome}</button>
+        <button onClick={click}>{nome}</button>
     </Container>
   );
 }

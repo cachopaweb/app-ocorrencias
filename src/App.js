@@ -10,10 +10,7 @@ function App() {
     <>
       <Header />
       <Ocorrencias />
-      <CreateOcorrencias />
-      <div className="floatting">
-        <Button borderRadius={'52px'} color={'black'} corTexto={'white'} nome={'    +    '} />      
-      </div>
+      <CreateOcorrencias />      
       <GlobalStyle />
     </>
   );

@@ -25,4 +25,13 @@ export const Container = styled.div`
     flex-direction: column;
     justify-content: center;
   }
+  span{
+    background-color: #FFF;
+    border-radius: 30px;
+    width: 100px;
+    box-shadow: 3px 3px 3px 3px rgb(5,5,5, 0.2);
+    text-align: center;
+    color: black;
+    font-weight: bold;
+  }
 `;

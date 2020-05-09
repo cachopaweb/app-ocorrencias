@@ -14,13 +14,14 @@ function CreateOcorrencias() {
         Finalizada: "S",
         Funcionario: 20,
         Modulo_Sistema: 0,
-        Obs: ocorrencia,
+        Obs: ocorrencia.value,
         Ocorrencia: "",
         Projeto_Scrum: 245,
-        cli_nome: cliente
+        cli_nome: cliente.value,
+        codigo: 0
     }
-    const response = await api.post('/Ocorrencia', JSON.stringify(create));    
-    console.log(response);
+    const response = await api.post('/Ocorrencias', JSON.stringify(create));    
+    console.log(response.data);
     alert('Dados inseridos com sucesso!')
   }  
   return (
@@ -35,7 +36,7 @@ function CreateOcorrencias() {
                 <textarea type="text" name="ocorrencia" id="ocorrencia" placeholder="informe a ocorrencia" />
             </div>
             <div className="action">
-                <Button onClick={(e)=> insereOcorrencia(e)} nome={"inserir"} color={"black"} corTexto={"white"} />
+                <Button click={insereOcorrencia} nome={"Salvar"} color={"black"} corTexto={"white"} borderRadius={'30px'} />
             </div>            
         </form>
     </Container>

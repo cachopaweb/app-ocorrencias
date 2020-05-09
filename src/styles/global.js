@@ -24,13 +24,4 @@ export default createGlobalStyle`
     ul{
         list-style: none;
     }   
-    .floatting{
-        bottom: 0;
-        display: flex;
-        flex-direction: row-reverse;
-        align-items: center;      
-        width: 98vw;  
-        margin: 0px 10px 10px 0px;
-        position: absolute;
-    }
 `;
