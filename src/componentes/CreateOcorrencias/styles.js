@@ -1,8 +1,6 @@
 import styled from 'styled-components';
 
 export const Container = styled.footer`
-    position: fixed;
-    bottom: 0;
     width:100%;
     background: #323540;
     padding: 20px;
@@ -51,5 +49,11 @@ export const Container = styled.footer`
         justify-content: center;
         align-items: center;
         margin-bottom: 10px;
+    }
+
+    form select {
+        height: 30px;
+        width: 100%;
+        margin-top: 20px;
     }
 `;

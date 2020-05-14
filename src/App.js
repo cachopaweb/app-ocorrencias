@@ -1,18 +1,16 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import Header from './componentes/Header';
-import Ocorrencias from './componentes/Ocorrencias';
-import CreateOcorrencias from './componentes/CreateOcorrencias';
 import GlobalStyle from './styles/global';
-import Button from './componentes/Button';
+import Routes from './Routes';
+import { Context } from './context/UsuarioContext';
 
-function App() {
+function App() {  
   return (
-    <>
+    <Context>
       <Header />
-      <Ocorrencias />
-      <CreateOcorrencias />      
+      <Routes />      
       <GlobalStyle />
-    </>
+    </Context>
   );
 }
 
