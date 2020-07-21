@@ -9,11 +9,98 @@ export const Container = styled.header`
    justify-content: space-between;
    align-items: center;
    color: #B2D9A0;
-   width: 99vw;
+   width: 100%;
    h1{
        margin-left: 20px;
    }
    ul{
        margin-right: 30px;
+       display: flex;
+       justify-content: space-between; 
+       align-items: center;
    }
+   li{
+       order: 1
+   }
+   a{
+    order: 0;   
+    text-decoration: none;
+    color: #B2D9A0;
+    font-size: 1.1rem; 
+    padding: 2.4rem;
+    transition: all 250ms linear 0s;
+    cursor: grabbing;
+   }
+
+   @media (max-width: 905px){
+    width: 100vw;
+    nav{
+        display: none;
+    }
+
+    .one,
+    .two,
+    .three{
+        height: 5px;
+        width: 100%;
+        background-color: #FFF;
+        margin: 5px auto;
+        border-radius: 5px;
+
+        transition-duration: 0.3s;
+    }
+
+    .menu-toogle{
+        height: 35px;
+        width: 35px;
+        margin-right: 10px;
+    }
+
+    .menu-section.on{
+        position: absolute;
+        top: 0;
+        left: 0;
+        background-color: #323540;
+        height: 100vh;
+        width: 100vw;
+        z-index: 10;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .menu-section.on nav{
+        display: block;
+    }
+
+    .menu-section.on .menu-toogle{
+        position: absolute;
+        right: 5px;
+        top: 15px;
+    }
+
+    .menu-section.on .menu-toogle .one{
+        transform: rotate(45deg) translate(7px, 7px)
+    }
+
+    .menu-section.on .menu-toogle .two{
+        opacity: 0;
+    }
+
+    .menu-section.on .menu-toogle .three{
+        transform: rotate(-45deg) translate(8px, -8px)
+    }
+
+    .menu-section.on nav ul{
+        text-align: center;
+        display: block;
+    }
+
+    .menu-section.on nav ul{
+        transition-duration: 0.5s;
+        font-size: 3rem;
+        line-height: 4rem;
+        display: block;
+    }    
+  } 
 `;

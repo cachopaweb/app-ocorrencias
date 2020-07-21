@@ -1,9 +1,7 @@
 import styled from 'styled-components';
 
 export const Container = styled.div`
-  height: auto;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  padding: 30px 0;
+  height: calc(100% -80px);
 `;

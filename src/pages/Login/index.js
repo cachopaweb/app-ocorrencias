@@ -1,18 +1,15 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import { Container } from './styles';
 import Logo from '../../assets/Icone_Portal.png';
 import api from '../../services/api';
-import isAuthenticated from '../../services/auth';
-import { UsuarioContext } from '../../context/UsuarioContext';
+import { useUsuario } from '../../context/UsuarioContext';
 
 function Login() {
     const [usuarios, setUsuarios] = useState([]);
     const [senha, SetSenha] = useState('');  
-    const [usuarioLogado, setUsuarioLogado] = useState(0);
-    const [login, setLogin] = useState('');
-    const { actions } = useContext(UsuarioContext);
+    const { setCodigo, setNome } = useUsuario();
     const history = useHistory();
     
     async function getUsuarios(){
@@ -21,7 +18,7 @@ function Login() {
     }
 
     useEffect(()=>{
-        getUsuarios()
+      getUsuarios()
     }, []);
      
     async function fazerLogin(event){
@@ -29,22 +26,29 @@ function Login() {
         const indexUsuario = document.getElementById('usuarios').selectedIndex;
         const login_usu = usuarios[indexUsuario].login;
         const codigoUsu = parseInt(usuarios[indexUsuario].codigo);
-        const isAuth = await isAuthenticated(login_usu, senha);
-        if (isAuth){
-            setUsuarioLogado(codigoUsu);
-            setLogin(login_usu);
-            actions.setUser({
+        const login = {
+            login: login_usu,
+            senha: senha
+        }
+        const response = await api.post('/login', JSON.stringify(login));
+        if (!response.data.error){
+            //guarda no local storage
+            const usuario = {
                 codigo: codigoUsu,
-                nome: login_usu     
-            });
-            history.push('/ocorrencia')
+                nome: login_usu
+            }
+            localStorage.setItem('usuario_logado', JSON.stringify(usuario));  
+            //useUsuario
+            setCodigo(codigoUsu);
+            setNome(login_usu);
+            history.push('/ocorrencias')          
         }else{
-            alert('Usuario nao permitido')
+            alert('Usuario nao permitido!')
             history.replace('/');
         }
     }
 
-    return (    
+    return (   
         <Container>
             <form onSubmit={fazerLogin}>
                 <img src={Logo} alt="Portal logo" />                        
@@ -63,7 +67,7 @@ function Login() {
                 <hr />
                 <button type="submit">Fazer login</button>
             </form>
-        </Container>
+        </Container>        
     );
 }
 

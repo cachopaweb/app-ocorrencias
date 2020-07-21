@@ -1,55 +1,100 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
+import swal from 'sweetalert';
 
 import { Container } from './styles';
 import Button from '../Button';
 import api from '../../services/api';
-import { useHistory } from 'react-router-dom';
-import { UsuarioContext } from '../../context/UsuarioContext';
+import { useHistory, Link } from 'react-router-dom';
+import { useUsuario } from '../../context/UsuarioContext';
+import { MdScanner, MdCancel, MdClose } from 'react-icons/md'
 
-function Card({ cliente, ocorrencia, atendente = 0, nomeAtendente, cod_ocorrencia}) {
-  const history = useHistory();
+function Card({ cliente, contrato, ocorrencia, atendente = 0, nomeAtendente, cod_ocorrencia, data, showActions = true }) {
   const [funAtendente, setFunAtendente] = useState(atendente);
   const [nome_atendente, setNome_Atendente] = useState(nomeAtendente);
-  const { state } = useContext(UsuarioContext);
+  const { codigo, nome } = useUsuario();
   const [fechada, setFechada] = useState(false);
 
-  async function Atender(){
+  async function Atender() {
     const request = {
-      fun_codigo: state.user.codigo
+      fun_codigo: codigo
     }
-    const response = await api.put('/Ocorrencias/'+cod_ocorrencia, JSON.stringify(request));
-    if (response.data.fun_codigo > 0){
+    const response = await api.put('/Ocorrencias/' + cod_ocorrencia, JSON.stringify(request));
+    if (response.data.fun_codigo > 0) {
       setFunAtendente(response.data.fun_codigo)
-      setNome_Atendente(state.user.nome);
+      setNome_Atendente(nome);
     }
   }
 
-  async function finalizar(){
+  async function fecharOcorrencia(tempo){    
     const request = {
-      fun_codigo: state.user.codigo,
-      finalizada: 'S'
+      fun_codigo: codigo,
+      finalizada: 'S',
+      tempo
     }
-    const response = await api.put('/Ocorrencias/'+cod_ocorrencia, JSON.stringify(request));
-    if (response.data.fun_codigo > 0){
-      setFechada(true);
-    }  
+    try {
+      let response = await api.put('/Ocorrencias/' + cod_ocorrencia, JSON.stringify(request));
+      if (response.data.fun_codigo > 0) {
+        setFechada(true);
+      } else {
+        swal('Erro ao fechar Ocorrencia', '', 'error')
+      }
+    } catch (error) {
+      swal('Erro ao fechar Ocorrencia', error, 'error');
+    }
   }
-  
+
+  function finalizar() {
+    if (funAtendente === 0) {
+      swal("Ocorrencia ainda não atendida!", 'Click em atender', "warning");
+      return
+    }
+    swal("Informe o tempo de atendimento (em minutos):", {
+      content: "input",
+    })
+      .then((value) => {
+        if (value === '') {
+          swal('Informe o tempo de atendimento corretamente', 'Informe o tempo de atendimento (em minutos):', 'warning')
+          return;
+        }
+        let tempo = 0;
+        try {
+          tempo = parseInt(value);
+        } catch (erro) {
+          swal('É permitido somente números!', 'informe o tempo em números', 'warning')
+          return;
+        }
+        if (tempo === 0) { swal("Tempo não informado!", 'Informe o tempo', "warning"); return; }
+        if (tempo === 1) { swal('O Tempo deve ser maior que 1 min', 'Informe o tempo corretamente', 'warning'); return; }
+        
+        fecharOcorrencia(tempo);
+      });
+  }
+
   return fechada ? null
-  :(
-    
-    <Container atendente={funAtendente}>
-      <div className="content">
-        <h3>{cliente}</h3>
-        <p>{ocorrencia}</p> 
-        {funAtendente ? <span>{nome_atendente}</span> : <span>Nao atendida</span>}     
-      </div>
-      <div className="actions">
-        <Button click={Atender} nome={"Atender"} color={"white"} corTexto={"black"} borderRadius={'30px'} />
-        <Button click={finalizar} nome={"Fechar"} color={"white"} corTexto={"black"} borderRadius={'30px'} />
-      </div>
-    </Container>
-  );
+    : (
+      <Container atendente={funAtendente}>
+        <div className="content">
+          <div className="header">
+            <h3>{cliente}</h3>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <h3>{new Date(data).toLocaleDateString()}</h3>
+              {funAtendente ? <span>{nome_atendente}</span> : <span>Nao atendida</span>}
+            </div>
+          </div>
+          <p>{ocorrencia}</p>
+        </div>
+        {showActions ?
+          <div className="actions">
+            <Button Icon={MdScanner} click={Atender} nome={"Atender"} color={"#F0F0F2"} corTexto={"black"} borderRadius={'30px'} />
+            <Button Icon={MdCancel} click={finalizar} nome={"Fechar"} color={"#733130"} corTexto={"white"} borderRadius={'30px'} />
+            <Link to={{ pathname: '/aberturaOS', state: { cliente, contrato, ocorrencia, cod_ocorrencia, funAtendente } }} >
+              <Button Icon={MdClose} nome={"Abrir OS"} color={"#7FA66D"} corTexto={"white"} borderRadius={'30px'} />
+            </Link>
+          </div>
+          : null
+        }
+      </Container>
+    );
 }
 
 export default Card;

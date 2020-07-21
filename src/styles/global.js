@@ -16,12 +16,17 @@ export default createGlobalStyle`
 
     body{
         font: 14px 'Roboto', sans-serif;
-        background-color: #FFF;
-        color: #000;
+        background-color: #323540;
+        color: #FFF;
         -webkit-font-smoothing: antialiased;
     }
 
     ul{
         list-style: none;
     }   
+
+    :root{
+        --primary-color: #323540;
+        --secondary-color: #B2D9A0;
+    }
 `;

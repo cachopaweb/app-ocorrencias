@@ -1,40 +1,39 @@
-import React, { useState } from 'react';
+import React, { createContext, useState, useContext } from 'react';
 
+export const UsuarioContext = createContext();
 
-const initialState =
-    {
-        user: {
-            codigo: 0,
-            nome: ""
-        }
+export default function UsuarioProvider({ children }){     
+    let codigo_local = 0;
+    let nome_local = '';
+    if (localStorage.getItem('usuario_logado')) {
+        codigo_local = JSON.parse(localStorage.getItem('usuario_logado')).codigo;
+        nome_local = JSON.parse(localStorage.getItem('usuario_logado')).nome;
     }
 
-export const UsuarioContext = React.createContext(
-    {
-        state: initialState,
-        actions: { setUser: () => { } }
-    });
+    const [codigo, setCodigo] = useState(codigo_local);
+    const [nome, setNome] = useState(nome_local);
 
-const setUser = (state, setState, user) => {
-    setState({ user })
-}
-
-export const Context = props => {
-
-    const [state, _setState] = useState(initialState)
-    const setState = (_state) => {
-        const newState = { ...state, ..._state }
-        _setState(newState)
-    }
-
-    const actions = {
-        setUser: setUser.bind(null, state, setState)
-    }
-
+    
     return (
-        <UsuarioContext.Provider value={{ state, actions }} >
-            {props.children}
+        <UsuarioContext.Provider value={{ 
+            codigo,
+            setCodigo,
+            nome,
+            setNome
+         }}>
+            {children}
         </UsuarioContext.Provider>
     );
+}
 
+export function useUsuario(){
+    const context = useContext(UsuarioContext);
+    const { codigo, setCodigo, nome, setNome } = context;    
+    if (codigo > 0) {
+        localStorage.setItem('usuario_logado', JSON.stringify({
+            codigo: codigo,
+            nome: nome
+        }))
+    }
+    return { codigo, setCodigo, nome, setNome };
 }
