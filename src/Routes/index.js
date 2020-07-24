@@ -12,7 +12,8 @@ import OcorrenciasFinalizadas from '../pages/OcorrenciasFinalizadas';
 import OrdensAndamento from '../pages/OrdensAndamento';
 import OrdemDetalhe from '../pages/OrdemDetalhe';
 import Licencas from '../pages/Licencas';
-import Board from '../componentes/Board';
+import Scrum from '../pages/Scrum';
+import QuadroScrum from '../componentes/QuadroScrum';
 
 const PrivateRoute = ({ component: Component, ...rest }) => {
   const {codigo } = useUsuario();
@@ -45,7 +46,8 @@ function Routes() {
             <PrivateRoute path='/ordensAndamento' component={OrdensAndamento} />
             <PrivateRoute path='/ordemDetalhe' component={OrdemDetalhe} />
             <PrivateRoute path='/licencas' component={Licencas} />
-            <PrivateRoute path='/scrum' component={Board} />
+            <PrivateRoute path='/scrum' component={Scrum} />
+            <PrivateRoute path='/quadroScrum' component={QuadroScrum} />            
             <Route path="*" component={() => <h1>Pagina nao encontrada</h1>} />
         </Switch>
     </Router>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-import { Container } from './styles';
+import { Container, Pesquisa } from './styles';
 import api from '../../services/api';
 import Header from '../../componentes/Header';
 import { useHistory } from 'react-router-dom';
@@ -9,11 +9,13 @@ import Button from '../../componentes/Button';
 
 function Clientes() {
   const [clientes, setClientes] = useState([]);
+  const [clientesFiltrados, setClientesFiltrados] = useState([]);
   const history = useHistory();
 
   async function fetchData() {
     const response = await api.get('/Clientes');
     setClientes(response.data);
+    setClientesFiltrados(response.data);
   }
 
   useEffect(() => {
@@ -24,11 +26,26 @@ function Clientes() {
     history.push({ pathname: '/contaReceber', state: { contrato: contrato, nome: nome } })
   }
 
+  function filtrarPorCliente(busca){
+    let result = clientes.filter((cliente)=> cliente.nome.toUpperCase().includes(busca.toUpperCase()));
+    setClientesFiltrados(result);
+  }
+
   return (
     <>
       <Header title={'Clientes'} />
+      <Pesquisa>
+          <div id="form">
+              <form>
+                  <div className="form-group">
+                      <label htmlFor="projetos">Filtrar Clientes </label>
+                      <input type="text" placeholder="Busca por cliente" onChange={(e) => filtrarPorCliente(e.target.value)} />
+                  </div>
+              </form>
+          </div>
+      </Pesquisa>
       <Container>
-        <div className="lista">{clientes.map(cliente => (
+        <div className="lista">{clientesFiltrados.map(cliente => (
           <div>
             <article>
               <h1>{cliente.nome}</h1>

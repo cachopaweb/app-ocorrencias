@@ -20,13 +20,15 @@ export const Container = styled.header`
        align-items: center;
    }
    li{
-       order: 1
+       order: 1;
+       display: flex;
+       flex-direction: column;
    }
    a{
     order: 0;   
     text-decoration: none;
     color: #B2D9A0;
-    font-size: 1.1rem; 
+    font-size: 1rem; 
     padding: 2.4rem;
     transition: all 250ms linear 0s;
     cursor: grabbing;

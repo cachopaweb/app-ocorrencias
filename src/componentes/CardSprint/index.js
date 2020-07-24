@@ -1,16 +1,19 @@
-import React, { useRef, useContext } from 'react';
+import React from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 
-import BoardContext from '../Board/context';
-
 import { Container, Label } from './styles';
+import { useState, useRef, useContext } from 'react';
+import QuadroScrumContext from '../QuadroScrum/context';
+import CardSprintBacklog from '../../componentes/CardSprintBacklog';
 
-export default function CardScrum({ data, index, listIndex }) {
+
+export default function CardSprint({ data, index, listIndex }) {
+  const [backlogs, setBacklogs] = useState([]); 
   const ref = useRef();
-  const { move } = useContext(BoardContext);
+  const { move } = useContext(QuadroScrumContext);
 
   const [{ isDragging }, dragRef] = useDrag({
-    item: { type: 'CARD', index, listIndex },
+    item: { type: 'CARD_SPRINT', index, listIndex },
     collect: monitor => ({
       isDragging: monitor.isDragging(),
     }),
@@ -18,12 +21,11 @@ export default function CardScrum({ data, index, listIndex }) {
 
   const [, dropRef] = useDrop({
     accept: 'CARD',
-    hover(item, monitor) {
+    hover(item, monitor) {  
       const draggedListIndex = item.listIndex;
       const targetListIndex = listIndex;
-
       const draggedIndex = item.index;
-      const targetIndex = index;
+      const targetIndex = listIndex;
 
       if (draggedIndex === targetIndex && draggedListIndex === targetListIndex) {
         return;
@@ -44,21 +46,29 @@ export default function CardScrum({ data, index, listIndex }) {
       }
 
       move(draggedListIndex, targetListIndex, draggedIndex, targetIndex);
-
+      console.log(item.data)
+      if (backlogs.length)
+         setBacklogs([...backlogs, item.data])
+      else setBacklogs([item.data])
       item.index = targetIndex;
       item.listIndex = targetListIndex;
-    }
+    },
   })
 
   dragRef(dropRef(ref));
 
-  return (
+   return (
     <Container ref={ref} isDragging={isDragging}>
       <header>
         {data.labels.map(label => <Label key={label} color={label} />)}
       </header>
       <p>{data.content}</p>
       { data.user && <img src={data.user} alt="Avatar"/> }
+      {
+        backlogs.length > 0 ?
+          backlogs.map((backlog, index)=> <CardSprintBacklog key={index} data={backlog} />)
+        : <h3>Aguardando Backlogs...</h3>
+      }
     </Container>
   );
 }

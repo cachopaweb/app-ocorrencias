@@ -176,7 +176,7 @@ function AberturaOS() {
                         <div className="form-group">
                             <label htmlFor="modulo">Módulo do Sistema</label>
                             {
-                                <select id="modulo" className="input-control" onChange={(e) => changeModulo(e.target.value)}>
+                                <select id="modulo" className="input-control" onChange={(e) => changeModulo(e.target.value)} autoFocus={true}>
                                     {
                                         osModulos.map(mod => <option key={mod.codigo} value={mod.codigo}>{`${mod.sistema} | ${mod.modulo}`}</option>)
                                     }

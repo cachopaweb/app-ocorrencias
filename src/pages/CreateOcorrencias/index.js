@@ -86,7 +86,7 @@ function CreateOcorrencias() {
             <label htmlFor="clientes">Escolha o cliente</label>
               {
                 clientes.length > 0 ?
-                  <select id="clientes" className="input-control">
+                  <select id="clientes" className="input-control" autoFocus={true}>
                     {
                       clientes.map(cliente => <option key={cliente.contrato} value={cliente.contrato}>{cliente.nome}</option>)
                     }

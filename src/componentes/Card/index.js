@@ -29,7 +29,7 @@ function Card({ cliente, contrato, ocorrencia, atendente = 0, nomeAtendente, cod
     const request = {
       fun_codigo: codigo,
       finalizada: 'S',
-      tempo
+      tempoAtendimento: tempo
     }
     try {
       let response = await api.put('/Ocorrencias/' + cod_ocorrencia, JSON.stringify(request));
