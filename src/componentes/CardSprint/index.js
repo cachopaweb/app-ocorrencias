@@ -45,7 +45,7 @@ export default function CardSprint({ data, index, listIndex }) {
         return;
       }
 
-      move(draggedListIndex, targetListIndex, draggedIndex, targetIndex);
+      move(draggedListIndex, targetListIndex, draggedIndex, targetIndex, 'CARD');
       console.log(item.data)
       if (backlogs.length)
          setBacklogs([...backlogs, item.data])

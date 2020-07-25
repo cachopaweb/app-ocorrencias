@@ -21,8 +21,7 @@ export default function Lista({ data, index: listIndex, cliente, projeto_id, upd
 
   const [, dropRef] = useDrop({
     accept: 'CARD_SPRINT',
-    drop(item, monitor) {  
-      console.log(item)
+    drop(item, monitor) {        
       const draggedListIndex = item.listIndex;
       const targetListIndex = listIndex;
       const draggedIndex = item.index;
@@ -31,22 +30,7 @@ export default function Lista({ data, index: listIndex, cliente, projeto_id, upd
       if (draggedIndex === targetIndex && draggedListIndex === targetListIndex) {
         return;
       }
-
-      // const targetSize = ref.current.getBoundingClientRect();
-      // const targetCenter = (targetSize.bottom - targetSize.top) / 2;
-
-      // const draggedOffset = monitor.getClientOffset();
-      // const draggedTop = draggedOffset.y - targetSize.top;
-
-      // if (draggedIndex < targetIndex && draggedTop < targetCenter) {
-      //   return;
-      // }
-
-      // if (draggedIndex > targetIndex && draggedTop > targetCenter) {
-      //   return;
-      // }
-
-      move(draggedListIndex, targetListIndex, draggedIndex, targetIndex);
+      move(draggedListIndex, targetListIndex, draggedIndex, targetIndex, 'CARD_SPRINT');
       item.index = targetIndex;
       item.listIndex = targetListIndex;
     },

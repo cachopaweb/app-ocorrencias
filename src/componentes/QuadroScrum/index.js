@@ -24,12 +24,13 @@ export default function QuadroScrum() {
     setAtualizar(false);
   }, [atualizar]);
 
-  function move(fromList, toList, from, to) {
+  function move(fromList, toList, from, to, type) {
     setLista(produce(lista, draft => {
         const dragged = draft[fromList].cards[from];
-
+        console.table(fromList, toList, from, to, type)
         draft[fromList].cards.splice(from, 1);
-        // draft[toList].cards.splice(to, 0, dragged);
+        if (type === 'CARD_SPRINT')
+          draft[toList].cards.splice(to, 0, dragged);
       }
     ))
   }
