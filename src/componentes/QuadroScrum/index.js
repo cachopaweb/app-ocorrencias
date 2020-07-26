@@ -25,18 +25,24 @@ export default function QuadroScrum() {
   }, [atualizar]);
 
   function move(fromList, toList, from, to, type) {
+    console.log(lista)
+    console.table(fromList, toList, from, to, type)
     setLista(produce(lista, draft => {
         const dragged = draft[fromList].cards[from];
-        console.table(fromList, toList, from, to, type)
         draft[fromList].cards.splice(from, 1);
-        if (type === 'CARD_SPRINT')
-          draft[toList].cards.splice(to, 0, dragged);
+        if (type === 'CARD_SPRINT'){
+          if (draft[toList].cards.length > 0){
+            draft[toList].cards.splice(to, 0, dragged)
+          }else{            
+            draft[toList].cards.push(dragged)
+          }
+        }
       }
     ))
   }
 
   return (
-    <BoardContext.Provider value={{ lista, move }}>
+    <BoardContext.Provider value={{ lista, move, setAtualizar }}>
       <Header title={`Scrum ${state.cliente}`} />
       <Container>
         {lista.map((lista, index) => <Lista key={lista.title} index={index} data={lista} cliente={cliente} projeto_id={projeto_id} update={setAtualizar} />)}

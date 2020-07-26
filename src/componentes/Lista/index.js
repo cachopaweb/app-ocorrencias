@@ -9,30 +9,38 @@ import { useDrop } from 'react-dnd';
 
 import QuadroScrumContext from '../QuadroScrum/context';
 import CardBacklog from '../CardBacklog';
+import api from '../../services/api';
 
 export default function Lista({ data, index: listIndex, cliente, projeto_id, update }) {
   const [modalCriarEstoria, setModalCriarEstoria] = useState(false);
   const [modalCriarSprint, setModalCriarSprint] = useState(false);
-  const { move } = useContext(QuadroScrumContext);
+  const { setAtualizar } = useContext(QuadroScrumContext);
   
   function dispararAtualizacao(){
     update(true);
   }
 
+  async function AtualizarEstadoSprint(codigo, estado){
+    let response = await api.put(`/sprint/${codigo}`, {Estado: estado});
+    if (response.data.NOVO_ESTADO != ''){
+      setAtualizar(true);
+    }
+  }
+
+  function indexToEstado(index){
+    let estado = '';
+    if (index === 1) { estado = "A FAZER"}
+    if (index === 2) { estado = "EM ANDAMENTO"}
+    if (index === 3) { estado = "REVISAO"}
+    if (index === 4) { estado = "ENTREGA"}
+    return estado;
+  }
+
   const [, dropRef] = useDrop({
     accept: 'CARD_SPRINT',
     drop(item, monitor) {        
-      const draggedListIndex = item.listIndex;
-      const targetListIndex = listIndex;
-      const draggedIndex = item.index;
-      const targetIndex = listIndex;
-
-      if (draggedIndex === targetIndex && draggedListIndex === targetListIndex) {
-        return;
-      }
-      move(draggedListIndex, targetListIndex, draggedIndex, targetIndex, 'CARD_SPRINT');
-      item.index = targetIndex;
-      item.listIndex = targetListIndex;
+      if (listIndex === 0) return;
+      AtualizarEstadoSprint(item.data.id, indexToEstado(listIndex));
     },
   })
   
@@ -49,7 +57,7 @@ export default function Lista({ data, index: listIndex, cliente, projeto_id, upd
             <MdAdd size={24} color="#FFF" />
           </button>)}
       </header>
-      {data.createBacklog &&
+      {!data.ehSprint && (
         <ul>
           {data.cards.map((card, index) =>
             <CardBacklog
@@ -58,18 +66,18 @@ export default function Lista({ data, index: listIndex, cliente, projeto_id, upd
               key={card.id}
               data={card}
             />)}
-        </ul>
+        </ul>)
       }
-      {data.createSprint &&
+      {data.ehSprint && (
         <ul>
           {data.cards.map((card, index) =>
-            <CardSprint
+          <CardSprint
               index={index}
               listIndex={listIndex}
               key={card.id}
               data={card}
             />)}
-        </ul>
+        </ul>)
       }
       {
         modalCriarEstoria &&

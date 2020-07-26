@@ -5,19 +5,27 @@ import { Container, Label } from './styles';
 import { useState, useRef, useContext } from 'react';
 import QuadroScrumContext from '../QuadroScrum/context';
 import CardSprintBacklog from '../../componentes/CardSprintBacklog';
+import api from '../../services/api';
 
 
 export default function CardSprint({ data, index, listIndex }) {
-  const [backlogs, setBacklogs] = useState([]); 
+  const [backlogs, setBacklogs] = useState(data.backlogs); 
   const ref = useRef();
-  const { move } = useContext(QuadroScrumContext);
+  const { move, setAtualizar } = useContext(QuadroScrumContext);
 
   const [{ isDragging }, dragRef] = useDrag({
-    item: { type: 'CARD_SPRINT', index, listIndex },
+    item: { type: 'CARD_SPRINT', index, listIndex, data },
     collect: monitor => ({
       isDragging: monitor.isDragging(),
     }),
   });
+
+  async function criarVinculoSprintBacklog(codBacklog, codSprint){
+    let response = await api.post(`/sprint_backlog/${codSprint}`, {Codigo: codBacklog});
+    if (response.data.BS_BP){
+      setAtualizar(true);
+    }
+  }
 
   const [, dropRef] = useDrop({
     accept: 'CARD',
@@ -25,7 +33,7 @@ export default function CardSprint({ data, index, listIndex }) {
       const draggedListIndex = item.listIndex;
       const targetListIndex = listIndex;
       const draggedIndex = item.index;
-      const targetIndex = listIndex;
+      const targetIndex = index;
 
       if (draggedIndex === targetIndex && draggedListIndex === targetListIndex) {
         return;
@@ -46,12 +54,12 @@ export default function CardSprint({ data, index, listIndex }) {
       }
 
       move(draggedListIndex, targetListIndex, draggedIndex, targetIndex, 'CARD');
-      console.log(item.data)
       if (backlogs.length)
          setBacklogs([...backlogs, item.data])
       else setBacklogs([item.data])
       item.index = targetIndex;
       item.listIndex = targetListIndex;
+      criarVinculoSprintBacklog(item.data.id, data.id);
     },
   })
 

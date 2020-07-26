@@ -8,31 +8,20 @@ import api from '../../services/api';
 import { useUsuario } from '../../context/UsuarioContext';
 
 function CriarEstoria({ cliente, projeto_id, setModalActivate, atualizar }) {
-    const [prazoSprint, setPrazoSprint] = useState([]);
-    const [tipoPrazoEscolhido, setTipoPrazoEscolhido] = useState(0);
     const [prioridade, setprioridade] = useState(0);
     const [estoria, setEstoria] = useState('');
     const { codigo } = useUsuario();
 
-    async function fetchPrazoSprint() {
-        let response = await api.get('/prazo_sprint');
-        setPrazoSprint(response.data);
-    }
-
     async function submitEstoria(e) {
         e.preventDefault();
-        if (tipoPrazoEscolhido === 0) { swal('Informe o tipo da Estória!', 'Necessário para o intervalo de dias a ser entregue', 'warning'); return; }
         if (prioridade === 0) { swal('Informe uma prioridade!', 'qual a prioridade do que esta sendo pedido', 'warning'); return; }
         if (estoria === '') { swal('Informe uma estória!', 'descreva o que o cliente pede', 'warning'); return; }
         if (projeto_id === 0) { swal('Informe o projeto Scrum!', 'Id do Projeto é obrigatório', 'warning'); return; }
-        let dataEntrega = new Date();
-        dataEntrega.setDate(dataEntrega.getDate() + tipoPrazoEscolhido);
         let dados = {
             Descricao: estoria,
             Necessidade: prioridade,
             Estado: "ABERTO",
             Cod_Projeto_Scrum: projeto_id,
-            DataEntrega: dataEntrega,
             Funcionario: codigo
         }
         try {
@@ -48,11 +37,7 @@ function CriarEstoria({ cliente, projeto_id, setModalActivate, atualizar }) {
             swal(`Erro ao criar Estória. Erro ${error}!`, 'Algo deu errado', 'error')
         }
     }
-
-    useEffect(() => {
-        fetchPrazoSprint()
-    }, []);
-
+    
     return (
         <Container>
             <div id="form">
@@ -61,15 +46,6 @@ function CriarEstoria({ cliente, projeto_id, setModalActivate, atualizar }) {
                     <div className="form-group">
                         <label htmlFor="clientes">Escolha o cliente</label>
                         <input id="cliente" className="input-control" type="text" value={cliente} disabled />
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="Tipo">Tipo Estória</label>
-                        <select onChange={(e) => setTipoPrazoEscolhido(e.target.value)}>
-                            <option value="0">Informe o tipo da Estória</option>
-                            {
-                                prazoSprint.map((prazo) => <option key={prazo.codigo} value={prazo.dias}>{prazo.descricao}</option>)
-                            }
-                        </select>
                     </div>
                     <div className="form-group">
                         <label htmlFor="prioridade">Prioridade</label>

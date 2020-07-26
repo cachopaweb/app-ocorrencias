@@ -11,7 +11,6 @@ function CriarSprint({ cliente, projeto_id, setModalActivate, atualizar }){
     const [prazoSprint, setPrazoSprint] = useState([]);
     const [tipoPrazoEscolhido, setTipoPrazoEscolhido] = useState(0);
     const [prioridade, setprioridade] = useState(0);
-    const [conteudo, setConteudo] = useState('');
     const [descricao, setDescricao] = useState('');
     const { codigo } = useUsuario();
 
@@ -24,13 +23,11 @@ function CriarSprint({ cliente, projeto_id, setModalActivate, atualizar }){
         e.preventDefault();
         if (tipoPrazoEscolhido === 0) { swal('Informe o tipo da Sprint!', 'Necessário para o intervalo de dias a ser entregue', 'warning'); return; }
         if (prioridade === 0) { swal('Informe uma prioridade!', 'qual a prioridade do que esta sendo pedido', 'warning'); return; }
-        if (conteudo === '') { swal('Informe uma Conteúdo!', 'descreva o que o objetivo desta Sprint', 'warning'); return; }
         if (projeto_id === 0) { swal('Informe o projeto Scrum!', 'Id do Projeto é obrigatório', 'warning'); return; }
         let dataEntrega = new Date();
         dataEntrega.setDate(dataEntrega.getDate() + tipoPrazoEscolhido);
         let dados = {
-            Conteudo: conteudo,
-            Estado: "ABERTO",
+            Estado: "A FAZER",
             Descricao: descricao,
             Cod_Projeto_Scrum: projeto_id,
             DataEntregaProgramacao: dataEntrega
@@ -84,10 +81,6 @@ function CriarSprint({ cliente, projeto_id, setModalActivate, atualizar }){
                     <div className="form-group">
                         <label htmlFor="clientes">Descrição</label>
                         <input placeholder="Informe uma descrição" id="descricao" className="input-control" type="text" value={descricao} onChange={(e)=> setDescricao(e.target.value)} />
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="conteudo">Sprint</label>
-                        <textarea className="input-control" type="text" name="conteudo" id="conteudo" placeholder="informe o Conteúdo" onChange={(e) => setConteudo(e.target.value)} />
                     </div>
                     <div className="action">
                         <Button Icon={MdCancel} click={() => { }} nome={"Cancelar"} color={"red"} corTexto={"white"} borderRadius={'30px'} />
