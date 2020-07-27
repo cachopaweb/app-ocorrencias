@@ -9,7 +9,7 @@ export const Container = styled.header`
    justify-content: space-between;
    align-items: center;
    color: #B2D9A0;
-   width: 100%;
+   width: 100vw;
    h1{
        margin-left: 20px;
    }
@@ -34,7 +34,7 @@ export const Container = styled.header`
     cursor: grabbing;
    }
 
-   @media (max-width: 905px){
+   @media (max-width: 1200px){
     width: 100vw;
     nav{
         display: none;
@@ -100,8 +100,8 @@ export const Container = styled.header`
 
     .menu-section.on nav ul{
         transition-duration: 0.5s;
-        font-size: 3rem;
-        line-height: 4rem;
+        font-size: 1.5rem;
+        line-height: 1rem;
         display: block;
     }    
   } 

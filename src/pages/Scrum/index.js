@@ -40,7 +40,7 @@ function Scrum() {
             <Container>
                 {
                     projetos_filtrados.map((projeto) => (
-                            <CardProjetos key={projeto.ps_codigo} cliente={projeto.cli_nome} projeto_id={projeto.ps_codigo}></CardProjetos>
+                            <CardProjetos key={projeto.ps_codigo} cliente={projeto.cli_nome} projeto_id={projeto.ps_codigo} contrato={projeto.contrato}></CardProjetos>
                         )
                     )
                 }

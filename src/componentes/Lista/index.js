@@ -11,10 +11,11 @@ import QuadroScrumContext from '../QuadroScrum/context';
 import CardBacklog from '../CardBacklog';
 import api from '../../services/api';
 
-export default function Lista({ data, index: listIndex, cliente, projeto_id, update }) {
+export default function Lista({ data, index: listIndex, cliente, projeto_id, contrato, update }) {
   const [modalCriarEstoria, setModalCriarEstoria] = useState(false);
   const [modalCriarSprint, setModalCriarSprint] = useState(false);
   const { setAtualizar } = useContext(QuadroScrumContext);
+  const ref = useRef();
   
   function dispararAtualizacao(){
     update(true);
@@ -27,6 +28,11 @@ export default function Lista({ data, index: listIndex, cliente, projeto_id, upd
     }
   }
 
+  async function deletaVinculoSprint(bb_codigo){
+    await api.delete(`/sprint_backlog/${bb_codigo}`);
+    setAtualizar(true)
+  }
+
   function indexToEstado(index){
     let estado = '';
     if (index === 1) { estado = "A FAZER"}
@@ -36,16 +42,25 @@ export default function Lista({ data, index: listIndex, cliente, projeto_id, upd
     return estado;
   }
 
-  const [, dropRef] = useDrop({
+  const [, dropSprint] = useDrop({
     accept: 'CARD_SPRINT',
     drop(item, monitor) {        
       if (listIndex === 0) return;
       AtualizarEstadoSprint(item.data.id, indexToEstado(listIndex));
     },
   })
+
+  const [, dropSprintBacklog] = useDrop({
+    accept: 'CARD_SPRINT_BACKLOG',
+    drop(item, monitor) {       
+      deletaVinculoSprint(item.data.bb_codigo);
+    },
+  })
   
+  dropSprint(dropSprintBacklog(ref))
+
   return (
-    <Container ref={dropRef} >
+    <Container ref={ref} >
       <header>
         <h2>{data.title}</h2>
         {data.createBacklog && (
@@ -76,6 +91,8 @@ export default function Lista({ data, index: listIndex, cliente, projeto_id, upd
               listIndex={listIndex}
               key={card.id}
               data={card}
+              cliente={cliente}
+              contrato={contrato}
             />)}
         </ul>)
       }
