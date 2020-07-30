@@ -12,6 +12,10 @@ export const Container = styled.div`
   header{
       position: absolute;
       top: -22px;
+
+      #ocorrencia{
+        margin-left: 10px;
+      }
   }  
 
   p{
@@ -44,5 +48,5 @@ export const Label = styled.span`
     height: 10px;
     border-radius: 2px;
     display: inline-block;
-    background-color: ${props => props.color};
+    background-color: ${props => props.color};    
 `;

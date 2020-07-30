@@ -8,8 +8,9 @@ import { useUsuario } from '../../context/UsuarioContext';
 
 function Login() {
     const [usuarios, setUsuarios] = useState([]);
+    const { codigo, setCodigo, setNome, setFuncionario } = useUsuario();
+    const [usuarioLogin, setUsuarioLogin] = useState(codigo)
     const [senha, SetSenha] = useState('');  
-    const { setCodigo, setNome } = useUsuario();
     const history = useHistory();
     
     async function getUsuarios(){
@@ -25,7 +26,9 @@ function Login() {
         event.preventDefault();
         const indexUsuario = document.getElementById('usuarios').selectedIndex;
         const login_usu = usuarios[indexUsuario].login;
-        const codigoUsu = parseInt(usuarios[indexUsuario].codigo);
+        const codigoUsu = parseInt(usuarios[indexUsuario].usu_codigo);
+        const fun_codigo = parseInt(usuarios[indexUsuario].codigo);
+        setFuncionario(fun_codigo);
         const login = {
             login: login_usu,
             senha: senha
@@ -52,10 +55,10 @@ function Login() {
         <Container>
             <form onSubmit={fazerLogin}>
                 <img src={Logo} alt="Portal logo" />                        
-                <select name="usuarios" id="usuarios">
+                <select name="usuarios" id="usuarios" value={usuarioLogin} onChange={(e)=> setUsuarioLogin(e.target.value)}>
                     {
                         usuarios.length ?
-                            usuarios.map(usu => <option key={usu.codigo} value={usu.codigo}>{usu.login}</option>)
+                            usuarios.map(usu => <option key={usu.codigo} value={usu.usu_codigo}>{usu.login}</option>)
                         :  <h3>Carregando usuarios</h3>
                     }
                 </select>

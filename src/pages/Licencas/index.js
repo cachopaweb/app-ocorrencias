@@ -12,6 +12,13 @@ function Licencas() {
         setLicencas(response.data);
     }
 
+    function ordenarDataLimite(){
+       let licencas_ordenadas = licencas.sort((a, b)=>{
+            return (a.data_limite - b.data_limite)
+        });
+        setLicencas(licencas_ordenadas);
+    }
+
     useEffect(() => {
         fetchLicencas();
     }, [])
@@ -30,7 +37,7 @@ function Licencas() {
                                 <th>Senha</th>
                                 <th>Contrassenha</th>
                                 <th>Data Uso</th>
-                                <th>Data Limite</th>
+                                <th onClick={()=> ordenarDataLimite()}>Data Limite</th>
                                 <th>Num PCs</th>
                             </tr>
                         </thead>
@@ -43,7 +50,7 @@ function Licencas() {
                                             <td>{licenca.nome_cliente}</td>
                                             <td>{licenca.senha}</td>
                                             <td>{licenca.contra_senha}</td>
-                                            <td>{licenca.data_uso}</td>
+                                            <td>{new Date(licenca.data_uso).toLocaleDateString()}</td>
                                             <td>{licenca.data_limite}</td>
                                             <td>{licenca.pcs}</td>
                                         </tr>

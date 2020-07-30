@@ -8,7 +8,7 @@ import { useHistory, Link } from 'react-router-dom';
 import { useUsuario } from '../../context/UsuarioContext';
 import { MdScanner, MdCancel, MdClose } from 'react-icons/md'
 
-function Card({ cliente, contrato, ocorrencia, atendente = 0, nomeAtendente, cod_ocorrencia, data, showActions = true }) {
+function Card({ cliente, contrato, projeto_id, ocorrencia, atendente = 0, nomeAtendente, cod_ocorrencia, data, showActions = true }) {
   const [funAtendente, setFunAtendente] = useState(atendente);
   const [nome_atendente, setNome_Atendente] = useState(nomeAtendente);
   const { codigo, nome } = useUsuario();
@@ -87,8 +87,8 @@ function Card({ cliente, contrato, ocorrencia, atendente = 0, nomeAtendente, cod
           <div className="actions">
             <Button Icon={MdScanner} click={Atender} nome={"Atender"} color={"#F0F0F2"} corTexto={"black"} borderRadius={'30px'} />
             <Button Icon={MdCancel} click={finalizar} nome={"Fechar"} color={"#733130"} corTexto={"white"} borderRadius={'30px'} />
-            <Link to={{ pathname: '/aberturaOS', state: { cliente, contrato, ocorrencia, cod_ocorrencia, funAtendente } }} >
-              <Button Icon={MdClose} nome={"Abrir OS"} color={"#7FA66D"} corTexto={"white"} borderRadius={'30px'} />
+            <Link to={{ pathname: '/quadroScrum', state: { cliente, projeto_id, contrato, ocorrencia: cod_ocorrencia } }} >
+              <Button Icon={MdClose} nome={"Abrir Scrum"} color={"#7FA66D"} corTexto={"white"} borderRadius={'30px'} />
             </Link>
           </div>
           : null

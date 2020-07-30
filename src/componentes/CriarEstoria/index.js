@@ -7,22 +7,26 @@ import Button from '../Button';
 import api from '../../services/api';
 import { useUsuario } from '../../context/UsuarioContext';
 
-function CriarEstoria({ cliente, projeto_id, setModalActivate, atualizar }) {
+function CriarEstoria({ cliente, projeto_id = 0, setModalActivate, atualizar, cod_ocorrencia = 0 }) {
     const [prioridade, setprioridade] = useState(0);
+    const [ocorrencia, setOcorrencia] = useState(cod_ocorrencia)
     const [estoria, setEstoria] = useState('');
     const { codigo } = useUsuario();
+    const [ocorrencias, setOcorrencias] = useState([]);
 
     async function submitEstoria(e) {
         e.preventDefault();
         if (prioridade === 0) { swal('Informe uma prioridade!', 'qual a prioridade do que esta sendo pedido', 'warning'); return; }
         if (estoria === '') { swal('Informe uma estória!', 'descreva o que o cliente pede', 'warning'); return; }
         if (projeto_id === 0) { swal('Informe o projeto Scrum!', 'Id do Projeto é obrigatório', 'warning'); return; }
+        if (ocorrencia === 0) { swal('Informe uma ocorrência!', 'Id da ocorrência é obrigatório', 'warning'); return; }
         let dados = {
             Descricao: estoria,
             Necessidade: prioridade,
             Estado: "ABERTO",
             Cod_Projeto_Scrum: projeto_id,
-            Funcionario: codigo
+            Funcionario: codigo,
+            ocorrencia: ocorrencia
         }
         try {
             let response = await api.post('/backlog', dados);
@@ -37,6 +41,16 @@ function CriarEstoria({ cliente, projeto_id, setModalActivate, atualizar }) {
             swal(`Erro ao criar Estória. Erro ${error}!`, 'Algo deu errado', 'error')
         }
     }
+
+    async function fetchOcorrencias(){
+        let response = await api.get(`/Ocorrencias?projeto_id=${projeto_id}`);
+        setOcorrencias(response.data);
+    }
+
+    useEffect(()=>{
+        fetchOcorrencias();
+    }, [])
+
     
     return (
         <Container>
@@ -54,6 +68,15 @@ function CriarEstoria({ cliente, projeto_id, setModalActivate, atualizar }) {
                             <option value="1">BAIXA</option>                            
                             <option value="2">MÉDIA</option>                            
                             <option value="3">ALTA</option>                            
+                        </select>
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="ocorrencia">Ocorrência</label>
+                        <select id="prioridade" onChange={(e) => setOcorrencia(e.target.value)} value={ocorrencia}>
+                            <option value="0">Informe a Ocorrência</option>                            
+                            {
+                                ocorrencias.map((oco)=> <option key={oco.codigo} value={oco.codigo}>{`${oco.codigo} - ${oco.obs}`}</option>)
+                            }
                         </select>
                     </div>
                     <div className="form-group">

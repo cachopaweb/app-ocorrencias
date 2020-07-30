@@ -60,7 +60,7 @@ function Ocorrencias() {
           { 
               listaOcorrencias.length > 0 ? 
                 listaOcorrencias.map(
-                        oco => <Card key={oco.codigo} cliente={oco.cli_nome} contrato={oco.contrato} ocorrencia={oco.obs} atendente={oco.atendente} nomeAtendente={oco.fun_atendente} cod_ocorrencia={oco.codigo} data={converteData(oco.data)} />
+                        oco => <Card key={oco.codigo} cliente={oco.cli_nome} contrato={oco.contrato} projeto_id={oco.projeto_scrum} ocorrencia={oco.obs} atendente={oco.atendente} nomeAtendente={oco.fun_atendente} cod_ocorrencia={oco.codigo} data={converteData(oco.data)} />
                 ) 
               : 
               carregando ?
@@ -70,7 +70,7 @@ function Ocorrencias() {
       </Container>
       <Floating>
         {
-          <Button Icon={MdAdd} tamanho_icone={40} borderRadius={"40px"} corTexto={"white"} click={()=> history.push('/create')} />          
+          <Button Icon={MdAdd} tamanho_icone={40} borderRadius={"50%"} corTexto={"white"} click={()=> history.push('/create')} />          
         } 
       </Floating>
     </>

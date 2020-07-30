@@ -73,10 +73,18 @@ export default function CardSprint({ data, index, listIndex, cliente, contrato }
 
   function abrirOrdemServico(){
     let ocorrencia = "";
+    let codigos_ocorrencias = [];
     data.backlogs.map((backlog)=> {
-      ocorrencia += backlog.content + "\n"
+      ocorrencia += backlog.content + "\n";
+      codigos_ocorrencias.push(backlog.ocorrencia);
     });
-    history.push({ pathname: '/aberturaOS', state: { cliente: cliente, contrato: contrato, ocorrencia, cod_ocorrencia: 0, funAtendente: funcionario } })
+
+    
+    var prioridade = 1;
+    if (backlogs[0].labels[0] === 'green') { prioridade = 1 }
+    if (backlogs[0].labels[0] === 'blue') { prioridade = 2 }
+    if (backlogs[0].labels[0] === 'red') { prioridade = 3 }    
+    history.push({ pathname: '/aberturaOS', state: { cliente: cliente, contrato: contrato, ocorrencia, cod_ocorrencia: codigos_ocorrencias[0], funAtendente: funcionario, dataEntrega: data.dataEntrega, prioridade: prioridade, codSprint: data.id } })
   }
 
    return (
@@ -94,7 +102,7 @@ export default function CardSprint({ data, index, listIndex, cliente, contrato }
           backlogs.map((backlog, index)=> <CardSprintBacklog key={index} index={index} listIndex={listIndex} data={backlog} />)
         : <h3>Aguardando Backlogs...</h3>
       }
-      <Button Icon={MdClose} nome={"Abrir OS"} color={"#7FA66D"} corTexto={"white"} borderRadius={'30px'} click={()=> abrirOrdemServico()} disabled={backlogs.length === 0 || listIndex !== 1} />      
+      <Button Icon={MdClose} nome={"Abrir OS"} color={"#7FA66D"} corTexto={"white"} borderRadius={'30px'} click={()=> abrirOrdemServico()} disabled={data.ordem > 0 || backlogs.length === 0} />      
     </Container>
   );
 }

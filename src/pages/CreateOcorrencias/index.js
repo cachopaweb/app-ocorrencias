@@ -9,7 +9,8 @@ import { MdSave, MdCancel } from 'react-icons/md'
 import Header from '../../componentes/Header';
 
 function CreateOcorrencias() {
-  const [clientes, setClientes] = useState([]);
+  const [projetos_scrum, setProjetosScrum] = useState([]);
+  const [erro, setErro] = useState('Erro de Sistema')
   const { codigo } = useUsuario();
   const history = useHistory();
 
@@ -32,10 +33,10 @@ function CreateOcorrencias() {
 
   async function insereOcorrencia(event) {
     event.preventDefault();
-    const select = document.querySelector('#clientes');
+    const select = document.querySelector('#projetos_scrum');
     const index = select.selectedIndex;
     console.log(index);
-    const contrato = select.options[select.selectedIndex].value;
+    const cod_projeto_scrum = select.options[select.selectedIndex].value;
     const cliente = select.options[select.selectedIndex].innerText;
     const ocorrencia = document.querySelector('#ocorrencia');
     if (ocorrencia.value === '' ){
@@ -48,10 +49,11 @@ function CreateOcorrencias() {
       Funcionario: codigo,
       Modulo_Sistema: 1,
       Obs: ocorrencia.value,
-      Ocorrencia: "ERRO SISTEMA",
-      contrato: contrato,
+      Ocorrencia: erro.toUpperCase(),
+      contrato: projetos_scrum[select.selectedIndex].contrato,
       cli_nome: cliente,
-      codigo: 0
+      codigo: 0,
+      projeto_scrum: cod_projeto_scrum
     }
     console.log(create);
     const response = await api.post('/Ocorrencias', create);
@@ -68,8 +70,8 @@ function CreateOcorrencias() {
   }, [])
 
   async function getClientes() {
-    const response = await api.get('/Clientes');
-    setClientes(response.data);
+    const response = await api.get('/projetos_scrum');
+    setProjetosScrum(response.data);
   }
 
   function cancelar() {
@@ -83,21 +85,21 @@ function CreateOcorrencias() {
         <div id="form">
           <form onSubmit={insereOcorrencia}>
             <div className="form-group">
-            <label htmlFor="clientes">Escolha o cliente</label>
+            <label htmlFor="projetos_scrum">Escolha o cliente</label>
               {
-                clientes.length > 0 ?
-                  <select id="clientes" className="input-control" autoFocus={true}>
+                projetos_scrum.length > 0 ?
+                  <select id="projetos_scrum" className="input-control" autoFocus={true}>
                     {
-                      clientes.map(cliente => <option key={cliente.contrato} value={cliente.contrato}>{cliente.nome}</option>)
+                      projetos_scrum.map(projetos => <option key={projetos.contrato} value={projetos.ps_codigo}>{projetos.cli_nome}</option>)
                     }
                   </select>
-                  : <h3>Carregando clientes</h3>
+                  : <h3>Carregando projetos_scrum</h3>
               }
             </div>
             <div className="form-group">
               <label htmlFor="erro">Tipo de Erro</label>
               {            
-                <select id="erro" className="input-control">
+                <select id="erro" className="input-control" value={erro} onChange={(e)=> setErro(e.target.value)}>
                   {
                     tipo_erro.map(erro => <option key={erro.id} value={erro.tipo}>{erro.tipo}</option>)
                   }

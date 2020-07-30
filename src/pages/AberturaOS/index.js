@@ -14,26 +14,27 @@ import Header from '../../componentes/Header';
 registerLocale('pt-BR', pt_br);
 
 function AberturaOS() {
+    const { state } = useLocation();
     const [funcionarios, setFuncionarios] = useState([]);
-    const {codigo, nome } = useUsuario();
-    const [data, setData] = useState(new Date());
-    const [dataEntrega, setDataEntrega] = useState(new Date());
-    const [dataAnalise, setDataAnalise] = useState(new Date());
-    const [dataTeste, setDataTeste] = useState(new Date());
-    const [dataProgramacao, setDataProgramacao] = useState(new Date());
-    const [dataPrazoEntrega, setDataPrazoEntrega] = useState(new Date());
-    const [prioridadeProgramacao, setprioridadeProgramacao] = useState(1);
-    const [funAnalista, setFunAnalista] = useState(0);
+    const {codigo, nome, funcionario } = useUsuario();
+    const [data, setData] = useState(new Date(state.dataEntrega) || new Date());
+    const [dataEntrega, setDataEntrega] = useState(new Date(state.dataEntrega) || new Date());
+    const [dataAnalise, setDataAnalise] = useState(new Date(state.dataEntrega) || new Date());
+    const [dataTeste, setDataTeste] = useState(new Date(state.dataEntrega) ||new Date());
+    const [dataProgramacao, setDataProgramacao] = useState(new Date(state.dataEntrega) || new Date());
+    const [dataPrazoEntrega, setDataPrazoEntrega] = useState(new Date(state.dataEntrega) || new Date());
+    const [prioridadeProgramacao, setprioridadeProgramacao] = useState(parseInt(state.prioridade) || 1);
+    const [funAnalista, setFunAnalista] = useState(1);
     const [funProgramador, setFunProgramador] = useState(0);
-    const [funTeste, setfunTeste] = useState(0);
-    const [funEntrega, setfunEntrega] = useState(0);
+    const [funTeste, setfunTeste] = useState(funcionario || 0);
+    const [funEntrega, setfunEntrega] = useState(funcionario || 0);
     const [osModulos, setOSModulos] = useState([]);
     const [modulo, setModulo] = useState(1);
     const [estado, setEstado] = useState('ANALISADA');
-    const { state } = useLocation();
     const history = useHistory();
     const [descricaoOcorrencia, setDescricaoOcorrencia] = useState(state.ocorrencia);
-
+    const [codSprint, setCodSprint] = useState(state.codSprint || 0);
+    
     function changeData(date) {
         setData(date);
     };
@@ -81,7 +82,8 @@ function AberturaOS() {
         if (funProgramador === 0) { swal('Escolha o programador!', 'Informe o programador(a)', 'warning'); return; }
         if (funTeste === 0) { swal('Escolha quem vai testar!', 'Informe o testador', 'warning'); return; }
         if (funEntrega === 0) { swal('Escolha quem vai entregar!', 'Informe o entregador', 'warning'); return; }    
-        if (descricaoOcorrencia === '') { swal('Texto da ocorrência obrigatório!', 'Informe a ocorrência', 'warning'); return; }   
+        if (descricaoOcorrencia === '') { swal('Texto da ocorrência obrigatório!', 'Informe a ocorrência', 'warning'); return; }  
+        if (codSprint === 0)  { swal('Identificador da Sprint não encontrado!', 'Identificador Sprint Obrigatório!', 'warning'); return;}
         const ordem = {
             fun_abertura: codigo,
             contrato: state.contrato,
@@ -100,10 +102,11 @@ function AberturaOS() {
             fun_atendente: nome,
             prioridade: prioridadeProgramacao,
             codigo_ocorrencia: state.cod_ocorrencia,
-            os_modulo: modulo
+            os_modulo: modulo,
+            codSprint
         }
         let response = await api.post('/Ordens', ordem);
-        if (!response.data.error) {
+        if (response.status !== 400) {
             swal(`Ordem ${response.data.ordem} criada com sucesso!`, "Bom trabalho", "success");
             const request = {
                 fun_codigo: codigo,
@@ -209,7 +212,7 @@ function AberturaOS() {
                             <label htmlFor="clientes">Analista</label>
                             {
                                 funcionarios.length > 0 ?
-                                    <select id="clientes" className="input-control" onChange={(e) => changeFunAnalista(e.target.value)}>
+                                    <select id="clientes" className="input-control" onChange={(e) => changeFunAnalista(e.target.value)} value={funAnalista}>
                                         <option key={0} value={0}>Escolha o analista</option>
                                         {                                            
                                             funcionarios.filter((fun) => (fun.categoria === 'ADM'))
@@ -225,7 +228,7 @@ function AberturaOS() {
                             <label htmlFor="clientes">Programador(a)</label>
                             {
                                 funcionarios.length > 0 ?
-                                    <select id="clientes" className="input-control" onChange={(e) => changeFunProgramador(e.target.value)}>
+                                    <select id="clientes" className="input-control" onChange={(e) => changeFunProgramador(e.target.value)} value={funProgramador}>
                                         <option key={0} value={0}>Escolha o(a) programador(a)</option>
                                         {
                                             funcionarios.filter((fun) => (fun.categoria.substring(0, 8) === 'PROGRAMA'))
@@ -241,7 +244,7 @@ function AberturaOS() {
                             <label htmlFor="clientes">Teste</label>
                             {
                                 funcionarios.length > 0 ?
-                                    <select id="clientes" className="input-control" onChange={(e) => changeFunTeste(e.target.value)}>
+                                    <select id="clientes" className="input-control" onChange={(e) => changeFunTeste(e.target.value)} value={funTeste}>
                                         <option key={0} value={0}>Escolha quem vai Testar</option>
                                         {
                                             funcionarios.filter((fun) => (fun.categoria === 'SUPORTE'))
@@ -257,7 +260,7 @@ function AberturaOS() {
                             <label htmlFor="clientes">Entrega</label>
                             {
                                 funcionarios.length > 0 ?
-                                    <select id="clientes" className="input-control" onChange={(e) => changeFunEntrega(e.target.value)}>
+                                    <select id="clientes" className="input-control" onChange={(e) => changeFunEntrega(e.target.value)} value={funEntrega}>
                                         <option key={0} value={0}>Escolha quem vai entregar</option>
                                         {
                                             funcionarios.filter((fun) => (fun.categoria === 'SUPORTE'))

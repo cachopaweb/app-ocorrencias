@@ -11,7 +11,7 @@ import QuadroScrumContext from '../QuadroScrum/context';
 import CardBacklog from '../CardBacklog';
 import api from '../../services/api';
 
-export default function Lista({ data, index: listIndex, cliente, projeto_id, contrato, update }) {
+export default function Lista({ data, index: listIndex, cliente, projeto_id, contrato, ocorrencia, update }) {
   const [modalCriarEstoria, setModalCriarEstoria] = useState(false);
   const [modalCriarSprint, setModalCriarSprint] = useState(false);
   const { setAtualizar } = useContext(QuadroScrumContext);
@@ -99,7 +99,7 @@ export default function Lista({ data, index: listIndex, cliente, projeto_id, con
       {
         modalCriarEstoria &&
         <Modal activate={modalCriarEstoria} setActivate={setModalCriarEstoria}>
-          <CriarEstoria cliente={cliente} projeto_id={projeto_id} setModalActivate={setModalCriarEstoria} atualizar={dispararAtualizacao} />
+          <CriarEstoria cliente={cliente} cod_ocorrencia={ocorrencia} projeto_id={projeto_id} setModalActivate={setModalCriarEstoria} atualizar={dispararAtualizacao} />
         </Modal>      
       }
       {

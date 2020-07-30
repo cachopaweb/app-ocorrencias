@@ -12,6 +12,10 @@ export const Container = styled.div`
   header{
       position: absolute;
       top: -22px;
+
+      #ocorrencia{
+        margin-left: 10px;
+      }
   }  
 
   p{

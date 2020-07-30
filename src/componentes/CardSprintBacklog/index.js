@@ -16,6 +16,7 @@ function CardSprintBacklog({ data, index, listIndex }) {
         <Container ref={dragRef} isDragging={isDragging}>
             <header>
                 {data.labels.map(label => <Label key={label} color={label} />)}
+                <span id="ocorrencia">{`Cod. Ocorrencia: ${data.ocorrencia}`}</span>
             </header>
             <p>{data.content}</p>
             {data.user && <img src={data.user} alt="Avatar" />}

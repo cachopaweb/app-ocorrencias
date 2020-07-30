@@ -12,6 +12,7 @@ export default function UsuarioProvider({ children }){
 
     const [codigo, setCodigo] = useState(codigo_local);
     const [nome, setNome] = useState(nome_local);
+    const [funcionario, setFuncionario] = useState(0);
 
     
     return (
@@ -19,7 +20,9 @@ export default function UsuarioProvider({ children }){
             codigo,
             setCodigo,
             nome,
-            setNome
+            setNome,
+            funcionario,
+            setFuncionario
          }}>
             {children}
         </UsuarioContext.Provider>
@@ -28,12 +31,12 @@ export default function UsuarioProvider({ children }){
 
 export function useUsuario(){
     const context = useContext(UsuarioContext);
-    const { codigo, setCodigo, nome, setNome } = context;    
+    const { codigo, setCodigo, nome, setNome, funcionario, setFuncionario } = context;    
     if (codigo > 0) {
         localStorage.setItem('usuario_logado', JSON.stringify({
             codigo: codigo,
             nome: nome
         }))
     }
-    return { codigo, setCodigo, nome, setNome };
+    return { codigo, setCodigo, nome, setNome, funcionario, setFuncionario };
 }

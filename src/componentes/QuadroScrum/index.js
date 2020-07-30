@@ -12,7 +12,7 @@ export default function QuadroScrum() {
   const [lista, setLista] = useState([]);
   const [atualizar, setAtualizar] = useState(false);
   const { state } = useLocation();
-  const { cliente, projeto_id, contrato } = state;
+  const { cliente, projeto_id, contrato, ocorrencia } = state;
 
   async function fetchQuadroScrum(){
     let response = await api.get(`/quadroScrum?projeto_id=${projeto_id}`);
@@ -43,7 +43,7 @@ export default function QuadroScrum() {
     <BoardContext.Provider value={{ lista, move, setAtualizar }}>
       <Header title={`Scrum ${cliente}`} />
       <Container>
-        {lista.map((lista, index) => <Lista key={lista.title} index={index} data={lista} cliente={cliente} projeto_id={projeto_id} contrato={contrato} update={setAtualizar} />)}
+        {lista.map((lista, index) => <Lista key={lista.title} index={index} data={lista} cliente={cliente} projeto_id={projeto_id} contrato={contrato} ocorrencia={ocorrencia} update={setAtualizar} />)}
       </Container>
     </BoardContext.Provider>
   );
