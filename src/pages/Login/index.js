@@ -8,8 +8,8 @@ import { useUsuario } from '../../context/UsuarioContext';
 
 function Login() {
     const [usuarios, setUsuarios] = useState([]);
-    const { codigo, setCodigo, setNome, setFuncionario } = useUsuario();
-    const [usuarioLogin, setUsuarioLogin] = useState(codigo)
+    const { usu_codigo, setUsu_codigo, setLogin, setCod_funcionario } = useUsuario();
+    const [usuarioLogin, setUsuarioLogin] = useState(usu_codigo)
     const [senha, SetSenha] = useState('');  
     const history = useHistory();
     
@@ -27,8 +27,7 @@ function Login() {
         const indexUsuario = document.getElementById('usuarios').selectedIndex;
         const login_usu = usuarios[indexUsuario].login;
         const codigoUsu = parseInt(usuarios[indexUsuario].usu_codigo);
-        const fun_codigo = parseInt(usuarios[indexUsuario].codigo);
-        setFuncionario(fun_codigo);
+        const fun_codigo = parseInt(usuarios[indexUsuario].codigo);        
         const login = {
             login: login_usu,
             senha: senha
@@ -42,8 +41,10 @@ function Login() {
             }
             localStorage.setItem('usuario_logado', JSON.stringify(usuario));  
             //useUsuario
-            setCodigo(codigoUsu);
-            setNome(login_usu);
+            setUsu_codigo(codigoUsu);
+            // console.log("funcionario: "+fun_codigo)
+            setCod_funcionario(fun_codigo);        
+            setLogin(login_usu);
             history.push('/ocorrencias')          
         }else{
             alert('Usuario nao permitido!')

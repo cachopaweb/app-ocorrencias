@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import { MdPerson, MdAccountCircle, MdSpeakerNotes, MdSpeakerNotesOff, MdAlarmOn, MdLockOpen, MdAddBox  } from 'react-icons/md';
 
 function Header({title}) {
-  const { codigo, nome } = useUsuario();
+  const { usu_codigo, login } = useUsuario();
   const [showMenu, setshowMenu] = useState(true);
   return (
     <Container>
@@ -25,7 +25,7 @@ function Header({title}) {
                 <li><Link to={'/ordensAndamento'} onClick={()=> setshowMenu(!showMenu)}><MdAlarmOn /> Ordens</Link></li>
                 <li><Link to={'/licencas'} onClick={()=> setshowMenu(!showMenu)}><MdLockOpen /> Licenças</Link></li>
                 <li><Link to={'/scrum'} onClick={()=> setshowMenu(!showMenu)}><MdAddBox /> SCRUM</Link></li>
-                {codigo !== 0 ? <li><MdAccountCircle /> {nome}</li> : <li><MdAccountCircle /> Não logado</li>}
+                {usu_codigo !== 0 ? <li><MdAccountCircle /> {login}</li> : <li><MdAccountCircle /> Não logado</li>}
               </ul>             
           </nav>
         </div>

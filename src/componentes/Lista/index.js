@@ -23,7 +23,7 @@ export default function Lista({ data, index: listIndex, cliente, projeto_id, con
 
   async function AtualizarEstadoSprint(codigo, estado){
     let response = await api.put(`/sprint/${codigo}`, {Estado: estado});
-    if (response.data.NOVO_ESTADO != ''){
+    if (response.data.NOVO_ESTADO !== ''){
       setAtualizar(true);
     }
   }
@@ -38,7 +38,7 @@ export default function Lista({ data, index: listIndex, cliente, projeto_id, con
     if (index === 1) { estado = "A FAZER"}
     if (index === 2) { estado = "EM ANDAMENTO"}
     if (index === 3) { estado = "REVISAO"}
-    if (index === 4) { estado = "ENTREGA"}
+    if (index === 4) { estado = "ENTREGUE"}
     return estado;
   }
 

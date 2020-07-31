@@ -11,7 +11,7 @@ function CriarEstoria({ cliente, projeto_id = 0, setModalActivate, atualizar, co
     const [prioridade, setprioridade] = useState(0);
     const [ocorrencia, setOcorrencia] = useState(cod_ocorrencia)
     const [estoria, setEstoria] = useState('');
-    const { codigo } = useUsuario();
+    const { cod_funcionario } = useUsuario();
     const [ocorrencias, setOcorrencias] = useState([]);
 
     async function submitEstoria(e) {
@@ -25,7 +25,7 @@ function CriarEstoria({ cliente, projeto_id = 0, setModalActivate, atualizar, co
             Necessidade: prioridade,
             Estado: "ABERTO",
             Cod_Projeto_Scrum: projeto_id,
-            Funcionario: codigo,
+            Funcionario: cod_funcionario,
             ocorrencia: ocorrencia
         }
         try {
@@ -49,7 +49,7 @@ function CriarEstoria({ cliente, projeto_id = 0, setModalActivate, atualizar, co
 
     useEffect(()=>{
         fetchOcorrencias();
-    }, [])
+    })
 
     
     return (

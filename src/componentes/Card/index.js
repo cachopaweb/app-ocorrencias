@@ -4,30 +4,30 @@ import swal from 'sweetalert';
 import { Container } from './styles';
 import Button from '../Button';
 import api from '../../services/api';
-import { useHistory, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useUsuario } from '../../context/UsuarioContext';
 import { MdScanner, MdCancel, MdClose } from 'react-icons/md'
 
 function Card({ cliente, contrato, projeto_id, ocorrencia, atendente = 0, nomeAtendente, cod_ocorrencia, data, showActions = true }) {
   const [funAtendente, setFunAtendente] = useState(atendente);
   const [nome_atendente, setNome_Atendente] = useState(nomeAtendente);
-  const { codigo, nome } = useUsuario();
+  const { usu_codigo, login } = useUsuario();
   const [fechada, setFechada] = useState(false);
 
   async function Atender() {
     const request = {
-      fun_codigo: codigo
+      fun_codigo: usu_codigo
     }
     const response = await api.put('/Ocorrencias/' + cod_ocorrencia, JSON.stringify(request));
     if (response.data.fun_codigo > 0) {
       setFunAtendente(response.data.fun_codigo)
-      setNome_Atendente(nome);
+      setNome_Atendente(login);
     }
   }
 
   async function fecharOcorrencia(tempo){    
     const request = {
-      fun_codigo: codigo,
+      fun_codigo: usu_codigo,
       finalizada: 'S',
       tempoAtendimento: tempo
     }

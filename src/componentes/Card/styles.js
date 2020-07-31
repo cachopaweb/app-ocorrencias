@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 export const Container = styled.div`
-  background-color: ${props => props.atendente != 0 ? "white" : "#B2D9A0" };
+  background-color: ${props => props.atendente !== 0 ? "white" : "#B2D9A0" };
   color: #323540;
   display: flex;
   flex-direction: column;

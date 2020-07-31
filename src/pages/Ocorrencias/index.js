@@ -14,7 +14,7 @@ function Ocorrencias() {
   const [carregando, setCarregando] = useState(false);
   const [filtrado, setFiltrado] = useState(false);
   const history = useHistory();
-  const { codigo } = useUsuario();
+  const { cod_funcionario } = useUsuario();
 
   async function fetchData() {
     setCarregando(true);
@@ -40,7 +40,7 @@ function Ocorrencias() {
   async function filtrarPorUsuario(){
     if (!filtrado){
       let lista = await listaOcorrencias.filter((ocorrencia)=> {
-        return (ocorrencia.atendente == codigo)
+        return (ocorrencia.atendente === cod_funcionario)
       });
       setListaOcorrencias(lista);
       setFiltrado(true);

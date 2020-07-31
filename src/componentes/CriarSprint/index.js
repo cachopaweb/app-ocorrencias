@@ -5,14 +5,12 @@ import swal from 'sweetalert';
 import { Container } from './styles';
 import Button from '../Button';
 import api from '../../services/api';
-import { useUsuario } from '../../context/UsuarioContext';
 
 function CriarSprint({ cliente, projeto_id, setModalActivate, atualizar }) {
     const [prazoSprint, setPrazoSprint] = useState([]);
     const [tipoPrazoEscolhido, setTipoPrazoEscolhido] = useState(0);
     const [prioridade, setprioridade] = useState(0);
     const [descricao, setDescricao] = useState('');
-    const { codigo } = useUsuario();
 
     async function fetchPrazoSprint() {
         let response = await api.get('/prazo_sprint');

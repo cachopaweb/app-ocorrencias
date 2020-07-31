@@ -17,7 +17,7 @@ export default function CardSprint({ data, index, listIndex, cliente, contrato }
   const ref = useRef();
   const { move, setAtualizar } = useContext(QuadroScrumContext);
   const history = useHistory();
-  const { codigo: funcionario } = useUsuario();
+  const { cod_funcionario } = useUsuario();
 
   const [{ isDragging }, dragRef] = useDrag({
     item: { type: 'CARD_SPRINT', index, listIndex, data },
@@ -84,7 +84,7 @@ export default function CardSprint({ data, index, listIndex, cliente, contrato }
     if (backlogs[0].labels[0] === 'green') { prioridade = 1 }
     if (backlogs[0].labels[0] === 'blue') { prioridade = 2 }
     if (backlogs[0].labels[0] === 'red') { prioridade = 3 }    
-    history.push({ pathname: '/aberturaOS', state: { cliente: cliente, contrato: contrato, ocorrencia, cod_ocorrencia: codigos_ocorrencias[0], funAtendente: funcionario, dataEntrega: data.dataEntrega, prioridade: prioridade, codSprint: data.id } })
+    history.push({ pathname: '/aberturaOS', state: { cliente: cliente, contrato: contrato, ocorrencia, cod_ocorrencia: codigos_ocorrencias[0], funAtendente: cod_funcionario, dataEntrega: data.dataEntrega, prioridade: prioridade, codSprint: data.id } })
   }
 
    return (

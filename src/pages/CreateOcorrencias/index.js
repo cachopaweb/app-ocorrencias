@@ -11,7 +11,7 @@ import Header from '../../componentes/Header';
 function CreateOcorrencias() {
   const [projetos_scrum, setProjetosScrum] = useState([]);
   const [erro, setErro] = useState('Erro de Sistema')
-  const { codigo } = useUsuario();
+  const { cod_funcionario } = useUsuario();
   const history = useHistory();
 
   const tipo_erro = [
@@ -24,9 +24,9 @@ function CreateOcorrencias() {
   function dataAtualFormatada() {
     var data = new Date(),
       dia = data.getDate().toString(),
-      diaF = (dia.length == 1) ? '0' + dia : dia,
+      diaF = (dia.length === 1) ? '0' + dia : dia,
       mes = (data.getMonth() + 1).toString(), //+1 pois no getMonth Janeiro começa com zero.
-      mesF = (mes.length == 1) ? '0' + mes : mes,
+      mesF = (mes.length === 1) ? '0' + mes : mes,
       anoF = data.getFullYear();
     return diaF + "/" + mesF + "/" + anoF;
   }
@@ -46,7 +46,7 @@ function CreateOcorrencias() {
     const create = {
       Data: dataAtualFormatada(),
       Finalizada: null,
-      Funcionario: codigo,
+      Funcionario: cod_funcionario,
       Modulo_Sistema: 1,
       Obs: ocorrencia.value,
       Ocorrencia: erro.toUpperCase(),
@@ -55,7 +55,7 @@ function CreateOcorrencias() {
       codigo: 0,
       projeto_scrum: cod_projeto_scrum
     }
-    console.log(create);
+    // console.log(create);
     const response = await api.post('/Ocorrencias', create);
     if (!response.error) {
       swal("Ocorrência aberta com sucesso!", "Bom trabalho", "success");  

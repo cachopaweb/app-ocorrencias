@@ -16,7 +16,7 @@ registerLocale('pt-BR', pt_br);
 function AberturaOS() {
     const { state } = useLocation();
     const [funcionarios, setFuncionarios] = useState([]);
-    const {codigo, nome, funcionario } = useUsuario();
+    const { login, cod_funcionario } = useUsuario();
     const [data, setData] = useState(new Date(state.dataEntrega) || new Date());
     const [dataEntrega, setDataEntrega] = useState(new Date(state.dataEntrega) || new Date());
     const [dataAnalise, setDataAnalise] = useState(new Date(state.dataEntrega) || new Date());
@@ -26,14 +26,14 @@ function AberturaOS() {
     const [prioridadeProgramacao, setprioridadeProgramacao] = useState(parseInt(state.prioridade) || 1);
     const [funAnalista, setFunAnalista] = useState(1);
     const [funProgramador, setFunProgramador] = useState(0);
-    const [funTeste, setfunTeste] = useState(funcionario || 0);
-    const [funEntrega, setfunEntrega] = useState(funcionario || 0);
+    const [funTeste, setfunTeste] = useState(cod_funcionario || 0);
+    const [funEntrega, setfunEntrega] = useState(cod_funcionario || 0);
     const [osModulos, setOSModulos] = useState([]);
     const [modulo, setModulo] = useState(1);
     const [estado, setEstado] = useState('ANALISADA');
     const history = useHistory();
     const [descricaoOcorrencia, setDescricaoOcorrencia] = useState(state.ocorrencia);
-    const [codSprint, setCodSprint] = useState(state.codSprint || 0);
+    const [codSprint, ] = useState(state.codSprint || 0);
     
     function changeData(date) {
         setData(date);
@@ -85,7 +85,7 @@ function AberturaOS() {
         if (descricaoOcorrencia === '') { swal('Texto da ocorrência obrigatório!', 'Informe a ocorrência', 'warning'); return; }  
         if (codSprint === 0)  { swal('Identificador da Sprint não encontrado!', 'Identificador Sprint Obrigatório!', 'warning'); return;}
         const ordem = {
-            fun_abertura: codigo,
+            fun_abertura: cod_funcionario,
             contrato: state.contrato,
             ocorrencia: descricaoOcorrencia,
             fun_analise: funAnalista,
@@ -99,7 +99,7 @@ function AberturaOS() {
             data_entrega_analise: dataAnalise.toLocaleDateString(),
             data_entrega_programacao: dataProgramacao.toLocaleDateString(),
             data_entrega_teste: dataTeste.toLocaleDateString(),
-            fun_atendente: nome,
+            fun_atendente: login,
             prioridade: prioridadeProgramacao,
             codigo_ocorrencia: state.cod_ocorrencia,
             os_modulo: modulo,
@@ -109,7 +109,7 @@ function AberturaOS() {
         if (response.status !== 400) {
             swal(`Ordem ${response.data.ordem} criada com sucesso!`, "Bom trabalho", "success");
             const request = {
-                fun_codigo: codigo,
+                fun_codigo: cod_funcionario,
                 finalizada: 'S'
             }
             response = await api.put('/Ocorrencias/' + ordem.codigo_ocorrencia, JSON.stringify(request));
@@ -174,7 +174,7 @@ function AberturaOS() {
                         </div>
                         <div className="form-group">
                             <label htmlFor="nome">Atendente</label>
-                            <input id="nome" className="input-control" type="text" value={nome} disabled />
+                            <input id="nome" className="input-control" type="text" value={login} disabled />
                         </div>
                         <div className="form-group">
                             <label htmlFor="modulo">Módulo do Sistema</label>
