@@ -14,7 +14,7 @@ import OrdemDetalhe from '../pages/OrdemDetalhe';
 import Licencas from '../pages/Licencas';
 import Scrum from '../pages/Scrum';
 import QuadroScrum from '../componentes/QuadroScrum';
-// import Burndown from '../componentes/Burndown';
+import Burndown from '../componentes/Burndown';
 
 const PrivateRoute = ({ component: Component, ...rest }) => {
   const { usu_codigo } = useUsuario();
@@ -49,7 +49,7 @@ function Routes() {
             <PrivateRoute path='/licencas' component={Licencas} />
             <PrivateRoute path='/scrum' component={Scrum} />
             <PrivateRoute path='/quadroScrum' component={QuadroScrum} />            
-            {/* <PrivateRoute path='/burndown' component={Burndown} />             */}
+            <PrivateRoute path='/burndown' component={Burndown} />            
             <Route path="*" component={() => <h1>Pagina nao encontrada</h1>} />
         </Switch>
     </Router>

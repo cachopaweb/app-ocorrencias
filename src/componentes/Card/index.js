@@ -11,12 +11,12 @@ import { MdScanner, MdCancel, MdClose } from 'react-icons/md'
 function Card({ cliente, contrato, projeto_id, ocorrencia, atendente = 0, nomeAtendente, cod_ocorrencia, data, showActions = true }) {
   const [funAtendente, setFunAtendente] = useState(atendente);
   const [nome_atendente, setNome_Atendente] = useState(nomeAtendente);
-  const { usu_codigo, login } = useUsuario();
+  const { cod_funcionario, login } = useUsuario();
   const [fechada, setFechada] = useState(false);
 
   async function Atender() {
     const request = {
-      fun_codigo: usu_codigo
+      fun_codigo: cod_funcionario
     }
     const response = await api.put('/Ocorrencias/' + cod_ocorrencia, JSON.stringify(request));
     if (response.data.fun_codigo > 0) {
@@ -27,7 +27,7 @@ function Card({ cliente, contrato, projeto_id, ocorrencia, atendente = 0, nomeAt
 
   async function fecharOcorrencia(tempo){    
     const request = {
-      fun_codigo: usu_codigo,
+      fun_codigo: cod_funcionario,
       finalizada: 'S',
       tempoAtendimento: tempo
     }

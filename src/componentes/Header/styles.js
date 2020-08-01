@@ -12,6 +12,7 @@ export const Container = styled.header`
    width: 100vw;
    h1{
        margin-left: 20px;
+       font-size: 1.2rem;
    }
    ul{
        margin-right: 30px;
