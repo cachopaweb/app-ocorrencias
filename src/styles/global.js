@@ -23,10 +23,14 @@ export default createGlobalStyle`
 
     ul{
         list-style: none;
-    }   
+    }  
+
+    a{
+       cursor: grabbing;
+    } 
 
     :root{
         --primary-color: #323540;
-        --secondary-color: #B2D9A0;
+        --secondary-color: #B2D9A0;        
     }
 `;

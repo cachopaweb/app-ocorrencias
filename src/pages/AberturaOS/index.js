@@ -17,9 +17,9 @@ function AberturaOS() {
     const { state } = useLocation();
     const [funcionarios, setFuncionarios] = useState([]);
     const { login, cod_funcionario } = useUsuario();
-    const [data, setData] = useState(new Date(state.dataEntrega) || new Date());
+    const [data, setData] = useState(new Date());
     const [dataEntrega, setDataEntrega] = useState(new Date(state.dataEntrega) || new Date());
-    const [dataAnalise, setDataAnalise] = useState(new Date(state.dataEntrega) || new Date());
+    const [dataAnalise, setDataAnalise] = useState(new Date());
     const [dataTeste, setDataTeste] = useState(new Date(state.dataEntrega) ||new Date());
     const [dataProgramacao, setDataProgramacao] = useState(new Date(state.dataEntrega) || new Date());
     const [dataPrazoEntrega, setDataPrazoEntrega] = useState(new Date(state.dataEntrega) || new Date());
@@ -197,7 +197,7 @@ function AberturaOS() {
                         <div className="form-group">
                             <label htmlFor="prioridade">Prioriodade</label>
                             {
-                                <select id="prioridade" className="input-control" onChange={(e) => changePrioridade(e.target.value)}>
+                                <select id="prioridade" className="input-control" value={prioridadeProgramacao} onChange={(e) => changePrioridade(e.target.value)}>
                                     {
                                         priopridade.map(prior => <option key={prior.id} value={prior.id}>{prior.nome}</option>)
                                     }

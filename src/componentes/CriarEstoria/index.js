@@ -8,11 +8,12 @@ import api from '../../services/api';
 import { useUsuario } from '../../context/UsuarioContext';
 
 function CriarEstoria({ cliente, projeto_id = 0, setModalActivate, atualizar, cod_ocorrencia = 0 }) {
-    const [prioridade, setprioridade] = useState(0);
+    const [prioridade, setprioridade] = useState(2);
     const [ocorrencia, setOcorrencia] = useState(cod_ocorrencia)
     const [estoria, setEstoria] = useState('');
     const { cod_funcionario } = useUsuario();
     const [ocorrencias, setOcorrencias] = useState([]);
+    const [titulo, setTitulo] = useState('');
 
     async function submitEstoria(e) {
         e.preventDefault();
@@ -26,7 +27,8 @@ function CriarEstoria({ cliente, projeto_id = 0, setModalActivate, atualizar, co
             Estado: "ABERTO",
             Cod_Projeto_Scrum: projeto_id,
             Funcionario: cod_funcionario,
-            ocorrencia: ocorrencia
+            ocorrencia,
+            titulo
         }
         try {
             let response = await api.post('/backlog', dados);
@@ -49,7 +51,7 @@ function CriarEstoria({ cliente, projeto_id = 0, setModalActivate, atualizar, co
 
     useEffect(()=>{
         fetchOcorrencias();
-    })
+    }, [])
 
     
     return (
@@ -80,11 +82,15 @@ function CriarEstoria({ cliente, projeto_id = 0, setModalActivate, atualizar, co
                         </select>
                     </div>
                     <div className="form-group">
+                        <label htmlFor="titulo">Título</label>
+                        <input id="titulo" className="input-control" type="text" value={titulo} onChange={(e)=> setTitulo(e.target.value)} />
+                    </div>
+                    <div className="form-group">
                         <label htmlFor="estoria">Estória</label>
                         <textarea className="input-control" type="text" name="estoria" id="estoria" placeholder="informe a estória" onChange={(e) => setEstoria(e.target.value)} />
                     </div>
                     <div className="action">
-                        <Button Icon={MdCancel} click={() => { }} nome={"Cancelar"} color={"red"} corTexto={"white"} borderRadius={'30px'} />
+                        <Button Icon={MdCancel} click={() => setModalActivate(false)} nome={"Cancelar"} color={"red"} corTexto={"white"} borderRadius={'30px'} />
                         <Button Icon={MdSave} click={() => { }} nome={"Salvar"} color={"green"} corTexto={"white"} borderRadius={'30px'} />
                     </div>
                 </form>

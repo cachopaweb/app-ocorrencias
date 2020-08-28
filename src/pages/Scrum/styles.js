@@ -4,7 +4,15 @@ export const Container = styled.div`
     display: grid;
     grid-template-columns: auto auto auto auto;
     max-width: 800px;
-    margin: 0 auto;    
+    margin: 0 auto;   
+
+    @media (max-width: 705px) {
+        grid-template-columns: auto auto auto;         
+    }
+
+    @media (max-width: 525px) {
+        grid-template-columns: auto auto;         
+    }
 `;
 
 export const Pesquisa = styled.div`

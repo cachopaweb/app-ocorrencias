@@ -9,6 +9,7 @@ export const Container = styled.div`
   padding: 15px;
   box-shadow: 0 1px 4px 0 rgb(192, 208, 230, 0.8);
   border-top: 20px solid rgb(230, 236, 245, 0.4);
+ 
   header{
       position: absolute;
       top: -22px;
@@ -20,6 +21,21 @@ export const Container = styled.div`
 
   p{
     font-weight: 500;
+    text-justify: distribute;
+    white-space: pre-wrap;
+    width: 100%;
+  }
+
+  .conteudo{
+    display: none;
+    transition: 0.6s display;
+    height: auto; 
+  }  
+
+  :hover{
+    .conteudo{
+      display: block;
+    }
   }
 
   img{
@@ -40,7 +56,7 @@ export const Container = styled.div`
     p, img, span{
       opacity: 0;
     }
-  `}
+  `} 
 `;
 
 export const Label = styled.span`

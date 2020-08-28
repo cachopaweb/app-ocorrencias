@@ -47,6 +47,7 @@ export default function Lista({ data, index: listIndex, cliente, projeto_id, con
     drop(item, monitor) {        
       if (listIndex === 0) return;
       AtualizarEstadoSprint(item.data.id, indexToEstado(listIndex));
+      setAtualizar(true)
     },
   })
 

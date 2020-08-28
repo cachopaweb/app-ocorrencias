@@ -8,14 +8,22 @@ export const Container = styled.div`
   color: black;
   padding: 15px;
   box-shadow: 0 1px 4px 0 rgb(192, 208, 230, 0.8);
-  border-top: 20px solid rgb(230, 236, 245, 0.4);
+  border-top: 20px solid rgb(230, 236, 245, 0.4); 
+  transition: width 0.6s;
   header{
       position: absolute;
       top: -22px;
   }  
 
+  :hover{
+      width: 500px;
+  }
+
   p{
     font-weight: 500;
+    text-justify: distribute;
+    white-space: pre-wrap;
+    width: 100%;
   }
 
   img{

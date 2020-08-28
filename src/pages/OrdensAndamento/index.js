@@ -12,6 +12,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { registerLocale } from 'react-datepicker';
 import pt_br from 'date-fns/locale/pt-BR';
+import Modal from '../../componentes/Modal';
 
 registerLocale('pt-BR', pt_br);
 
@@ -19,49 +20,46 @@ function OrdensAndamento() {
     const [ordens, SetOrdens] = useState([]);
     const { cod_funcionario } = useUsuario();
     const [dataPrazoEntrega, setDataPrazoEntrega] = useState(new Date());
+    const [dataAlterada, setDataAlterada] = useState(false);
+    const [modalAtivo, setModalAtivo] = useState(false);
+    const [ordCodigo, setOrdCodigo] = useState(0);
+    const [dataAntiga, setDataAntiga] = useState('');
 
     async function CarregaDadosOcorrencias() {
         let response = await api.get('/Ordens');
         SetOrdens(response.data);
     }
 
-    function changePrazoEntrega(date) {
-        setDataPrazoEntrega(date);
+    function changePrazoEntrega(data) {
+        setDataPrazoEntrega(new Date(data));
     }
 
     function modalPrazoEntrega(ord_codigo, prazoAnterior) {
-        swal(
-            {
-                text: "Informe o novo prazo de Entrega!",
-                buttons: {
-                    cancel: "Close",
-                },
-                content: (
-                    <div className="card">
-                        <DatePicker dateFormat="dd/MM/yyyy" locale='pt-BR' selected={dataPrazoEntrega} onChange={changePrazoEntrega} />
-                        <button onClick={() => atualizarPrazoEntrega(ord_codigo, prazoAnterior)}><MdSave /> Salvar</button>
-                    </div>
-                )
-            }
-        );
+        setOrdCodigo(ord_codigo);
+        setDataAntiga(new Date(prazoAnterior).toLocaleDateString());
+        setModalAtivo(true)       
     }
 
-    async function atualizarPrazoEntrega(ord_codigo, prazoAnterior) {
+    async function atualizarPrazoEntrega() {
+        if (ordCodigo === 0) { swal('Codigo da Ordem é obrigatório!', 'Click em uma ordem de serviço', 'warning'); return; }
         let data = {
             Funcionario: cod_funcionario,
-            Ordem: ord_codigo,
-            PrazoAnterior: prazoAnterior,
+            Ordem: ordCodigo,
+            PrazoAnterior: dataAntiga,
             PrazoNovo: dataPrazoEntrega.toLocaleDateString()
         }
-        let response = await api.put(`/Ordens/${ord_codigo}`, data);
-        if (!response.data.error) {
+        let response = await api.put(`/Ordens/${ordCodigo}`, data);
+        if (response.status == 200) {                
             swal('Prazo entrega atualizado com sucesso!', `Código histórico ${response.data.Historico}`, 'success')
+            setDataAlterada(true)
+        }else{
+            swal('Erro ao atualizar prazo de entrega!', `erro ${response.data.error}`, 'error')             
         }
     }
 
     useEffect(() => {
         CarregaDadosOcorrencias()
-    }, [])
+    }, [dataAlterada])
 
     return (
         <>
@@ -89,7 +87,7 @@ function OrdensAndamento() {
                                 ordens.map((ordem) => (
                                     <tbody>
                                         <tr>
-                                            <th>{new Date(ordem.prazoEntrega).toLocaleDateString()}</th>
+                                            <th>{new Date(ordem.novo_prazoe).toLocaleDateString()}</th>
                                             <td>{ordem.ord_codigo}</td>
                                             <td>{ordem.cli_nome}</td>
                                             <td>{new Date(ordem.dataAbertura).toLocaleDateString()}</td>
@@ -107,6 +105,19 @@ function OrdensAndamento() {
 
                     </table>
                 </div>
+                {
+                    modalAtivo && 
+                    <Modal activate={modalAtivo} setActivate={setModalAtivo}>
+                    <div className="card" style={{ height: 350 }}>
+                        <label htmlFor="prazo-entrega">Novo prazo de Entrega</label>
+                        <div>
+                            <DatePicker dateFormat="dd/MM/yyyy" locale='pt-BR' selected={dataPrazoEntrega} onChange={changePrazoEntrega} />
+                            <Button color="black" corTexto="white" nome="Salvar" Icon={MdSave} tamanho_icone={20} borderRadius="10px" click={atualizarPrazoEntrega} />
+                        </div>
+                    </div>
+            </Modal>
+
+                }
             </Container>
         </>
     );

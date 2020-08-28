@@ -16,19 +16,9 @@ export const Container = styled.div`
         color: black;
         max-width: 940px;
                 
-    }   
-
-    table {
-        border-collapse: collapse;
-        border-spacing: 0;
+    } 
+    textarea{
+        height: 150px;
         width: 100%;
-        border: 1px solid #ddd;
     }
-
-    th, td {
-        text-align: left;
-        padding: 8px;
-    }
-
-    tr:nth-child(even){background-color: #f2f2f2}
 `;

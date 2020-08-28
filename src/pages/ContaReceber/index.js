@@ -38,7 +38,7 @@ function ContaReceber() {
 
   useEffect(()=>{
     fetchData();    
-  })  
+  }, [])  
 
   return (
       <>

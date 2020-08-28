@@ -37,6 +37,6 @@ export const Container = styled.div`
 
       ul{
           margin-top: 30px;
-      }
+      }      
   }
 `;

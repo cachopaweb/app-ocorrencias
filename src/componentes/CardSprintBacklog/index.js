@@ -18,7 +18,8 @@ function CardSprintBacklog({ data, index, listIndex }) {
                 {data.labels.map(label => <Label key={label} color={label} />)}
                 <span id="ocorrencia">{`Cod. Ocorrencia: ${data.ocorrencia}`}</span>
             </header>
-            <p>{data.content}</p>
+            <h3>{data.titulo}</h3>
+            <p className="conteudo">{data.content}</p>
             {data.user && <img src={data.user} alt="Avatar" />}
         </Container>);
 }

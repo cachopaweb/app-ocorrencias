@@ -2,47 +2,43 @@ import styled from 'styled-components';
 
 export const Container = styled.div` 
     color: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;       
     .modal-overlay {
         display: flex;
         align-items: center;
         justify-content: center;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 500px;
-        height: 100%;
+        position: absolute;
+        height: auto;
+        width: 400px;
+        top: 25%;
+        left: 10%;
         z-index: 5;
-        background-color: var(--primary);
         opacity: 0;
-        visibility: hidden;
+        visibility: hidden;          
     }
     .modal-overlay.active {
         opacity: 1;
-        visibility: visible;
+        visibility: visible;                 
     }
     .modal {
         display: flex;
         align-items: center;
         justify-content: center;
-        position: relative;
-        
-        background-color: #fff;
-        
+        position: relative;           
         width: 90%;
         height: 90%;
-        
         margin: 0 auto;
         padding: 10px;
-        
         border-radius: 3px;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        
         opacity: 0;
         overflow-y: auto;
         visibility: hidden;
-        
         transition: all 0.6s cubic-bezier(0.55, 0, 0.1, 1);
         transform: scale(1.2);
+        background-color: white;
     }
     .modal .close-modal {
         position: absolute;
@@ -84,18 +80,14 @@ export const Container = styled.div`
     #form{
         width:100%;
         height: 100%;
-        background: var(--primary);
         padding: 80px 0;
         display: flex;
         justify-content: center;
         align-items: center;
     }
     
-    #form form {
-      background: white;
-      
-      padding: 20px;
-      
+    #form form {      
+      padding: 20px;      
       box-shadow: 0px 2px 2px 2px rgba(0, 0, 0, 0.15), 
          0px 10px 20px -10px rgba(0, 0, 0, 0.1)
     }
@@ -126,7 +118,7 @@ export const Container = styled.div`
         display: block;
         margin: -4px 8px 10px;
         padding: 12px;
-        font-size: 1.6rem;
+        font-size: 1.1rem;
         width: 100% ;
     }
 

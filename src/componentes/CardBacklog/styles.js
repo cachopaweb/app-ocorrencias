@@ -20,6 +20,23 @@ export const Container = styled.div`
 
   p{
     font-weight: 500;
+    text-justify: distribute;
+    white-space: pre-wrap;
+    width: 100%;
+  }
+
+  .conteudo{
+    display: none;
+    transition: 0.6s display;
+    height: auto;    
+  }
+
+  
+
+  :hover{
+    .conteudo{
+      display: block;
+    }
   }
 
   img{

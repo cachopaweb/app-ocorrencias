@@ -84,7 +84,7 @@ function CriarSprint({ cliente, projeto_id, setModalActivate, atualizar }) {
                         <input placeholder="Informe uma descrição" id="descricao" className="input-control" type="text" value={descricao} onChange={(e) => setDescricao(e.target.value)} />
                     </div>
                     <div className="action">
-                        <Button Icon={MdCancel} click={() => { }} nome={"Cancelar"} color={"red"} corTexto={"white"} borderRadius={'30px'} />
+                        <Button Icon={MdCancel} click={() => setModalActivate(false)} nome={"Cancelar"} color={"red"} corTexto={"white"} borderRadius={'30px'} />
                         <Button Icon={MdSave} click={() => { }} nome={"Salvar"} color={"green"} corTexto={"white"} borderRadius={'30px'} />
                     </div>
                 </form>

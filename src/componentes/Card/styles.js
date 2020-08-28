@@ -20,6 +20,8 @@ export const Container = styled.div`
   p{
     margin-bottom: 10px;
     text-justify: distribute;
+    white-space: pre-wrap;
+    width: 100%;
   }
   :hover{
     transform: translateY(-2px);

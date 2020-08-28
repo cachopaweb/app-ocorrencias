@@ -35,7 +35,7 @@ export default function CardSprint({ data, index, listIndex, cliente, contrato }
 
   const [, dropRef] = useDrop({
     accept: 'CARD',
-    hover(item, monitor) {  
+    drop(item, monitor) {  
       const draggedListIndex = item.listIndex;
       const targetListIndex = listIndex;
       const draggedIndex = item.index;

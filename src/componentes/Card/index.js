@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 import { useUsuario } from '../../context/UsuarioContext';
 import { MdScanner, MdCancel, MdClose } from 'react-icons/md'
 
-function Card({ cliente, contrato, projeto_id, ocorrencia, atendente = 0, nomeAtendente, cod_ocorrencia, data, showActions = true }) {
+function Card({ cliente, contrato, projeto_id, ocorrencia, atendente = 0, nomeAtendente, cod_ocorrencia, data, showActions = true, children }) {
   const [funAtendente, setFunAtendente] = useState(atendente);
   const [nome_atendente, setNome_Atendente] = useState(nomeAtendente);
   const { cod_funcionario, login } = useUsuario();
@@ -91,7 +91,7 @@ function Card({ cliente, contrato, projeto_id, ocorrencia, atendente = 0, nomeAt
               <Button Icon={MdClose} nome={"Abrir Scrum"} color={"#7FA66D"} corTexto={"white"} borderRadius={'30px'} />
             </Link>
           </div>
-          : null
+          : children
         }
       </Container>
     );
