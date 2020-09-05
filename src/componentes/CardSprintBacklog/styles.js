@@ -26,18 +26,6 @@ export const Container = styled.div`
     width: 100%;
   }
 
-  .conteudo{
-    display: none;
-    transition: 0.6s display;
-    height: auto; 
-  }  
-
-  :hover{
-    .conteudo{
-      display: block;
-    }
-  }
-
   img{
       width: 24px;
       height: 24px;

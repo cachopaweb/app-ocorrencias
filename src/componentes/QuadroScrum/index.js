@@ -55,11 +55,9 @@ export default function QuadroScrum() {
           }
         </Floating>
         {
-          burndownAtivo && (
-            <Modal activate={burndownAtivo} setActivate={setBurndownAtivo}>
-              <Burndown projeto_id={projeto_id} />
-            </Modal>
-          )
+          <Modal activate={burndownAtivo} setActivate={setBurndownAtivo}>
+            <Burndown projeto_id={projeto_id} />
+          </Modal>
         }
       </Container>
     </BoardContext.Provider>

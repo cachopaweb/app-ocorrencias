@@ -11,7 +11,7 @@ import api from '../../services/api';
 
 registerLocale('pt-BR', pt_br);
 
-function FiltroData({funcSubmitted, dataInic, dataFin, setCodCliente}){
+function FiltroData({funcSubmitted, dataInic, dataFin, setCodContrato}){
     const [dataInicial, setDataInicial] = useState(new Date());
     const [dataFinal, setDataFinal] = useState(new Date());
     const [clientes, setClientes] = useState([]);
@@ -25,8 +25,8 @@ function FiltroData({funcSubmitted, dataInic, dataFin, setCodCliente}){
         dataFin(date);
     };
 
-    function changeCliente(cliente){
-        setCodCliente(cliente);
+    function changeContrato(contrato){
+        setCodContrato(contrato);
     }
         
     useEffect(() => {
@@ -55,7 +55,7 @@ function FiltroData({funcSubmitted, dataInic, dataFin, setCodCliente}){
                         <input type="checkbox" value={PorCliente} onChange={()=> setPorCliente(!PorCliente)} />    
                         {
                             clientes.length > 0 ?
-                            <select id="clientes" className="input-control" disabled={!PorCliente} onChange={(e)=> changeCliente(e.target.value)}>
+                            <select id="clientes" className="input-control" disabled={!PorCliente} onChange={(e)=> changeContrato(e.target.value)}>
                                 {
                                 clientes.map(cliente => <option key={cliente.contrato} value={cliente.contrato}>{cliente.nome}</option>)
                                 }

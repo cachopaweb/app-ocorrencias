@@ -98,13 +98,11 @@ export default function Lista({ data, index: listIndex, cliente, projeto_id, con
         </ul>)
       }
       {
-        modalCriarEstoria &&
         <Modal activate={modalCriarEstoria} setActivate={setModalCriarEstoria}>
           <CriarEstoria cliente={cliente} cod_ocorrencia={ocorrencia} projeto_id={projeto_id} setModalActivate={setModalCriarEstoria} atualizar={dispararAtualizacao} />
         </Modal>      
       }
       {
-        modalCriarSprint && 
         <Modal activate={modalCriarSprint} setActivate={setModalCriarSprint}>
           <CriarSprint cliente={cliente} projeto_id={projeto_id} setModalActivate={setModalCriarSprint} atualizar={dispararAtualizacao} />
         </Modal>

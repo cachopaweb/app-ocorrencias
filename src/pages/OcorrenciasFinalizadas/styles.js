@@ -33,3 +33,30 @@ export const Container = styled.div`
 
     tr:nth-child(even){background-color: #f2f2f2}    
 `;
+
+
+export const ContainerEtiquetas = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 10px 0;
+    
+`
+
+export const ContainerBuscaGrafico = styled.div`
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+`;
+
+export const ContainerGrafico = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #FFF;  
+    height: 500px;
+    width: 500px;
+    border-radius: 8px;
+    box-shadow: 2px 2px 2px 2px rgba(255,255,255, 0.2);
+    padding: 10px;
+`;

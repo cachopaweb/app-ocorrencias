@@ -9,7 +9,6 @@ function Burndown({projeto_id}){
     const [linhaReal, setlinhaReal] = useState([]);
 
     async function fetchBurndownProjeto(){
-        console.log('fetch burndown')
         let response = await api.get(`/Burndown/${projeto_id}`);
         let datas_corrigidas = response.data.datas.map((datas)=>{
             return new Date(datas).toLocaleDateString()
@@ -44,7 +43,6 @@ function Burndown({projeto_id}){
                 {
                     label: '# Linha Real',
                     data: linhaReal,
-                    backgroundColor: 'rgba(255, 99, 132, 1)',
                     borderColor: 'rgba(255, 99, 132, 1)',
                     borderWidth: 1
                 },

@@ -7,19 +7,13 @@ import api from '../../services/api'
 import { useUsuario } from '../../context/UsuarioContext';
 import { MdSave, MdCancel } from 'react-icons/md'
 import Header from '../../componentes/Header';
+import { tipo_erro } from '../../constants';
 
 function CreateOcorrencias() {
   const [projetos_scrum, setProjetosScrum] = useState([]);
   const [erro, setErro] = useState('Erro de Sistema')
   const { cod_funcionario } = useUsuario();
   const history = useHistory();
-
-  const tipo_erro = [
-    { id: 1, tipo: 'Erro de Usuario' }, 
-    { id: 2, tipo: 'Erro de Sistema' },
-    { id: 3, tipo: 'Implementação Nova' },
-    { id: 4, tipo: 'Atendimento' },
-  ];  
 
   function dataAtualFormatada() {
     var data = new Date(),

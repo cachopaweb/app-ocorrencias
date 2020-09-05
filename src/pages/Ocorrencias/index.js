@@ -13,6 +13,7 @@ function Ocorrencias() {
   const [listaOcorrencias, setListaOcorrencias] = useState([]);
   const [carregando, setCarregando] = useState(false);
   const [filtrado, setFiltrado] = useState(false);
+  const [contrassenhasVencer, setContrassenhasVencer] = useState([]);
   const history = useHistory();
   const { cod_funcionario } = useUsuario();
 
@@ -27,9 +28,22 @@ function Ocorrencias() {
       setCarregando(false);
     }
   }
+
+  async function fetchContrassenhasVencer(){
+    let diasVencer = 30;
+    let response = await api.get(`/contrassenha?dias=${diasVencer}`);
+    if (response.status === 200) {
+      setContrassenhasVencer(response.data);
+    }
+  }
+
   useEffect(()=> {
     fetchData();
   }, []);
+
+  useEffect(()=>{
+    fetchContrassenhasVencer();
+  }, [])
 
   function converteData(data){
     let arrayData = data.split('/');
@@ -49,12 +63,19 @@ function Ocorrencias() {
       fetchData();
     }
   }
+
+  const handleClickContrassenhaVencer = () =>{
+    history.push('/licencas', { licencas_Vencer: contrassenhasVencer });
+  }
   
   return (
     <>
     <Header title={'Ocorrências'} />   
       <Floating style={{ marginBottom: 80}}>
         <Button Icon={MdAccountBox} nome={'Filtrar'} color={'black'} corTexto={'white'} click={()=> filtrarPorUsuario()} borderRadius={"18px"} />           
+      </Floating>
+      <Floating style={{ marginBottom: 140}}>
+        <Button Icon={MdAccountBox} nome={`Licenças a Vencer: ${contrassenhasVencer.length}`} color={'#F00'} corTexto={'#FFF'} click={handleClickContrassenhaVencer} borderRadius={"18px"} />           
       </Floating>
       <Container>
           { 
