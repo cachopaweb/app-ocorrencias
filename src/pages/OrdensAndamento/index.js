@@ -64,6 +64,20 @@ function OrdensAndamento() {
     return (
         <>
             <Header title={'Em Andamento'} />
+            {                    
+                <Modal activate={modalAtivo} setActivate={setModalAtivo} altura={350} largura={350}>
+                    <form id="form">
+                        <div className="form-group">
+                            <label htmlFor="prazo-entrega">Novo prazo de Entrega</label>
+                            <div>
+                                <DatePicker dateFormat="dd/MM/yyyy" locale='pt-BR' selected={dataPrazoEntrega} onChange={changePrazoEntrega} />
+                                <Button color="black" corTexto="white" nome="Salvar" Icon={MdSave} tamanho_icone={20} borderRadius="10px" click={atualizarPrazoEntrega} />
+                            </div>
+                        </div>
+                    </form>
+                </Modal>
+
+            }
             <Container>
                 <div className="card">
                     <h1>Ordens de Serviço em Andamento</h1>
@@ -104,20 +118,7 @@ function OrdensAndamento() {
                         }
 
                     </table>
-                </div>
-                {
-                    modalAtivo && 
-                    <Modal activate={modalAtivo} setActivate={setModalAtivo}>
-                    <div className="card" style={{ height: 350 }}>
-                        <label htmlFor="prazo-entrega">Novo prazo de Entrega</label>
-                        <div>
-                            <DatePicker dateFormat="dd/MM/yyyy" locale='pt-BR' selected={dataPrazoEntrega} onChange={changePrazoEntrega} />
-                            <Button color="black" corTexto="white" nome="Salvar" Icon={MdSave} tamanho_icone={20} borderRadius="10px" click={atualizarPrazoEntrega} />
-                        </div>
-                    </div>
-            </Modal>
-
-                }
+                </div>                
             </Container>
         </>
     );

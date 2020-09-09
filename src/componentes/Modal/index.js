@@ -2,9 +2,9 @@ import React from 'react';
 
 import { Container } from './styles';
 
-function Modal({activate, setActivate, children}) {    
+function Modal({activate, setActivate, children, altura = 500, largura = 450, left = 0}) {    
     return (
-        <Container>
+        <Container altura={altura} largura={largura} left={left}>
             <div className={!activate ? "modal-overlay" : "modal-overlay active"}>
                 <div className={!activate ? "modal" : "modal active"}>
                     <a className="close-modal" onClick={() => setActivate(false)}>

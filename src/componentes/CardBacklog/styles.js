@@ -25,6 +25,10 @@ export const Container = styled.div`
     width: 100%;
   }
 
+  :hover{
+    transform: translateY(-2px);
+  }
+
   img{
       width: 24px;
       height: 24px;

@@ -32,6 +32,7 @@ function Ocorrencias() {
   async function fetchContrassenhasVencer(){
     let diasVencer = 30;
     let response = await api.get(`/contrassenha?dias=${diasVencer}`);
+    console.log(response.data)
     if (response.status === 200) {
       setContrassenhasVencer(response.data);
     }
@@ -65,7 +66,7 @@ function Ocorrencias() {
   }
 
   const handleClickContrassenhaVencer = () =>{
-    history.push('/licencas', { licencas_Vencer: contrassenhasVencer });
+    history.push({ pathname: '/licencas', state: { licencasVencer: contrassenhasVencer} });
   }
   
   return (
@@ -74,9 +75,9 @@ function Ocorrencias() {
       <Floating style={{ marginBottom: 80}}>
         <Button Icon={MdAccountBox} nome={'Filtrar'} color={'black'} corTexto={'white'} click={()=> filtrarPorUsuario()} borderRadius={"18px"} />           
       </Floating>
-      <Floating style={{ marginBottom: 140}}>
+      {contrassenhasVencer.length && <Floating style={{ marginBottom: 140}}>
         <Button Icon={MdAccountBox} nome={`Licenças a Vencer: ${contrassenhasVencer.length}`} color={'#F00'} corTexto={'#FFF'} click={handleClickContrassenhaVencer} borderRadius={"18px"} />           
-      </Floating>
+      </Floating>}
       <Container>
           { 
               listaOcorrencias.length > 0 ? 

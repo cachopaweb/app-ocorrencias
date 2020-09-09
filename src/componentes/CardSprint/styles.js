@@ -15,15 +15,15 @@ export const Container = styled.div`
       top: -22px;
   }  
 
-  :hover{
-      width: 500px;
-  }
-
   p{
     font-weight: 500;
     text-justify: distribute;
     white-space: pre-wrap;
     width: 100%;
+  }
+
+  :hover{
+    transform: translateY(-2px);
   }
 
   img{

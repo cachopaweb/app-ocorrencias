@@ -47,19 +47,20 @@ export default function QuadroScrum() {
   return (
     <BoardContext.Provider value={{ lista, move, setAtualizar }}>
       <Header title={`Scrum ${cliente}`} />
+      {
+          <Modal activate={burndownAtivo} setActivate={setBurndownAtivo}>
+            <Burndown projeto_id={projeto_id} />
+          </Modal>
+        }
+      
       <Container>
         {lista.map((lista, index) => <Lista key={lista.title} index={index} data={lista} cliente={cliente} projeto_id={projeto_id} contrato={contrato} ocorrencia={ocorrencia} update={setAtualizar} />)}
         <Floating>
           {
             <Button Icon={MdShowChart} tamanho_icone={40} borderRadius={"50%"} corTexto={"white"} click={() => setBurndownAtivo(!burndownAtivo)} />
           }
-        </Floating>
-        {
-          <Modal activate={burndownAtivo} setActivate={setBurndownAtivo}>
-            <Burndown projeto_id={projeto_id} />
-          </Modal>
-        }
-      </Container>
+        </Floating>        
+      </Container>      
     </BoardContext.Provider>
   );
 }

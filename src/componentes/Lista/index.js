@@ -61,7 +61,18 @@ export default function Lista({ data, index: listIndex, cliente, projeto_id, con
   dropSprint(dropSprintBacklog(ref))
 
   return (
-    <Container ref={ref} >
+    <>   
+    {
+        <Modal activate={modalCriarSprint} setActivate={setModalCriarSprint}  altura={600} largura={400}>
+          <CriarSprint cliente={cliente} projeto_id={projeto_id} setModalActivate={setModalCriarSprint} atualizar={dispararAtualizacao} />
+        </Modal>
+      }
+      {
+        <Modal activate={modalCriarEstoria} setActivate={setModalCriarEstoria} altura={800} largura={400} left={400}>
+          <CriarEstoria cliente={cliente} cod_ocorrencia={ocorrencia} projeto_id={projeto_id} setModalActivate={setModalCriarEstoria} atualizar={dispararAtualizacao} />
+        </Modal>      
+      }  
+    <Container ref={ref} >            
       <header>
         <h2>{data.title}</h2>
         {data.createBacklog && (
@@ -96,17 +107,8 @@ export default function Lista({ data, index: listIndex, cliente, projeto_id, con
               contrato={contrato}
             />)}
         </ul>)
-      }
-      {
-        <Modal activate={modalCriarEstoria} setActivate={setModalCriarEstoria}>
-          <CriarEstoria cliente={cliente} cod_ocorrencia={ocorrencia} projeto_id={projeto_id} setModalActivate={setModalCriarEstoria} atualizar={dispararAtualizacao} />
-        </Modal>      
-      }
-      {
-        <Modal activate={modalCriarSprint} setActivate={setModalCriarSprint}>
-          <CriarSprint cliente={cliente} projeto_id={projeto_id} setModalActivate={setModalCriarSprint} atualizar={dispararAtualizacao} />
-        </Modal>
-      }
+      }      
     </Container>
+    </>
   );
 }
