@@ -17,6 +17,7 @@ registerLocale('pt-BR', pt_br);
 
 function Licencas() {
     const [licencas, setLicencas] = useState([]);
+    const [novaSenha, setNovaSenha] = useState('');
     const [dataLimite, setDataLimite] = useState(new Date());
     const [modalGerarAtivo, setModalGerarAtivo] = useState(false);
     const [licencaSelecionada, setLicencaSelecionada] = useState({});
@@ -32,8 +33,9 @@ function Licencas() {
     async function SubmitNovaLicenca(e) {
         e.preventDefault();
         if (licencaSelecionada.codigo === 0) { swal('Codigo do contrato é obrigatório!', 'Click em gerar!', 'warning'); return; }
+        if (novaSenha === '') { swal('O campo Senha é obrigatório!', 'Informe a Senha!', 'warning'); return; }
         let response = await api.post('/contrassenha', {
-            senha: licencaSelecionada.senha,
+            senha: novaSenha,
             limite: (new Date(dataLimite)).toLocaleDateString(),
             codigo: licencaSelecionada.codigo
         });
@@ -48,6 +50,7 @@ function Licencas() {
     const handleClickGerar = (licenca) => {
         setModalGerarAtivo(true);
         setLicencaSelecionada(licenca);
+        setNovaSenha(licenca.senha)
     }
 
     function changeDataLimite(data){
@@ -65,6 +68,10 @@ function Licencas() {
             <Container>
                 <Modal activate={modalGerarAtivo} setActivate={setModalGerarAtivo} altura={350} largura={350} >
                     <form id="form" onSubmit={SubmitNovaLicenca}>
+                        <div className="form-group">
+                            <label htmlFor="senha">Senha</label>
+                            <input type="text" value={novaSenha} onChange={(e)=> setNovaSenha(e.target.value)} />
+                        </div>
                         <div className="form-group">
                             <label htmlFor="data">Data Limite</label>
                             <DatePicker dateFormat="dd/MM/yyyy" locale='pt-BR' selected={dataLimite} onChange={changeDataLimite} />

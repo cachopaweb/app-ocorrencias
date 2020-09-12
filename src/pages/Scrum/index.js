@@ -1,13 +1,19 @@
 import React, { useEffect, useState } from 'react';
+import { MdAdd } from 'react-icons/md';
 
-import { Container, Pesquisa } from './styles';
+import { Container, Pesquisa, Floating } from './styles';
 import Header from '../../componentes/Header';
 import api from '../../services/api';
 import CardProjetos from '../../componentes/CardProjetos';
+import Button from '../../componentes/Button';
+import Modal from '../../componentes/Modal';
+import Create_Projeto_Scrum from '../Create_Projeto_Scrum';
+
 
 function Scrum() {
     const [projetos, setProjetos] = useState([]);
-    const [projetos_filtrados, setProjetos_filtrados] = useState([]);
+    const [projetos_filtrados, setProjetos_filtrados] = useState([]);    
+    const [modalAtivo, setModalAtivo] = useState(false);
 
     async function fetchProjetosScrum() {
         let response = await api.get('/projetos_scrum');
@@ -27,6 +33,14 @@ function Scrum() {
     return (
         <>
             <Header title={"Scrum"} />
+            <Floating>
+                {
+                <Button Icon={MdAdd} tamanho_icone={40} borderRadius={"50%"} corTexto={"white"} click={()=> setModalAtivo(true)} />          
+                } 
+            </Floating>
+            {modalAtivo && <Modal activate={modalAtivo} setActivate={setModalAtivo}>
+                <Create_Projeto_Scrum />
+            </Modal>}
             <Pesquisa>
                 <div id="form">
                     <form>

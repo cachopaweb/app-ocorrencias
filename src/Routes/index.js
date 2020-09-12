@@ -15,6 +15,8 @@ import Licencas from '../pages/Licencas';
 import Scrum from '../pages/Scrum';
 import QuadroScrum from '../componentes/QuadroScrum';
 import Burndown from '../componentes/Burndown';
+import Create_Projeto_Scrum from '../pages/Create_Projeto_Scrum';
+
 
 const PrivateRoute = ({ component: Component, ...rest }) => {
   const { usu_codigo } = useUsuario();
@@ -50,6 +52,7 @@ function Routes() {
             <PrivateRoute path='/scrum' component={Scrum} />
             <PrivateRoute path='/quadroScrum' component={QuadroScrum} />            
             <PrivateRoute path='/burndown' component={Burndown} />            
+            <PrivateRoute path='/create_projeto_scrum' component={Create_Projeto_Scrum} />            
             <Route path="*" component={() => <h1>Pagina nao encontrada</h1>} />
         </Switch>
     </Router>

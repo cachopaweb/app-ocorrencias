@@ -53,3 +53,16 @@ export const Pesquisa = styled.div`
         }  
     }
 `;
+
+export const Floating = styled.div`
+  bottom: 25px;
+  position: fixed;
+  right: 25px;
+
+  @media (max-width: 905px){
+    bottom: 20px;
+    position: fixed;
+    right: 20px
+  }
+`;
+

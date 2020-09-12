@@ -9,7 +9,7 @@ export const Container = styled.header`
    justify-content: space-between;
    align-items: center;
    color: #B2D9A0;
-   width: 100vw;
+   width: 100%;
    h1{
        margin-left: 20px;
        font-size: 1.2rem;

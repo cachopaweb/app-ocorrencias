@@ -40,7 +40,8 @@ function OrdensAndamento() {
         setModalAtivo(true)       
     }
 
-    async function atualizarPrazoEntrega() {
+    async function atualizarPrazoEntrega(e) {
+        e.preventDefault();
         if (ordCodigo === 0) { swal('Codigo da Ordem é obrigatório!', 'Click em uma ordem de serviço', 'warning'); return; }
         let data = {
             Funcionario: cod_funcionario,
@@ -49,7 +50,7 @@ function OrdensAndamento() {
             PrazoNovo: dataPrazoEntrega.toLocaleDateString()
         }
         let response = await api.put(`/Ordens/${ordCodigo}`, data);
-        if (response.status == 200) {                
+        if (response.status === 200) {                
             swal('Prazo entrega atualizado com sucesso!', `Código histórico ${response.data.Historico}`, 'success')
             setDataAlterada(true)
         }else{
@@ -66,12 +67,12 @@ function OrdensAndamento() {
             <Header title={'Em Andamento'} />
             {                    
                 <Modal activate={modalAtivo} setActivate={setModalAtivo} altura={350} largura={350}>
-                    <form id="form">
+                    <form id="form" onSubmit={atualizarPrazoEntrega}>
                         <div className="form-group">
                             <label htmlFor="prazo-entrega">Novo prazo de Entrega</label>
                             <div>
                                 <DatePicker dateFormat="dd/MM/yyyy" locale='pt-BR' selected={dataPrazoEntrega} onChange={changePrazoEntrega} />
-                                <Button color="black" corTexto="white" nome="Salvar" Icon={MdSave} tamanho_icone={20} borderRadius="10px" click={atualizarPrazoEntrega} />
+                                <Button color="black" corTexto="white" nome="Salvar" Icon={MdSave} tamanho_icone={20} borderRadius="10px" />
                             </div>
                         </div>
                     </form>
