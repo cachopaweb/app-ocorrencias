@@ -3,10 +3,15 @@ import styled from 'styled-components';
 export const Container = styled.div`
     display: flex;
     justify-content: center;
+    flex-direction: column;
     align-items: center;    
-    width: 100vw;
+    width: 100%;
     overflow-x:auto;
-    flex-direction: column; 
+    @media (max-width: 900px){
+        max-width: 900px;
+        flex-direction: column;     
+    }
+
     .card{
         padding: 8px;
         background-color: white;
@@ -22,7 +27,7 @@ export const Container = styled.div`
     table {
         border-collapse: collapse;
         border-spacing: 0;
-        width: 100%;
+        width: 98%;
         border: 1px solid #ddd;
     }
 
@@ -40,13 +45,21 @@ export const ContainerEtiquetas = styled.div`
     justify-content: center;
     align-items: center;
     margin: 10px 0;
+    @media (max-width: 900px){
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+    }
     
 `
 
 export const ContainerBuscaGrafico = styled.div`
     display: flex;
     justify-content: space-between;
-    margin-top: 10px;
+    margin: 5px;
+
+    @media (max-width: 900px){
+        flex-direction: column;    
+    }
 `;
 
 export const ContainerGrafico = styled.div`

@@ -52,6 +52,11 @@ export const Container = styled.div`
         height: 100%;
         width: 100%;        
     }
+
+    .modal .modal-content img{
+        height: 100%;
+        width: 100%;
+    }
     .modal.active {
         visibility: visible;
         opacity: 1;

@@ -4,7 +4,7 @@ export const Container = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;    
-    width: 100vw;
+    width: 98%;
     overflow-x:auto;
     .card{
         padding: 8px;
