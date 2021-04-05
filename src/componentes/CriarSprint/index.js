@@ -1,14 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { MdSave, MdCancel } from 'react-icons/md';
 import swal from 'sweetalert';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { registerLocale } from 'react-datepicker';
+import pt_br from 'date-fns/locale/pt-BR';
 
 import { Container, Preview, Thumb, ThumbInner } from './styles';
 import Button from '../Button';
 import api from '../../services/api';
 import Modal from '../../componentes/Modal';
 import Dropzone from "../../componentes/DropZone";
+import quadroContext from '../QuadroScrum/context';
 
-function CriarSprint({ cliente, projeto_id, setModalActivate, atualizar }) {
+registerLocale('pt-BR', pt_br);
+
+
+function CriarSprint({ cliente, projeto_id, setModalActivate }) {
     const [prazoSprint, setPrazoSprint] = useState([]);
     const [tipoPrazoEscolhido, setTipoPrazoEscolhido] = useState(0);
     const [prioridade, setprioridade] = useState(0);
@@ -16,6 +24,9 @@ function CriarSprint({ cliente, projeto_id, setModalActivate, atualizar }) {
     const [files, setFiles] = useState([]);
     const [imagemClicada, setImagemClicada] = useState({});
     const [modalAtivo, setModalAtivo] = useState(false);
+    const [dataPrazoEntrega, setDataPrazoEntrega] = useState(new Date());
+    const [diasPrazo, setDiasPrazo] = useState(0);
+    const { setAtualizar } = useContext(quadroContext)
 
     async function fetchPrazoSprint() {
         let response = await api.get('/prazo_sprint');
@@ -37,7 +48,7 @@ function CriarSprint({ cliente, projeto_id, setModalActivate, atualizar }) {
             Estado: "A FAZER",
             Descricao: descricao,
             Cod_Projeto_Scrum: projeto_id,
-            DataEntregaProgramacao: adicionarDiasData(tipoPrazoEscolhido).toLocaleDateString()
+            DataEntregaProgramacao: dataPrazoEntrega.toLocaleDateString()
         }
         try {
             let response = await api.post('/sprint', dados);
@@ -45,7 +56,7 @@ function CriarSprint({ cliente, projeto_id, setModalActivate, atualizar }) {
             if (codigoSprint > 0) {
                 swal(`Sprint ${codigoSprint} criada com sucesso!`, 'Bom trabalho', 'success');
                 setModalActivate(false);
-                atualizar();
+                setAtualizar(true);
             } else {
                 swal(`Erro ao criar Sprint. Erro ${response.data.error}!`, 'Erro ao inserir', 'error')
             }
@@ -84,6 +95,15 @@ function CriarSprint({ cliente, projeto_id, setModalActivate, atualizar }) {
         setModalAtivo(true)
     }
 
+    function changeDataPrazoEntrega(date) {
+        setDataPrazoEntrega(date);
+    };
+
+    function changePrazoSprint(dias){
+       setDiasPrazo(dias); 
+       changeDataPrazoEntrega(adicionarDiasData(diasPrazo));
+    }
+
     return (
         <>
             <Container>
@@ -99,9 +119,10 @@ function CriarSprint({ cliente, projeto_id, setModalActivate, atualizar }) {
                             <select onChange={(e) => setTipoPrazoEscolhido(e.target.value)}>
                                 <option value="0">Informe o tipo da Sprint</option>
                                 {
-                                    prazoSprint.map((prazo) => <option key={prazo.codigo} value={prazo.dias}>{prazo.descricao}</option>)
+                                    prazoSprint.map((prazo) => <option key={prazo.codigo} onChange={(e)=> changePrazoSprint(e.target.value)} value={prazo.dias}>{prazo.descricao}</option>)
                                 }
                             </select>
+                            <DatePicker dateFormat="dd/MM/yyyy" locale='pt-BR' selected={dataPrazoEntrega} value={adicionarDiasData(diasPrazo)} onChange={changeDataPrazoEntrega} />
                         </div>
                         <div className="form-group">
                             <label htmlFor="prioridade">Prioridade</label>
@@ -139,7 +160,7 @@ function CriarSprint({ cliente, projeto_id, setModalActivate, atualizar }) {
             </Container>
             {
                 modalAtivo &&
-                <Modal activate={modalAtivo} setActivate={setModalAtivo} altura={600} largura={800}>
+                <Modal activate={modalAtivo} setActivate={setModalAtivo} altura="auto" largura="auto">
                     <img key={imagemClicada.name} src={imagemClicada.preview} alt={imagemClicada.name} />
                 </Modal>
             }

@@ -29,7 +29,7 @@ const Create_Projeto_Scrum = () => {
       contrato: clientes[select.selectedIndex].contrato
     })
 
-    if (response.status === 200){
+    if (response.status === 201){
       swal('Projeto criado com sucesso', 'Bom trabalho', 'success');
       history.push('/ocorrencias'); 
     }else{

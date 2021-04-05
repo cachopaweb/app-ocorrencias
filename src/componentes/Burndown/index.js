@@ -10,21 +10,22 @@ function Burndown({projeto_id}){
 
     async function fetchBurndownProjeto(){
         let response = await api.get(`/Burndown/${projeto_id}`);
-        let datas_corrigidas = response.data.datas.map((datas)=>{
-            return new Date(datas).toLocaleDateString()
-        });
-        setDatas(datas_corrigidas);
-        setlinhaIdeal(response.data.ideal);
-        setlinhaReal(response.data.real);
+        // let datas_corrigidas = response.data.datas.map((datas)=>{
+        //     return new Date(datas).toLocaleDateString()
+        // });
+        const dados = response.data;
+        setDatas(dados.datas);
+        setlinhaIdeal(dados.ideal);
+        setlinhaReal(dados.real);   
     }    
 
     useEffect(()=> {
         fetchBurndownProjeto();
     }, [])
 
-    //let datas = ['01/08/20', '02/08/20', '03/08/20', '04/08/20', '05/08/20', '06/08/20', '07/08/20'];
-    //let linhaIdeal = [1, .85, .7, .55, .4, .25, 0.1];
-    //let linhaReal = [1, 1, 1, 1, .25, 0.1, 0];
+    // let datas = ['01/08/20', '02/08/20', '03/08/20', '04/08/20', '05/08/20', '06/08/20', '07/08/20'];
+    // let linhaIdeal = [1, .85, .7, .55, .4, .25, 0.1];
+    // let linhaReal = [1, 1, 1, 1, .25, 0.1, 0];
     function renderChart(){
         console.log("renderChar")
         var ctx = document.getElementById('burndown');

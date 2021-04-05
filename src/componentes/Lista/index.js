@@ -11,14 +11,14 @@ import QuadroScrumContext from '../QuadroScrum/context';
 import CardBacklog from '../CardBacklog';
 import api from '../../services/api';
 
-export default function Lista({ data, index: listIndex, cliente, projeto_id, contrato, ocorrencia, update }) {
+export default function Lista({ data, index: listIndex, cliente, projeto_id, contrato, ocorrencia }) {
   const [modalCriarEstoria, setModalCriarEstoria] = useState(false);
   const [modalCriarSprint, setModalCriarSprint] = useState(false);
   const { setAtualizar } = useContext(QuadroScrumContext);
   const ref = useRef();
   
   function dispararAtualizacao(){
-    update(true);
+    setAtualizar(true);
   }
 
   async function AtualizarEstadoSprint(codigo, estado){
@@ -63,12 +63,12 @@ export default function Lista({ data, index: listIndex, cliente, projeto_id, con
   return (
     <>   
     {
-        <Modal activate={modalCriarSprint} setActivate={setModalCriarSprint}  altura={600} largura={400}>
+        <Modal activate={modalCriarSprint} setActivate={setModalCriarSprint}  altura={800} largura={400}>
           <CriarSprint cliente={cliente} projeto_id={projeto_id} setModalActivate={setModalCriarSprint} atualizar={dispararAtualizacao} />
         </Modal>
       }
       {
-        <Modal activate={modalCriarEstoria} setActivate={setModalCriarEstoria} altura={800} largura={400} left={400}>
+        <Modal activate={modalCriarEstoria} setActivate={setModalCriarEstoria} altura={800} largura={400}>
           <CriarEstoria cliente={cliente} cod_ocorrencia={ocorrencia} projeto_id={projeto_id} setModalActivate={setModalCriarEstoria} atualizar={dispararAtualizacao} />
         </Modal>      
       }  

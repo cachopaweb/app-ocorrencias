@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { MdSave, MdCancel } from 'react-icons/md';
 import swal from 'sweetalert';
 
@@ -6,14 +6,16 @@ import { Container } from './styles';
 import Button from '../Button';
 import api from '../../services/api';
 import { useUsuario } from '../../context/UsuarioContext';
+import quadroContext from '../QuadroScrum/context';
 
-function CriarEstoria({ cliente, projeto_id = 0, setModalActivate, atualizar, cod_ocorrencia = 0 }) {
+function CriarEstoria({ cliente, projeto_id = 0, setModalActivate, cod_ocorrencia = 0 }) {
     const [prioridade, setprioridade] = useState(2);
     const [ocorrencia, setOcorrencia] = useState(cod_ocorrencia)
     const [estoria, setEstoria] = useState('');
     const { cod_funcionario } = useUsuario();
     const [ocorrencias, setOcorrencias] = useState([]);
     const [titulo, setTitulo] = useState('');
+    const { setAtualizar } = useContext(quadroContext)
 
     async function submitEstoria(e) {
         e.preventDefault();
@@ -35,7 +37,7 @@ function CriarEstoria({ cliente, projeto_id = 0, setModalActivate, atualizar, co
             if (response.data.BACKLOG > 0) {
                 swal(`Estória ${response.data.BACKLOG} criada com sucesso!`, 'Bom trabalho', 'success');
                 setModalActivate(false);
-                atualizar();
+                setAtualizar(true);
             } else {
                 swal(`Erro ao criar Estória. Erro ${response.data.error}!`, 'Erro ao inserir', 'error')
             }

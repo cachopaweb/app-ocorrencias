@@ -66,3 +66,40 @@ export const Floating = styled.div`
   }
 `;
 
+export const Tabela = styled.table`
+    border-collapse: collapse;
+    border-spacing: 0;
+    width: 100%;
+    border: 1px solid #ddd;
+    th, td {
+        text-align: left;
+        padding: 8px;
+    }
+
+    tr:nth-child(even){
+        background-color: #f2f2f2
+    }
+`;
+
+export const LinhaDestaque = styled.th`
+    background-color: ${props=> props.cor};
+    color: ${props=> props.corTexto};
+    border-radius: 8px;
+    text-align: center;     
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-self: center;
+    height: 60px;
+`
+
+export const Card = styled.div`
+    padding: 8px;
+    background-color: white;
+    margin-top: 50px;
+    border-radius: 8px;
+    box-shadow: 0px 2px 2px 2px rgba(0,0,0,0.15)
+                0px 10px 20px -10px rgba(0,0,0,0.1);
+    color: black;    
+    max-width: 1200px;     
+`;

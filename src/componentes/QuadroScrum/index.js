@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import BoardContext from './context';
-import { Container, Floating } from './styles';
+import { Centralizar, Container, Floating } from './styles';
 import Lista from '../Lista';
 import produce from 'immer';
 import Header from '../Header';
@@ -11,22 +11,33 @@ import Button from '../../componentes/Button';
 import Burndown from '../Burndown';
 import Modal from '../Modal';
 import { MdShowChart } from 'react-icons/md';
+import swal from 'sweetalert';
 
 export default function QuadroScrum() {
   const [lista, setLista] = useState([]);
-  const [atualizar, setAtualizar] = useState(false);
   const { state } = useLocation();
   const { cliente, projeto_id, contrato, ocorrencia } = state;
   const [burndownAtivo, setBurndownAtivo] = useState(false);
+  const [carregando, setCarregando] = useState(false);
+  const [atualizar, setAtualizar] = useState(false);
 
   async function fetchQuadroScrum() {
-    let response = await api.get(`/quadroScrum?projeto_id=${projeto_id}`);
-    setLista(response.data);
+    try {
+      setLista([]);
+      setCarregando(true)
+      let response = await api.get(`/quadroScrum?projeto_id=${projeto_id}`);
+      setCarregando(false)
+      setLista(response.data);
+    } catch (error) {
+      setCarregando(false)
+      swal(error, 'erro', error)
+    }
   }
+
 
   useEffect(() => {
     fetchQuadroScrum();
-    setAtualizar(false)
+    setAtualizar(false);
   }, [atualizar]);
 
   function move(fromList, toList, from, to, type) {
@@ -44,23 +55,41 @@ export default function QuadroScrum() {
     ))
   }
 
+
   return (
-    <BoardContext.Provider value={{ lista, move, setAtualizar }}>
-      <Header title={`Scrum ${cliente}`} />
-      {
-          <Modal activate={burndownAtivo} setActivate={setBurndownAtivo}>
-            <Burndown projeto_id={projeto_id} />
-          </Modal>
-        }
-      
-      <Container>
-        {lista.map((lista, index) => <Lista key={lista.title} index={index} data={lista} cliente={cliente} projeto_id={projeto_id} contrato={contrato} ocorrencia={ocorrencia} update={setAtualizar} />)}
-        <Floating>
+    carregando ?
+      (
+        <Centralizar>
+          <h1>Aguarde, carregando projeto Scrum...</h1>
+        </Centralizar>
+      ) : (
+        <BoardContext.Provider value={{ lista, move, setAtualizar }}>          
+          <Header title={`Scrum ${cliente}`} />
           {
-            <Button Icon={MdShowChart} tamanho_icone={40} borderRadius={"50%"} corTexto={"white"} click={() => setBurndownAtivo(!burndownAtivo)} />
+            burndownAtivo && (
+              <Modal activate={burndownAtivo} setActivate={setBurndownAtivo} altura={'70%'} largura={'80%'}>
+                <Burndown projeto_id={projeto_id} />
+              </Modal>
+            )
           }
-        </Floating>        
-      </Container>      
-    </BoardContext.Provider>
+          <Container>
+            {
+              lista.length > 0 &&
+              lista.map((lista, index) => <Lista key={lista.title}
+                index={index}
+                data={lista}
+                cliente={cliente}
+                projeto_id={projeto_id}
+                contrato={contrato}
+                ocorrencia={ocorrencia}
+              />)
+            }
+            <Floating>
+              {
+                <Button Icon={MdShowChart} tamanho_icone={40} borderRadius={"50%"} corTexto={"white"} click={() => setBurndownAtivo(!burndownAtivo)} />
+              }
+            </Floating>            
+          </Container>          
+        </BoardContext.Provider>)
   );
 }

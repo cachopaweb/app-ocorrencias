@@ -2,7 +2,7 @@ import React from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 
 import { Container, Label, Preview, Thumb, ThumbInner } from './styles';
-import { useState, useRef, useContext } from 'react';
+import { useState, useRef, useContext, useEffect } from 'react';
 import QuadroScrumContext from '../QuadroScrum/context';
 import CardSprintBacklog from '../../componentes/CardSprintBacklog';
 import api from '../../services/api';
@@ -11,6 +11,15 @@ import Button from '../Button';
 import { MdClose } from 'react-icons/md';
 import { useUsuario } from '../../context/UsuarioContext';
 import Modal from '../../componentes/Modal';
+import { MdDelete } from 'react-icons/md'
+
+import swal from 'sweetalert';
+
+function CardsBacklog({backlogs, listIndex, dataEntrega}){
+  return (
+    backlogs.map((backlog, index) => <CardSprintBacklog key={index} index={index} listIndex={listIndex} data={backlog} dataEntrega={dataEntrega} />)
+  );
+}
 
 
 export default function CardSprint({ data, index, listIndex, cliente, contrato }) {
@@ -21,6 +30,27 @@ export default function CardSprint({ data, index, listIndex, cliente, contrato }
   const { move, setAtualizar } = useContext(QuadroScrumContext);
   const history = useHistory();
   const { cod_funcionario } = useUsuario();
+  const [files, setFiles] = useState([]);
+
+  async function fetchArquivos() {
+    try {
+      let response = await api.get(`/Ordens/Arquivos/${data.id}`);
+      if (response.status === 200)
+        setFiles(response.data);      
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  function abrirPreview(file) {
+    setImagemClicada(file);
+    setModalAtivo(true)
+  }
+
+  useEffect(() => {
+    fetchArquivos();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [{ isDragging }, dragRef] = useDrag({
     item: { type: 'CARD_SPRINT', index, listIndex, data },
@@ -31,9 +61,7 @@ export default function CardSprint({ data, index, listIndex, cliente, contrato }
 
   async function criarVinculoSprintBacklog(codBacklog, codSprint) {
     let response = await api.post(`/sprint_backlog/${codSprint}`, { Codigo: codBacklog });
-    if (response.data.BS_BP) {
-      setAtualizar(true);
-    }
+    setAtualizar(true);
   }
 
   const [, dropRef] = useDrop({
@@ -43,7 +71,6 @@ export default function CardSprint({ data, index, listIndex, cliente, contrato }
       const targetListIndex = listIndex;
       const draggedIndex = item.index;
       const targetIndex = index;
-
       if (draggedIndex === targetIndex && draggedListIndex === targetListIndex) {
         return;
       }
@@ -90,44 +117,74 @@ export default function CardSprint({ data, index, listIndex, cliente, contrato }
     history.push({ pathname: '/aberturaOS', state: { cliente: cliente, contrato: contrato, ocorrencia, cod_ocorrencia: codigos_ocorrencias[0], funAtendente: cod_funcionario, dataEntrega: data.dataEntrega, prioridade: prioridade, codSprint: data.id } })
   }
 
-  function abrirPreview(file) {  
-    setImagemClicada(file);
-    setModalAtivo(true);
+  const handleDeleteSprint = async (id)=> {
+    console.log(id)
+    const response = await api.delete(`/sprint/${id}`);
+    console.log(response)
+    return (response.status === 204);
+  }
+
+  const onDelete = (id)=>{
+    swal({
+      title: "Deseja excluir esta Sprint?",
+      text: "",
+      icon: "warning",
+      buttons: true,
+      dangerMode: true,
+    })
+    .then((willDelete) => {
+      if (willDelete) {
+        const isDeleted = handleDeleteSprint(id);
+        if (isDeleted){
+          swal("Sprint excluida com sucesso", {
+            icon: "success",
+          });
+          setAtualizar();
+        }else{
+          swal("Falha ao deletar Sprint!", {icon: "warning"})
+        }        
+      } 
+    });
   }
 
   return (
-    <Container ref={ref} isDragging={isDragging}>
-      <header>
-        {data.labels.map(label => <Label key={label} color={label} />)}
-        <strong>
-          {new Date(data.dataEntrega).toLocaleDateString()}
-        </strong>
-      </header>
-      <p>{data.content}</p>
-      { data.user && <img src={data.user} alt="Avatar" />}
-      {
-        backlogs.length > 0 ?
-          backlogs.map((backlog, index) => <CardSprintBacklog key={index} index={index} listIndex={listIndex} data={backlog} />)
-          : <h3>Aguardando Backlogs...</h3>
-      }
-      <Preview>
+    <>
+      <Container ref={ref} isDragging={isDragging}>
+        <header>
+          {data.labels.map(label => <Label key={label} color={label} />)}
+          <strong>
+            {new Date(data.dataEntrega).toLocaleDateString()}
+          </strong>
+        </header>
+        <p>{data.content}</p>        
         {
-          data.arquivos?.map(file =>
-            <Thumb onClick={() => abrirPreview(file)}>
-              <ThumbInner>
-                <img key={file.nome} src={`data:image/jpeg;base64,${file.base64}`} alt={file.nome} />
-              </ThumbInner>
-            </Thumb>
-          )
+          backlogs.length > 0 ? 
+            (  
+              <CardsBacklog key={backlogs} backlogs={backlogs} listIndex={listIndex} dataEntrega={data.dataEntrega} />
+              
+            )
+            : <h3>Aguardando Backlogs...</h3>
         }
-      </Preview>
-      { 
-        modalAtivo && 
-        <Modal activate={modalAtivo} setActivate={setModalAtivo} altura={600} largura={800}>
+        <Preview>
+          {
+            files?.map(file =>
+              <Thumb onClick={() => abrirPreview(file)}>
+                <ThumbInner>
+                  <img key={file.nome} src={`data:image/jpeg;base64,${file.base64}`} alt={file.nome} />
+                </ThumbInner>
+              </Thumb>
+            )
+          }
+        </Preview>
+        <Button Icon={MdClose} nome={"Abrir OS"} color={"#7FA66D"} corTexto={"white"} borderRadius={'30px'} click={() => abrirOrdemServico()} disabled={data.ordem > 0 || backlogs.length === 0} />
+        <button onClick={()=> onDelete(data.id)}><MdDelete size={20} color='red' /></button>
+      </Container>
+      {
+        modalAtivo &&
+        <Modal activate={modalAtivo} setActivate={setModalAtivo} altura="auto" largura="auto">
           <img key={imagemClicada.nome} src={`data:image/jpeg;base64,${imagemClicada.base64}`} alt={imagemClicada.nome} />
         </Modal>
-      }        
-      <Button Icon={MdClose} nome={"Abrir OS"} color={"#7FA66D"} corTexto={"white"} borderRadius={'30px'} click={() => abrirOrdemServico()} disabled={data.ordem > 0 || backlogs.length === 0} />
-    </Container>
+      }
+    </>
   );
 }

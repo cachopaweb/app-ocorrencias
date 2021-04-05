@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
-import { Container } from './styles';
-import Header from '../../componentes/Header';
+import React, { useState, useEffect } from 'react';
+import { Container, Preview, Thumb, ThumbInner } from './styles';
 import Card from '../../componentes/Card';
 import Button from '../../componentes/Button';
 import { useLocation, useHistory } from 'react-router-dom';
@@ -19,6 +18,23 @@ function OrdemDetalhe({ ordem, SetDadosAlterados }){
     const [entregarOS, setEntregarOS] = useState(false);
     const [laudo, setLaudo] = useState('');
     const [tipo_entrega, setTipo_Entrega] = useState('REMOTA');
+    const [modalAtivo, setModalAtivo] = useState(false);
+    const [imagemClicada, setImagemClicada] = useState({});
+    const [files, setFiles] = useState([]);
+    
+    async function fetchArquivos(){
+        let response = await api.get(`/Ordens/Arquivos/${ordem.sprint}`);
+        setFiles(response.data);
+    }
+
+    function abrirPreview(file) {
+        setImagemClicada(file);
+        setModalAtivo(true)
+    }
+
+    useEffect(()=> {
+        fetchArquivos();
+    }, [ordem])
 
     function converteData(data){
         let arrayData = data.split('/');
@@ -132,6 +148,12 @@ function OrdemDetalhe({ ordem, SetDadosAlterados }){
                             </div>
                         </Modal>)
                 }
+                {
+                    modalAtivo &&
+                    <Modal activate={modalAtivo} setActivate={setModalAtivo} altura="auto" largura="auto">
+                        <img key={imagemClicada.nome} src={`data:image/jpeg;base64,${imagemClicada.base64}`} alt={imagemClicada.nome} />
+                    </Modal>
+                }
                 <Container>
                     { 
                         <Card key={ordem.ord_codigo} cliente={ordem.cli_nome} contrato={ordem.ord_codigo} ocorrencia={ordem.ocorrencia} atendente={ordem.programador} nomeAtendente={ordem.programador} cod_ocorrencia={ordem.ord_codigo} data={converteData(ordem.prazoEntrega)} showActions={false}>                    
@@ -159,6 +181,17 @@ function OrdemDetalhe({ ordem, SetDadosAlterados }){
                         </Card>
                     }                 
                 </Container>
+                <Preview>
+                    {
+                        files?.map(file =>
+                            <Thumb onClick={() => abrirPreview(file)}>
+                                <ThumbInner >
+                                    <img key={file.nome} src={`data:image/jpeg;base64,${file.base64}`} alt={file.nome} />
+                                </ThumbInner>
+                            </Thumb>
+                        )
+                    }
+                </Preview>
             </>
         );
 }

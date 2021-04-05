@@ -8,11 +8,14 @@ export const Container = styled.div`
   color: black;
   padding: 15px;
   box-shadow: 0 1px 4px 0 rgb(192, 208, 230, 0.8);
-  border-top: 20px solid rgb(230, 236, 245, 0.4); 
-  transition: width 0.6s;
+  border-top: 20px solid rgb(230, 236, 245, 0.4);
   header{
       position: absolute;
       top: -22px;
+
+      #ocorrencia{
+        margin-left: 10px;
+      }
   }  
 
   p{
@@ -20,6 +23,10 @@ export const Container = styled.div`
     text-justify: distribute;
     white-space: pre-wrap;
     width: 100%;
+  }
+
+  :hover{
+    transform: translateY(-2px);
   }
 
   img{
@@ -37,7 +44,7 @@ export const Container = styled.div`
     box-shadow: none;
     cursor: grabbing;
 
-    p, img, span, h3{
+    p, img, span{
       opacity: 0;
     }
   `}
@@ -50,31 +57,3 @@ export const Label = styled.span`
     display: inline-block;
     background-color: ${props => props.color};
 `;
-
-export const Preview = styled.div`
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  margin-top: 16px;
-`
-
-export const Thumb = styled.div`
-  display: inline-flex;
-  border-radius: 2px;
-  border: 1px solid #eaeaea;
-  margin-bottom: 8px;
-  margin-right: 8px;
-  width: 80px;
-  height: 80px;
-  padding: 4px;
-`
-export const ThumbInner = styled.div`
-  display: flex;
-  min-width: 0px;
-  overflow: hidden;
-  img{
-    display: block;
-    width: auto;
-    height: 100%;
-  }
-`

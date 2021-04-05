@@ -15,4 +15,10 @@ export const Container = styled.div`
     font-size: 16px;
     font-weight: bold;
     color: black;    
+    h3{
+        color: red
+    }
+    h4{
+        color: blue
+    }
 `;

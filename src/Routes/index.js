@@ -16,6 +16,8 @@ import Scrum from '../pages/Scrum';
 import QuadroScrum from '../componentes/QuadroScrum';
 import Burndown from '../componentes/Burndown';
 import Create_Projeto_Scrum from '../pages/Create_Projeto_Scrum';
+import Retrospectiva from '../pages/Retrospectiva';
+import QuadroKanban from '../componentes/QuadroKanban';
 
 
 const PrivateRoute = ({ component: Component, ...rest }) => {
@@ -53,6 +55,8 @@ function Routes() {
             <PrivateRoute path='/quadroScrum' component={QuadroScrum} />            
             <PrivateRoute path='/burndown' component={Burndown} />            
             <PrivateRoute path='/create_projeto_scrum' component={Create_Projeto_Scrum} />            
+            <PrivateRoute path='/retrospectiva' component={Retrospectiva} />            
+            <PrivateRoute path='/QuadroKanban' component={QuadroKanban} />            
             <Route path="*" component={() => <h1>Pagina nao encontrada</h1>} />
         </Switch>
     </Router>

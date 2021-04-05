@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Container } from './styles';
 import api from '../../services/api';
 import Header from '../../componentes/Header';
 import { MdAssignment, MdSave } from 'react-icons/md';
 import { Link } from 'react-router-dom';
+
+import { Container, LinhaDestaque } from './styles';
 import { useUsuario } from '../../context/UsuarioContext';
 import Button from '../../componentes/Button';
 import { MdAlarmAdd } from 'react-icons/md';
@@ -71,6 +72,7 @@ function OrdensAndamento() {
         CarregaDadosOrdens();
         setModalAtivo(false);
         setModalDetalhesAtivo(false);
+        setDadosAlterados(false);
     }, [dadosAlterados])
 
     useEffect(()=>{
@@ -101,7 +103,7 @@ function OrdensAndamento() {
     return (
         <>
             <Header title={'Em Andamento'} />
-            <Modal activate={modalAtivo} setActivate={setModalAtivo} altura={350} largura={350}>
+            <Modal activate={modalAtivo} setActivate={setModalAtivo} altura={'auto'} largura={'auto'}>
                 <form id="form" onSubmit={atualizarPrazoEntrega}>
                     <div className="form-group">
                         <label htmlFor="prazo-entrega">Novo prazo de Entrega</label>
@@ -113,7 +115,7 @@ function OrdensAndamento() {
                 </form>
             </Modal>
 
-            <Modal activate={modalDetalhesAtivo} setActivate={setModalDetalhesAtivo} altura='auto' largura={800}>
+            <Modal activate={modalDetalhesAtivo} setActivate={setModalDetalhesAtivo} altura={'auto'} largura={'auto'}>
               {modalDetalhesAtivo && <OrdemDetalhe ordem={ordemSelecionada} SetDadosAlterados={setDadosAlterados} />}
             </Modal>
 
@@ -160,7 +162,18 @@ function OrdensAndamento() {
                                             <td>{ordem.ord_codigo}</td>
                                             <td>{ordem.cli_nome}</td>
                                             <td>{new Date(ordem.dataAbertura).toLocaleDateString()}</td>
-                                            <td>{ordem.estado}</td>
+                                            {(fun_categoria.substring(0,8) === 'PROGRAMA') &&
+                                                <LinhaDestaque 
+                                                    cor={ ordem.estado === 'ANALISADA' ? '#900' : '#FFF'}
+                                                    corTexto={ordem.estado === 'ANALISADA' ? '#FFF' : '#000'} 
+                                                >{ordem.estado}</LinhaDestaque>
+                                            }
+                                            {(fun_categoria.substring(0,7) === 'SUPORTE') &&
+                                                <LinhaDestaque 
+                                                cor={ordem.estado === 'PROGRAMADA' ? '#900' : '#FFF'} 
+                                                corTexto={ordem.estado === 'PROGRAMADA' ? '#FFF' : '#000'}                                             
+                                                >{ordem.estado}</LinhaDestaque>
+                                            }
                                             <td>{ordem.prioridade}</td>
                                             <td>{ordem.programador}</td>
                                             <td>{ordem.quemAbriu}</td>

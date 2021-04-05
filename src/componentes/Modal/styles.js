@@ -1,23 +1,24 @@
 import styled from 'styled-components';
 
 export const Container = styled.div`
-    display: flex;
-    justify-content: center;
+    ${props => `${props.altura === '80vh' ? 'display: flex;' : ''}`}
+    ${props => `${props.altura === '80vh' ? 'justify-content: center;' : ''}`}       
     .modal-overlay {        
+        display: flex;  
+        justify-content: center;  
+        align-items: center;                  
         position: absolute;
         color: black;
         z-index: 5;
         opacity: 0;
-        visibility: hidden;          
+        visibility: hidden; 
+        
     }
     .modal-overlay.active {
         opacity: 1;
-        visibility: visible;                 
+        visibility: visible;
     }
     .modal {
-        height: ${props => `${props.altura}px`};
-        width: ${props => `${props.largura}px`};         
-        margin-left: ${props => `${props.left}px`};
         padding: 10px;
         border-radius: 3px;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -26,7 +27,10 @@ export const Container = styled.div`
         visibility: hidden;
         transition: all 0.6s cubic-bezier(0.55, 0, 0.1, 1);
         transform: scale(1.2);
-        background-color: white;
+        background-color: white;                
+        height: ${props => `${props.altura}`};
+        width: ${props => `${props.largura}`};         
+        margin-left: ${props => `${props.left}`};    
     }
     .modal .close-modal {
         position: absolute;

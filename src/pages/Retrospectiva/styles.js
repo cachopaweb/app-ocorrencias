@@ -4,45 +4,18 @@ export const Container = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;    
-    width: 100%;    
-    padding-bottom: 30px;
-    overflow-y:auto;
-    .card{
-        padding: 8px;
-        background-color: white;
-        margin-top: 50px;
-        border-radius: 8px;
-        box-shadow: 0px 2px 2px 2px rgba(0,0,0,0.15)
-                    0px 10px 20px -10px rgba(0,0,0,0.1);
-        color: black;    
-        max-width: 1200px;            
-    }   
-
-    table {
-        border-collapse: collapse;
-        border-spacing: 0;
-        width: 100%;
-        border: 1px solid #ddd;
-    }
-
-    th, td {
-        text-align: left;
-        padding: 8px;
-    }
-
-    tr:nth-child(even){background-color: #f2f2f2}
-
+    color: black;
+    font-weight: bold; 
     #form {
-        padding: 20px 0;
         margin:0;       
-        width: 100%;        
+        width: 100%;
     }
 
-    #form form {    
+    #form form {   
         margin: 15px;
         border-radius: 8px;       
         background: white;        
-        padding: 20px;        
+        padding: 20px;          
         box-shadow: 0px 2px 2px 2px rgba(0, 0, 0, 0.15), 
             0px 10px 20px -10px rgba(0, 0, 0, 0.1)
     }
@@ -57,6 +30,7 @@ export const Container = styled.div`
 
     .form-group {
         display: flex;
+        flex-direction: column;
         margin-bottom: 10px;
     }
 
@@ -87,26 +61,46 @@ export const Container = styled.div`
         font-size: 1.1em;
         margin-top: 5px;
         margin-bottom: 5px;
-        height: 20px;
+        height: 40px;
     }
 
-    .react-datepicker-wrapper{
-        width: 100%;
+    .btn_salvar{
+        width: 45%;
+        height: 30px;    
+        border: none;
+        border-radius: 18px;
+        color: white;
+        background-color: green;
+        margin: 5px;
+        box-shadow: 1px 2px 2px 1px rgba(0, 0, 0, 0.5);
+        font-weight: bold;
+    }
+
+    .btn_salvar:hover{
+        color: black;
+        background-color: white;
+        border: 1px solid #000;
+    }
+
+    .btn_cancelar{
+        width: 45%;
+        height: 30px;    
+        border: none;
+        border-radius: 18px;
+        color: white;
+        background-color: red;
+        margin: 5px;
+        box-shadow: 1px 2px 2px 1px rgba(0, 0, 0, 0.5);
+        font-weight: bold;
+    }
+
+    .btn_cancelar:hover{
+        color: black;
+        background-color: white;
+        border: 1px solid #000;
     }
 
     textarea{
         height: 150px;
     }
 `;
-
-export const LinhaDestaque = styled.th`
-    background-color: ${props=> props.cor};
-    color: ${props=> props.corTexto};
-    border-radius: 8px;
-    text-align: center;     
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    align-self: center;
-    height: 50px;
-`

@@ -3,7 +3,15 @@ import React, { useState } from 'react';
 import { Container } from './styles';
 import { useUsuario } from '../../context/UsuarioContext';
 import { Link } from 'react-router-dom';
-import { MdPerson, MdAccountCircle, MdSpeakerNotes, MdSpeakerNotesOff, MdAlarmOn, MdLockOpen, MdAddBox  } from 'react-icons/md';
+import { MdPerson, 
+         MdAccountCircle, 
+         MdSpeakerNotes, 
+         MdSpeakerNotesOff, 
+         MdAlarmOn, 
+         MdLockOpen, 
+         MdAddBox, 
+         MdAutorenew  
+} from 'react-icons/md';
 
 function Header({title}) {
   const { usu_codigo, login } = useUsuario();
