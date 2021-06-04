@@ -3,10 +3,10 @@ import { MdSave, MdCancel } from 'react-icons/md';
 import swal from 'sweetalert';
 
 import { Container } from './styles';
-import Button from '../Button';
-import api from '../../services/api';
-import { useUsuario } from '../../context/UsuarioContext';
-import quadroContext from '../QuadroScrum/context';
+import Button from '../../Button';
+import api from '../../../services/api';
+import { useUsuario } from '../../../context/UsuarioContext';
+import quadroContext from '../context';
 
 function CriarEstoria({ cliente, projeto_id = 0, setModalActivate, cod_ocorrencia = 0 }) {
     const [prioridade, setprioridade] = useState(2);

@@ -7,11 +7,11 @@ import { registerLocale } from 'react-datepicker';
 import pt_br from 'date-fns/locale/pt-BR';
 
 import { Container, Preview, Thumb, ThumbInner } from './styles';
-import Button from '../Button';
-import api from '../../services/api';
-import Modal from '../../componentes/Modal';
-import Dropzone from "../../componentes/DropZone";
-import quadroContext from '../QuadroScrum/context';
+import Button from '../../Button';
+import api from '../../../services/api';
+import Modal from '../../Modal';
+import Dropzone from "../../../componentes/DropZone";
+import quadroContext from '../context';
 
 registerLocale('pt-BR', pt_br);
 

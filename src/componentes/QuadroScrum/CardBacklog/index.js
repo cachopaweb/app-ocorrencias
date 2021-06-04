@@ -4,8 +4,8 @@ import { MdDelete } from 'react-icons/md';
 
 import { Container, Label } from './styles';
 import swal from 'sweetalert';
-import api from '../../services/api';
-import BoardContext from '../QuadroScrum/context';
+import api from '../../../services/api';
+import BoardContext from '../context';
 
 export default function CardBacklog({ data, index, listIndex}) {
   const { setAtualizar } = useContext(BoardContext);

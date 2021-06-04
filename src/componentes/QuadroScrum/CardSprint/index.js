@@ -3,19 +3,19 @@ import { useDrag, useDrop } from 'react-dnd';
 
 import { Container, Label, Preview, Thumb, ThumbInner } from './styles';
 import { useState, useRef, useContext, useEffect } from 'react';
-import QuadroScrumContext from '../QuadroScrum/context';
-import CardSprintBacklog from '../../componentes/CardSprintBacklog';
-import api from '../../services/api';
+import QuadroScrumContext from '../context';
+import CardSprintBacklog from '../CardSprintBacklog';
+import api from '../../../services/api';
 import { useHistory } from 'react-router-dom';
-import Button from '../Button';
+import Button from '../../Button';
 import { MdClose } from 'react-icons/md';
-import { useUsuario } from '../../context/UsuarioContext';
-import Modal from '../../componentes/Modal';
+import { useUsuario } from '../../../context/UsuarioContext';
+import Modal from '../../Modal';
 import { MdDelete } from 'react-icons/md'
 
 import swal from 'sweetalert';
 
-function CardsBacklog({backlogs, listIndex, dataEntrega}){
+function CardsBacklog({ backlogs, listIndex, dataEntrega }) {
   return (
     backlogs.map((backlog, index) => <CardSprintBacklog key={index} index={index} listIndex={listIndex} data={backlog} dataEntrega={dataEntrega} />)
   );
@@ -36,7 +36,7 @@ export default function CardSprint({ data, index, listIndex, cliente, contrato }
     try {
       let response = await api.get(`/Ordens/Arquivos/${data.id}`);
       if (response.status === 200)
-        setFiles(response.data);      
+        setFiles(response.data);
     } catch (error) {
       console.log(error)
     }
@@ -49,7 +49,7 @@ export default function CardSprint({ data, index, listIndex, cliente, contrato }
 
   useEffect(() => {
     fetchArquivos();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const [{ isDragging }, dragRef] = useDrag({
@@ -60,7 +60,7 @@ export default function CardSprint({ data, index, listIndex, cliente, contrato }
   });
 
   async function criarVinculoSprintBacklog(codBacklog, codSprint) {
-    let response = await api.post(`/sprint_backlog/${codSprint}`, { Codigo: codBacklog });
+    await api.post(`/sprint_backlog/${codSprint}`, { Codigo: codBacklog });
     setAtualizar(true);
   }
 
@@ -117,14 +117,14 @@ export default function CardSprint({ data, index, listIndex, cliente, contrato }
     history.push({ pathname: '/aberturaOS', state: { cliente: cliente, contrato: contrato, ocorrencia, cod_ocorrencia: codigos_ocorrencias[0], funAtendente: cod_funcionario, dataEntrega: data.dataEntrega, prioridade: prioridade, codSprint: data.id } })
   }
 
-  const handleDeleteSprint = async (id)=> {
+  const handleDeleteSprint = async (id) => {
     console.log(id)
     const response = await api.delete(`/sprint/${id}`);
     console.log(response)
     return (response.status === 204);
   }
 
-  const onDelete = (id)=>{
+  const onDelete = (id) => {
     swal({
       title: "Deseja excluir esta Sprint?",
       text: "",
@@ -132,19 +132,19 @@ export default function CardSprint({ data, index, listIndex, cliente, contrato }
       buttons: true,
       dangerMode: true,
     })
-    .then((willDelete) => {
-      if (willDelete) {
-        const isDeleted = handleDeleteSprint(id);
-        if (isDeleted){
-          swal("Sprint excluida com sucesso", {
-            icon: "success",
-          });
-          setAtualizar();
-        }else{
-          swal("Falha ao deletar Sprint!", {icon: "warning"})
-        }        
-      } 
-    });
+      .then((willDelete) => {
+        if (willDelete) {
+          const isDeleted = handleDeleteSprint(id);
+          if (isDeleted) {
+            swal("Sprint excluida com sucesso", {
+              icon: "success",
+            });
+            setAtualizar();
+          } else {
+            swal("Falha ao deletar Sprint!", { icon: "warning" })
+          }
+        }
+      });
   }
 
   return (
@@ -153,15 +153,22 @@ export default function CardSprint({ data, index, listIndex, cliente, contrato }
         <header>
           {data.labels.map(label => <Label key={label} color={label} />)}
           <strong>
-            {new Date(data.dataEntrega).toLocaleDateString()}
+            <p>
+              <span><strong>Data Entrega: </strong></span>
+              {new Date(data.dataEntrega).toLocaleDateString()}
+            </p>
+            <p>
+              <span><strong>Data Sprint: </strong></span>
+              {new Date(data.data).toLocaleDateString()}
+            </p>
           </strong>
         </header>
-        <p>{data.content}</p>        
+        <p>{data.content}</p>
         {
-          backlogs.length > 0 ? 
-            (  
+          backlogs.length > 0 ?
+            (
               <CardsBacklog key={backlogs} backlogs={backlogs} listIndex={listIndex} dataEntrega={data.dataEntrega} />
-              
+
             )
             : <h3>Aguardando Backlogs...</h3>
         }
@@ -177,7 +184,7 @@ export default function CardSprint({ data, index, listIndex, cliente, contrato }
           }
         </Preview>
         <Button Icon={MdClose} nome={"Abrir OS"} color={"#7FA66D"} corTexto={"white"} borderRadius={'30px'} click={() => abrirOrdemServico()} disabled={data.ordem > 0 || backlogs.length === 0} />
-        <button onClick={()=> onDelete(data.id)}><MdDelete size={20} color='red' /></button>
+        <button onClick={() => onDelete(data.id)}><MdDelete size={20} color='red' /></button>
       </Container>
       {
         modalAtivo &&

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import BoardContext from './context';
 import { Centralizar, Container, Floating } from './styles';
-import Lista from '../Lista';
+import Lista from './Lista';
 import produce from 'immer';
 import Header from '../Header';
 import { useLocation } from 'react-router-dom';
@@ -63,11 +63,11 @@ export default function QuadroScrum() {
           <h1>Aguarde, carregando projeto Scrum...</h1>
         </Centralizar>
       ) : (
-        <BoardContext.Provider value={{ lista, move, setAtualizar }}>          
+        <BoardContext.Provider value={{ lista, move, setAtualizar }}>
           <Header title={`Scrum ${cliente}`} />
           {
             burndownAtivo && (
-              <Modal activate={burndownAtivo} setActivate={setBurndownAtivo} altura={'70%'} largura={'80%'}>
+              <Modal activate={burndownAtivo} setActivate={setBurndownAtivo} altura='600px' largura='700px'>
                 <Burndown projeto_id={projeto_id} />
               </Modal>
             )
@@ -88,8 +88,8 @@ export default function QuadroScrum() {
               {
                 <Button Icon={MdShowChart} tamanho_icone={40} borderRadius={"50%"} corTexto={"white"} click={() => setBurndownAtivo(!burndownAtivo)} />
               }
-            </Floating>            
-          </Container>          
+            </Floating>
+          </Container>
         </BoardContext.Provider>)
   );
 }

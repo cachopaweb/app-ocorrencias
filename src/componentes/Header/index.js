@@ -27,6 +27,7 @@ function Header({title}) {
           </div>
           <nav>
               <ul>
+                <li><Link to={'/QuadroKanban'} onClick={()=> setshowMenu(!showMenu)}><MdAutorenew /> Quadro Kanban</Link></li>
                 <li><Link to={'/ocorrencias'} onClick={()=> setshowMenu(!showMenu)}><MdSpeakerNotes /> Ocorrências</Link></li>
                 <li><Link to={'/ocorrenciasFinalizadas'} onClick={()=> setshowMenu(!showMenu)}><MdSpeakerNotesOff /> Ocorrências Fin.</Link></li>
                 <li><Link to={'/clientes'} onClick={()=> setshowMenu(!showMenu)}><MdPerson /> Clientes</Link></li>

@@ -3,11 +3,11 @@ import styled from 'styled-components';
 export const Container = styled.div`
   padding: 0 15px;
   height: 100%;
-  flex: 0 0 0 0 250px;
+  flex: 0 0 0 0 400px;
   width: 100%;
   flex-grow: 0;
   flex-shrink: 0;
-  flex-basis: 250px;
+  flex-basis: 400px;
 
   & + div {
       border-left: 1px solid rgb(0, 0, 0, 0.05);

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Container, Preview, Thumb, ThumbInner } from './styles';
 import Card from '../../componentes/Card';
 import Button from '../../componentes/Button';
-import { useLocation, useHistory } from 'react-router-dom';
 import { MdEdit, MdSave, MdCheckCircle, MdModeComment } from 'react-icons/md'
 import api from '../../services/api';
 import swal from 'sweetalert';
@@ -11,7 +10,6 @@ import { useUsuario } from '../../context/UsuarioContext';
 
 function OrdemDetalhe({ ordem, SetDadosAlterados }){
     const { fun_categoria, cod_funcionario } = useUsuario();
-    const history = useHistory();
     const [emEdicao, setEmEdicao] = useState(false);
     const [ocorrencia, setOcorrencia] = useState(ordem.ocorrencia);
     const [finalizarOS, setfinalizarOS] = useState(false);

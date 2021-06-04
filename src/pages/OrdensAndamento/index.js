@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import Header from '../../componentes/Header';
 import { MdAssignment, MdSave } from 'react-icons/md';
-import { Link } from 'react-router-dom';
 
 import { Container, LinhaDestaque } from './styles';
 import { useUsuario } from '../../context/UsuarioContext';
@@ -29,13 +28,13 @@ function OrdensAndamento() {
     const [modalDetalhesAtivo, setModalDetalhesAtivo] = useState(false);
     const [ordCodigo, setOrdCodigo] = useState(0);
     const [dataAntiga, setDataAntiga] = useState('');
-    const [filtroOrdens, setFiltroOrdens] = useState('');
+    const [filtroOrdens, setFiltroOrdens] = useState('minhas_os');
 
     async function CarregaDadosOrdens() {
         let response = await api.get('/Ordens');
         SetOrdens(response.data);
-        setOrdensFiltrada(response.data);
-        setFiltroOrdens('minhas_os')
+        setOrdensFiltrada(response.data)
+        filtrarOrdens(response.data)
     }
 
     function changePrazoEntrega(data) {
@@ -58,7 +57,7 @@ function OrdensAndamento() {
             PrazoNovo: dataPrazoEntrega.toLocaleDateString()
         }
         let response = await api.put(`/Ordens/${ordCodigo}`, data);
-        if (response.status === 200) {
+        if (response.status === 203) {
             swal('Prazo entrega atualizado com sucesso!', `Código histórico ${response.data.Historico}`, 'success')
             setDadosAlterados(true)
         } else {
@@ -68,34 +67,36 @@ function OrdensAndamento() {
 
 
     useEffect(() => {
-        setFiltroOrdens('');
         CarregaDadosOrdens();
         setModalAtivo(false);
         setModalDetalhesAtivo(false);
-        setDadosAlterados(false);
+        setDadosAlterados(false)
     }, [dadosAlterados])
 
-    useEffect(()=>{
-        if (filtroOrdens === 'minhas_os'){
-            var filtrada = [];
-            if (fun_categoria.substring(0,8) === 'PROGRAMA')
-            {
-                filtrada = ordensFiltrada.filter((ordem)=> (
-                ordem.programador.substring(0, 5) === login.substring(0, 5)
+    const filtrarOrdens = (_ordens) => {
+        if (_ordens.length === 0) return;
+        var filtrada = [];
+        if (filtroOrdens === 'minhas_os') {
+            if (fun_categoria.substring(0, 8) === 'PROGRAMA') {
+                filtrada = _ordens.filter((ordem) => (
+                    ordem.programador.substring(0, 5) === login.substring(0, 5)
                 ));
-            }else
-            {
-                filtrada = ordensFiltrada.filter((ordem)=> (
-                ordem.fun_teste.substring(0, 5) === login.substring(0, 5)
+            } else {
+                filtrada = _ordens.filter((ordem) => (
+                    ordem.fun_teste.substring(0, 5) === login.substring(0, 5)
                 ));
             }
             setOrdensFiltrada(filtrada);
-        }else{
-            setOrdensFiltrada(ordens);
+        } else {
+            setOrdensFiltrada(_ordens);
         }
-    }, [filtroOrdens])
+    }
 
-    const SelecionaOrdem = (ordem) =>{
+    useEffect(() => {
+        filtrarOrdens(ordens)
+    }, [ordens, filtroOrdens])
+
+    const SelecionaOrdem = (ordem) => {
         setModalDetalhesAtivo(true)
         setOrdemSelecionada(ordem)
     }
@@ -116,7 +117,7 @@ function OrdensAndamento() {
             </Modal>
 
             <Modal activate={modalDetalhesAtivo} setActivate={setModalDetalhesAtivo} altura={'auto'} largura={'auto'}>
-              {modalDetalhesAtivo && <OrdemDetalhe ordem={ordemSelecionada} SetDadosAlterados={setDadosAlterados} />}
+                {modalDetalhesAtivo && <OrdemDetalhe ordem={ordemSelecionada} SetDadosAlterados={setDadosAlterados} />}
             </Modal>
 
             <Container>
@@ -155,23 +156,23 @@ function OrdensAndamento() {
                         </thead>
                         {
                             ordensFiltrada.length > 0 ?
-                            ordensFiltrada.map((ordem) => (
+                                ordensFiltrada.map((ordem) => (
                                     <tbody>
                                         <tr>
                                             <th>{new Date(ordem.novo_prazoe).toLocaleDateString()}</th>
                                             <td>{ordem.ord_codigo}</td>
                                             <td>{ordem.cli_nome}</td>
                                             <td>{new Date(ordem.dataAbertura).toLocaleDateString()}</td>
-                                            {(fun_categoria.substring(0,8) === 'PROGRAMA') &&
-                                                <LinhaDestaque 
-                                                    cor={ ordem.estado === 'ANALISADA' ? '#900' : '#FFF'}
-                                                    corTexto={ordem.estado === 'ANALISADA' ? '#FFF' : '#000'} 
+                                            {(fun_categoria.substring(0, 8) === 'PROGRAMA') &&
+                                                <LinhaDestaque
+                                                    cor={ordem.estado === 'ANALISADA' ? '#900' : '#FFF'}
+                                                    corTexto={ordem.estado === 'ANALISADA' ? '#FFF' : '#000'}
                                                 >{ordem.estado}</LinhaDestaque>
                                             }
-                                            {(fun_categoria.substring(0,7) === 'SUPORTE') &&
-                                                <LinhaDestaque 
-                                                cor={ordem.estado === 'PROGRAMADA' ? '#900' : '#FFF'} 
-                                                corTexto={ordem.estado === 'PROGRAMADA' ? '#FFF' : '#000'}                                             
+                                            {(fun_categoria.substring(0, 7) === 'SUPORTE') &&
+                                                <LinhaDestaque
+                                                    cor={ordem.estado === 'PROGRAMADA' ? '#900' : '#FFF'}
+                                                    corTexto={ordem.estado === 'PROGRAMADA' ? '#FFF' : '#000'}
                                                 >{ordem.estado}</LinhaDestaque>
                                             }
                                             <td>{ordem.prioridade}</td>
@@ -179,7 +180,7 @@ function OrdensAndamento() {
                                             <td>{ordem.quemAbriu}</td>
                                             <td>{ordem.fun_teste}</td>
                                             <td>{ordem.fun_entrega}</td>
-                                            <td><Button nome="Ver Detalhes" borderRadius="10px" color="#000" corTexto="#FFF" Icon={MdAssignment} click={()=> SelecionaOrdem(ordem)} /></td>
+                                            <td><Button nome="Ver Detalhes" borderRadius="10px" color="#000" corTexto="#FFF" Icon={MdAssignment} click={() => SelecionaOrdem(ordem)} /></td>
                                             {cod_funcionario === 19 && <td><Button click={() => modalPrazoEntrega(ordem.ord_codigo, ordem.prazoEntrega)} Icon={MdAlarmAdd} nome="Novo Prazo" borderRadius={"18px"} color={"black"} corTexto={"white"} /></td>}
                                         </tr>
                                     </tbody>

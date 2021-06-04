@@ -2,14 +2,14 @@ import React, { useState, useContext, useRef } from 'react';
 import { MdAdd } from 'react-icons/md';
 import { Container } from './styles';
 import CardSprint from '../CardSprint';
-import Modal from '../Modal';
+import Modal from '../../Modal';
 import CriarEstoria from '../CriarEstoria';
 import CriarSprint from '../CriarSprint';
 import { useDrop } from 'react-dnd';
 
-import QuadroScrumContext from '../QuadroScrum/context';
+import QuadroScrumContext from '../context';
 import CardBacklog from '../CardBacklog';
-import api from '../../services/api';
+import api from '../../../services/api';
 
 export default function Lista({ data, index: listIndex, cliente, projeto_id, contrato, ocorrencia }) {
   const [modalCriarEstoria, setModalCriarEstoria] = useState(false);

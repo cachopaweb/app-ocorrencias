@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import { Container, Label } from './styles';
 import { useDrag } from 'react-dnd';
-import Modal from '../Modal';
+import Modal from '../../Modal';
 
 function CardSprintBacklog({ data, index, listIndex, dataEntrega }) {  
     const [modalAtivo, setModalAtivo] = useState(false);    

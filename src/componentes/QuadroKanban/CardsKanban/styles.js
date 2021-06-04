@@ -2,7 +2,7 @@ import styled, { css } from 'styled-components';
 
 export const Container = styled.div`
   position: relative;
-  background: #FFF;
+  background: ${props => props.color ? props.color : '#FFF'};
   border-radius: 5px;
   margin-bottom: 10px;
   color: black;
@@ -25,6 +25,10 @@ export const Container = styled.div`
     width: 100%;
   }
 
+  p strong{
+    color: gray;
+  }
+
   :hover{
     transform: translateY(-2px);
   }
@@ -36,7 +40,7 @@ export const Container = styled.div`
       margin-top: 5px;
   }
 
-  ${props => props.isDragging && css `
+  ${props => props.isDragging && css`
     border: 2px dashed rgba(0, 0, 0, 0.2);
     padding-top: 31px;
     border-radius: 0;
