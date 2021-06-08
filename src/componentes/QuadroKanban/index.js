@@ -82,7 +82,7 @@ function QuadroKanban() {
             }
             return item;
         });
-        console.log('novalista', novaLista)
+
         return novaLista;
     }
 

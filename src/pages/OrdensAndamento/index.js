@@ -101,6 +101,17 @@ function OrdensAndamento() {
         setOrdemSelecionada(ordem)
     }
 
+    const corLinhaDestaqueSuporte = (estado) => {
+        const estadoCores = { 'PROGRAMADA': '#900', 'TESTADA': '#008080', 'DEFAULT': '#FFF' };
+        return estadoCores[estado] ?? estadoCores['DEFAULT'];
+    }
+
+    const corLinhaDestaqueProgramacao = (estado) => {
+        const estadoCores = { 'ANALISADA': '#900', 'PROGRAMADA': '#008080', 'DEFAULT': '#FFF' };
+        return estadoCores[estado] ?? estadoCores['DEFAULT'];
+    }
+
+
     return (
         <>
             <Header title={'Em Andamento'} />
@@ -165,14 +176,14 @@ function OrdensAndamento() {
                                             <td>{new Date(ordem.dataAbertura).toLocaleDateString()}</td>
                                             {(fun_categoria.substring(0, 8) === 'PROGRAMA') &&
                                                 <LinhaDestaque
-                                                    cor={ordem.estado === 'ANALISADA' ? '#900' : '#FFF'}
-                                                    corTexto={ordem.estado === 'ANALISADA' ? '#FFF' : '#000'}
+                                                    cor={corLinhaDestaqueProgramacao(ordem.estado)}
+                                                    corTexto={ordem.estado === 'ANALISADA' || ordem.estado == 'PROGRAMADA' ? '#FFF' : '#000'}
                                                 >{ordem.estado}</LinhaDestaque>
                                             }
                                             {(fun_categoria.substring(0, 7) === 'SUPORTE') &&
                                                 <LinhaDestaque
-                                                    cor={ordem.estado === 'PROGRAMADA' ? '#900' : '#FFF'}
-                                                    corTexto={ordem.estado === 'PROGRAMADA' ? '#FFF' : '#000'}
+                                                    cor={corLinhaDestaqueSuporte(ordem.estado)}
+                                                    corTexto={ordem.estado === 'PROGRAMADA' || ordem.estado === 'TESTADA' ? '#FFF' : '#000'}
                                                 >{ordem.estado}</LinhaDestaque>
                                             }
                                             <td>{ordem.prioridade}</td>
