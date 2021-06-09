@@ -18,11 +18,12 @@ import Burndown from '../componentes/Burndown';
 import Create_Projeto_Scrum from '../pages/Create_Projeto_Scrum';
 import Retrospectiva from '../pages/Retrospectiva';
 import QuadroKanban from '../componentes/QuadroKanban';
+import Calendario from '../componentes/Calendario';
 
 
 const PrivateRoute = ({ component: Component, ...rest }) => {
   const { usu_codigo } = useUsuario();
-  return(
+  return (
     <Route
       {...rest}
       render={props =>
@@ -40,25 +41,26 @@ const PrivateRoute = ({ component: Component, ...rest }) => {
 function Routes() {
   return (
     <Router>
-        <Switch>
-            <Route exact path="/" component={Login} />
-            <PrivateRoute path="/ocorrencias" component={Ocorrencia} />
-            <PrivateRoute path="/create" component={createOcorrencia} />
-            <PrivateRoute path="/clientes" component={Clientes} />
-            <PrivateRoute path="/aberturaOS" component={AberturaOS} />
-            <PrivateRoute path="/contaReceber" component={ContaReceber} />
-            <PrivateRoute path='/ocorrenciasFinalizadas' component={OcorrenciasFinalizadas} />
-            <PrivateRoute path='/ordensAndamento' component={OrdensAndamento} />
-            <PrivateRoute path='/ordemDetalhe' component={OrdemDetalhe} />
-            <PrivateRoute path='/licencas' component={Licencas} />
-            <PrivateRoute path='/scrum' component={Scrum} />
-            <PrivateRoute path='/quadroScrum' component={QuadroScrum} />            
-            <PrivateRoute path='/burndown' component={Burndown} />            
-            <PrivateRoute path='/create_projeto_scrum' component={Create_Projeto_Scrum} />            
-            <PrivateRoute path='/retrospectiva' component={Retrospectiva} />            
-            <PrivateRoute path='/QuadroKanban' component={QuadroKanban} />            
-            <Route path="*" component={() => <h1>Pagina nao encontrada</h1>} />
-        </Switch>
+      <Switch>
+        <Route exact path="/" component={Login} />
+        <PrivateRoute path="/ocorrencias" component={Ocorrencia} />
+        <PrivateRoute path="/create" component={createOcorrencia} />
+        <PrivateRoute path="/clientes" component={Clientes} />
+        <PrivateRoute path="/aberturaOS" component={AberturaOS} />
+        <PrivateRoute path="/contaReceber" component={ContaReceber} />
+        <PrivateRoute path='/ocorrenciasFinalizadas' component={OcorrenciasFinalizadas} />
+        <PrivateRoute path='/ordensAndamento' component={OrdensAndamento} />
+        <PrivateRoute path='/ordemDetalhe' component={OrdemDetalhe} />
+        <PrivateRoute path='/licencas' component={Licencas} />
+        <PrivateRoute path='/scrum' component={Scrum} />
+        <PrivateRoute path='/quadroScrum' component={QuadroScrum} />
+        <PrivateRoute path='/burndown' component={Burndown} />
+        <PrivateRoute path='/create_projeto_scrum' component={Create_Projeto_Scrum} />
+        <PrivateRoute path='/retrospectiva' component={Retrospectiva} />
+        <PrivateRoute path='/QuadroKanban' component={QuadroKanban} />
+        <PrivateRoute path='/Calendario' component={Calendario} />
+        <Route path="*" component={() => <h1>Pagina nao encontrada</h1>} />
+      </Switch>
     </Router>
   )
 }
