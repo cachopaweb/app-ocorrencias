@@ -6,10 +6,11 @@ import interactionPlugin from "@fullcalendar/interaction";
 
 import Header from '../Header';
 import Modal from '../Modal';
-import { Container, Centralizar } from './styles';
+import { Container, Centralizar, Form } from './styles';
 import api from '../../services/api';
 import OrdemDetalhe from '../../pages/OrdemDetalhe';
 import Card from '../Card';
+import { useUsuario } from '../../context/UsuarioContext';
 
 function Calendario() {
     const [listaOcorrencias, setListaOcorrencias] = useState([]);
@@ -20,6 +21,8 @@ function Calendario() {
     const [modalOcorrencias, setModalOcorrencias] = useState(false);
     const [ordemSelecionada, setOrdemSelecionada] = useState({});
     const [ocorrenciaSelecionada, setOcorrenciaSelecionada] = useState({});
+    const [filtroEventos, setFiltroEventos] = useState('minhas_os');
+    const { fun_categoria, login, cod_funcionario } = useUsuario();
 
     const findOrdemById = (id) => {
         let ordemResult = {};
@@ -52,7 +55,9 @@ function Calendario() {
                 return {
                     id: oco.codigo,
                     title: `OCO ${oco.codigo} - ${oco.cli_nome}`,
-                    date: converteData(oco.data)
+                    date: converteData(oco.data),
+                    programador: '',
+                    fun_teste: oco.fun_atendente,
                 }
             });
             carregaEventosIniciais(eventos);
@@ -60,6 +65,16 @@ function Calendario() {
         } else {
             setCarregando(false);
         }
+    }
+
+    const corLinhaDestaqueSuporte = (estado) => {
+        const estadoCores = { 'PROGRAMADA': '#900', 'TESTADA': '#008080', 'DEFAULT': '#FFF' };
+        return estadoCores[estado] ?? estadoCores['DEFAULT'];
+    }
+
+    const corLinhaDestaqueProgramacao = (estado) => {
+        const estadoCores = { 'ANALISADA': '#900', 'PROGRAMADA': '#008080', 'DEFAULT': '#FFF' };
+        return estadoCores[estado] ?? estadoCores['DEFAULT'];
     }
 
     async function fetchOrdens() {
@@ -71,7 +86,12 @@ function Calendario() {
                 return {
                     id: ord.ord_codigo,
                     title: `OS ${ord.ord_codigo} - ${ord.cli_nome}`,
-                    date: converteData(ord.novo_prazoe)
+                    date: converteData(ord.novo_prazoe),
+                    programador: ord.programador,
+                    fun_teste: ord.fun_teste,
+                    backgroundColor: (fun_categoria.substring(0, 8) === 'PROGRAMA') ? corLinhaDestaqueProgramacao(ord.estado) : corLinhaDestaqueSuporte(ord.estado),
+                    borderColor: (fun_categoria.substring(0, 8) === 'PROGRAMA') ? corLinhaDestaqueProgramacao(ord.estado) : corLinhaDestaqueSuporte(ord.estado),
+                    textColor: (fun_categoria.substring(0, 8) === 'PROGRAMA') ? (ord.estado === 'ANALISADA' || ord.estado === 'PROGRAMADA' ? '#FFF' : '#000') : (ord.estado === 'PROGRAMADA' || ord.estado === 'TESTADA' ? '#FFF' : '#000')
                 }
             });
             carregaEventosIniciais(eventos);
@@ -121,7 +141,7 @@ function Calendario() {
 
     function converteData(data) {
         let arrayData = data.split('/');
-        let date = `${parseInt('20' + arrayData[2])}-${String(arrayData[0]).padStart(2, '0')}-${arrayData[1]}`;
+        let date = `${parseInt('20' + arrayData[2])}-${String(arrayData[0]).padStart(2, '0')}-${String(arrayData[1]).padStart(2, '0')}`;
         return date;
     }
 
@@ -139,7 +159,7 @@ function Calendario() {
     }
 
     const handleEvents = (events) => {
-        console.log(events)
+        //console.log(events)
     }
 
     const handleEventClick = (clickInfo) => {
@@ -154,9 +174,69 @@ function Calendario() {
         }
     }
 
+    const filtrarEventos = (eventos) => {
+        if (eventos.length === 0) return;
+        var filtrada = [];
+        if (filtroEventos === 'minhas_os') {
+            if (fun_categoria.substring(0, 8) === 'PROGRAMA') {
+                filtrada = eventos.filter((evento) => (
+                    evento.programador.substring(0, 5) === login.substring(0, 5)
+                ));
+            } else {
+                filtrada = eventos.filter((evento) => (
+                    evento.fun_teste.substring(0, 5) === login.substring(0, 5)
+                ));
+            }
+            setEventosIniciais(filtrada);
+        } else {
+            var eventos = listaOrdens.map((ord) => {
+                return {
+                    id: ord.ord_codigo,
+                    title: `OS ${ord.ord_codigo} - ${ord.cli_nome}`,
+                    date: converteData(ord.novo_prazoe),
+                    programador: ord.programador,
+                    fun_teste: ord.fun_teste,
+                    backgroundColor: (fun_categoria.substring(0, 8) === 'PROGRAMA') ? corLinhaDestaqueProgramacao(ord.estado) : corLinhaDestaqueSuporte(ord.estado),
+                    borderColor: (fun_categoria.substring(0, 8) === 'PROGRAMA') ? corLinhaDestaqueProgramacao(ord.estado) : corLinhaDestaqueSuporte(ord.estado),
+                    textColor: (fun_categoria.substring(0, 8) === 'PROGRAMA') ? (ord.estado === 'ANALISADA' || ord.estado === 'PROGRAMADA' ? '#FFF' : '#000') : (ord.estado === 'PROGRAMADA' || ord.estado === 'TESTADA' ? '#FFF' : '#000')
+                }
+            });
+            eventos = [...eventos, ...listaOcorrencias.map((oco) => {
+                return {
+                    id: oco.codigo,
+                    title: `OCO ${oco.codigo} - ${oco.cli_nome}`,
+                    date: converteData(oco.data),
+                    programador: '',
+                    fun_teste: oco.fun_atendente,
+                }
+            })];
+            setEventosIniciais(eventos);
+        }
+    }
+
+    useEffect(() => {
+        if (eventosIniciais.length > 0) {
+            filtrarEventos(eventosIniciais)
+        }
+    }, [listaOcorrencias, listaOrdens, filtroEventos])
+
     return (
         <>
             <Header title='Calendário' />
+            <Form>
+                <form id="form">
+                    <div className="form-group">
+                        <div className="input-control">
+                            <label htmlFor="minhas_os">Minhas Terefas</label>
+                            <input type="radio" name="filtro" id="minhas_os" value={filtroEventos} onChange={() => setFiltroEventos('minhas_os')} checked={filtroEventos === 'minhas_os'} />
+                        </div>
+                        <div className="input-control">
+                            <label htmlFor="todas">Todas</label>
+                            <input type="radio" name="filtro" id="todas" value={filtroEventos} onChange={() => setFiltroEventos('todas')} checked={filtroEventos === 'todas'} />
+                        </div>
+                    </div>
+                </form>
+            </Form>
             <Modal activate={modalOrdens} setActivate={setModalOrdens} altura={'auto'} largura={'auto'}>
                 {modalOrdens && <OrdemDetalhe ordem={ordemSelecionada} />}
             </Modal>

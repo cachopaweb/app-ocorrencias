@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 export const Container = styled.div`
-  background-color: ${props => props.atendente !== 0 ? "white" : "#B2D9A0" };
+  background-color: ${props => props.atendente !== 0 ? "white" : "#B2D9A0"};
   color: #323540;
   display: flex;
   flex-direction: column;
@@ -54,5 +54,25 @@ export const Container = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
+  }  
+`;
+
+export const TextoChecado = styled.span`
+  text-decoration: line-through;
+`;
+
+export const ProgressBar = styled.div`
+  width: 100%;
+  height: 5px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  background-color: "#B2D9A0";
+  div{
+    width: ${props => props.percent}%;    
+    background-color: green;
+    height: 5px;
+    border-radius: 10px;
+    margin-top: -10px;
   }
 `;
