@@ -6,7 +6,7 @@ import interactionPlugin from "@fullcalendar/interaction";
 
 import Header from '../Header';
 import Modal from '../Modal';
-import { Container, Centralizar, Form } from './styles';
+import { Container, Centralizar, Form, Calendar } from './styles';
 import api from '../../services/api';
 import OrdemDetalhe from '../../pages/OrdemDetalhe';
 import Card from '../Card';
@@ -223,58 +223,61 @@ function Calendario() {
     return (
         <>
             <Header title='Calendário' />
-            <Form>
-                <form id="form">
-                    <div className="form-group">
-                        <div className="input-control">
-                            <label htmlFor="minhas_os">Minhas Terefas</label>
-                            <input type="radio" name="filtro" id="minhas_os" value={filtroEventos} onChange={() => setFiltroEventos('minhas_os')} checked={filtroEventos === 'minhas_os'} />
-                        </div>
-                        <div className="input-control">
-                            <label htmlFor="todas">Todas</label>
-                            <input type="radio" name="filtro" id="todas" value={filtroEventos} onChange={() => setFiltroEventos('todas')} checked={filtroEventos === 'todas'} />
-                        </div>
-                    </div>
-                </form>
-            </Form>
-            <Modal activate={modalOrdens} setActivate={setModalOrdens} altura={'auto'} largura={'auto'}>
-                {modalOrdens && <OrdemDetalhe ordem={ordemSelecionada} />}
-            </Modal>
-            <Modal activate={modalOcorrencias} setActivate={setModalOcorrencias} altura={'auto'} largura={'auto'}>
-                {modalOcorrencias && <Card key={ocorrenciaSelecionada.codigo}
-                    cliente={ocorrenciaSelecionada.cli_nome}
-                    contrato={ocorrenciaSelecionada.contrato}
-                    projeto_id={ocorrenciaSelecionada.projeto_scrum}
-                    ocorrencia={ocorrenciaSelecionada.obs}
-                    atendente={ocorrenciaSelecionada.atendente}
-                    nomeAtendente={ocorrenciaSelecionada.fun_atendente}
-                    cod_ocorrencia={ocorrenciaSelecionada.codigo}
-                    data={converteData(ocorrenciaSelecionada.data)}
-                />}
-            </Modal>
             <Container>
-                {carregando ?
-                    <Centralizar>Carregando dados...</Centralizar>
-                    :
-                    <FullCalendar
-                        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-                        initialView="dayGridMonth"
-                        // select={handleDateSelect}
-                        eventContent={renderEventContent}
-                        eventsSet={handleEvents}
-                        events={eventosIniciais}
-                        eventClick={handleEventClick}
-                        locale='pt-br'
-                        weekends={true}
-                        editable={true}
-                        selectable={true}
-                        selectMirror={true}
-                        headerToolbar={{
-                            left: 'prev,next today',
-                            center: 'title',
-                            right: 'dayGridMonth,timeGridWeek,timeGridDay'
-                        }}
+                <Form>
+                    <form id="form">
+                        <div className="form-group">
+                            <div className="input-control">
+                                <label htmlFor="minhas_os">Minhas Terefas</label>
+                                <input type="radio" name="filtro" id="minhas_os" value={filtroEventos} onChange={() => setFiltroEventos('minhas_os')} checked={filtroEventos === 'minhas_os'} />
+                            </div>
+                            <div className="input-control">
+                                <label htmlFor="todas">Todas</label>
+                                <input type="radio" name="filtro" id="todas" value={filtroEventos} onChange={() => setFiltroEventos('todas')} checked={filtroEventos === 'todas'} />
+                            </div>
+                        </div>
+                    </form>
+                </Form>
+                <Modal activate={modalOrdens} setActivate={setModalOrdens} altura={'auto'} largura={'auto'}>
+                    {modalOrdens && <OrdemDetalhe ordem={ordemSelecionada} />}
+                </Modal>
+                <Modal activate={modalOcorrencias} setActivate={setModalOcorrencias} altura={'auto'} largura={'auto'}>
+                    {modalOcorrencias && <Card key={ocorrenciaSelecionada.codigo}
+                        cliente={ocorrenciaSelecionada.cli_nome}
+                        contrato={ocorrenciaSelecionada.contrato}
+                        projeto_id={ocorrenciaSelecionada.projeto_scrum}
+                        ocorrencia={ocorrenciaSelecionada.obs}
+                        atendente={ocorrenciaSelecionada.atendente}
+                        nomeAtendente={ocorrenciaSelecionada.fun_atendente}
+                        cod_ocorrencia={ocorrenciaSelecionada.codigo}
+                        data={converteData(ocorrenciaSelecionada.data)}
                     />}
+                </Modal>
+                <Calendar>
+                    {carregando ?
+                        <Centralizar>Carregando dados...</Centralizar>
+                        :
+                        <FullCalendar
+                            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                            initialView="dayGridMonth"
+                            // select={handleDateSelect}
+                            eventContent={renderEventContent}
+                            eventsSet={handleEvents}
+                            events={eventosIniciais}
+                            eventClick={handleEventClick}
+                            locale='pt-br'
+                            weekends={true}
+                            editable={true}
+                            selectable={true}
+                            selectMirror={true}
+                            headerToolbar={{
+                                left: 'prev,next today',
+                                center: 'title',
+                                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                            }}
+                        />
+                    }
+                </Calendar>
             </Container>
         </>
     );

@@ -8,14 +8,15 @@ import Button from '../../componentes/Button';
 import { useHistory } from 'react-router-dom';
 import { MdAdd, MdAccountBox } from 'react-icons/md'
 import { useUsuario } from '../../context/UsuarioContext';
+import useContrassenhaVencer from '../../Hooks/useContrassenha';
 
 function Ocorrencias() {
   const [listaOcorrencias, setListaOcorrencias] = useState([]);
   const [carregando, setCarregando] = useState(false);
   const [filtrado, setFiltrado] = useState(false);
-  const [contrassenhasVencer, setContrassenhasVencer] = useState([]);
   const history = useHistory();
   const { cod_funcionario } = useUsuario();
+  const contrassenhasVencer = useContrassenhaVencer();
 
   async function fetchData() {
     setCarregando(true);
@@ -28,21 +29,9 @@ function Ocorrencias() {
     }
   }
 
-  async function fetchContrassenhasVencer() {
-    let diasVencer = 30;
-    let response = await api.get(`/contrassenha?dias=${diasVencer}`);
-    if (response.status === 200) {
-      setContrassenhasVencer(response.data);
-    }
-  }
-
   useEffect(() => {
     fetchData();
   }, []);
-
-  useEffect(() => {
-    fetchContrassenhasVencer();
-  }, [])
 
   function converteData(data) {
     let arrayData = data.split('/');

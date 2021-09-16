@@ -121,7 +121,7 @@ function Card({ cliente, contrato, projeto_id, ocorrencia, atendente = 0, nomeAt
             </div>
             {contaCheckBox()}
             {!showActions ? <ProgressBar percent={((num_tarefas_realizadas / num_tarefas) * 100) * -1} >
-              <div className="progress">{((num_tarefas_realizadas / num_tarefas) * 100) * -1}%</div>
+              <div className="progress">{parseFloat(((num_tarefas_realizadas / num_tarefas) * 100) * -1).toFixed(0)}%</div>
             </ProgressBar> : null}
             {!showActions ? <p>{addSeparator(ocorrencia)}</p> : <p>{ocorrencia}</p>}
           </div>

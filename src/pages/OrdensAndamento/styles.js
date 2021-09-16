@@ -18,7 +18,7 @@ export const Container = styled.div`
         max-width: 1200px;            
     }   
 
-    table {
+     table {
         border-collapse: collapse;
         border-spacing: 0;
         width: 100%;
@@ -27,10 +27,8 @@ export const Container = styled.div`
 
     th, td {
         text-align: left;
-        padding: 8px;
+        padding: 5px;
     }
-
-    tr:nth-child(even){background-color: #f2f2f2}
 
     #form {
         padding: 20px 0;
@@ -100,8 +98,8 @@ export const Container = styled.div`
 `;
 
 export const LinhaDestaque = styled.th`
-    background-color: ${props=> props.cor};
-    color: ${props=> props.corTexto};
+    background-color: ${props => props.cor};
+    color: ${props => props.corTexto};
     border-radius: 8px;
     text-align: center;     
     display: flex;

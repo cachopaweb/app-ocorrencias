@@ -15,9 +15,43 @@ import pt_br from 'date-fns/locale/pt-BR';
 import Modal from '../../componentes/Modal';
 import OrdemDetalhe from '../OrdemDetalhe';
 
+import { withStyles, makeStyles } from '@material-ui/core/styles';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import Paper from '@material-ui/core/Paper';
+
+const StyledTableCell = withStyles((theme) => ({
+    head: {
+        backgroundColor: theme.palette.common.black,
+        color: theme.palette.common.white,
+    },
+    body: {
+        fontSize: 14,
+    },
+}))(TableCell);
+
+const StyledTableRow = withStyles((theme) => ({
+    root: {
+        '&:nth-of-type(odd)': {
+            backgroundColor: theme.palette.action.hover,
+        },
+    },
+}))(TableRow);
+
+const useStyles = makeStyles({
+    table: {
+        minWidth: 700,
+    },
+});
+
 registerLocale('pt-BR', pt_br);
 
 function OrdensAndamento() {
+    const classes = useStyles();
     const [ordens, SetOrdens] = useState([]);
     const [ordemSelecionada, setOrdemSelecionada] = useState({});
     const [ordensFiltrada, setOrdensFiltrada] = useState([]);
@@ -148,58 +182,60 @@ function OrdensAndamento() {
                             </div>
                         </form>
                     </div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Data Entrega</th>
-                                <th>Ordem</th>
-                                <th>Cliente</th>
-                                <th>Data Abertura</th>
-                                <th>Situação</th>
-                                <th>Prioridade</th>
-                                <th>Programador</th>
-                                <th>Quem Abriu</th>
-                                <th>Quem Testará</th>
-                                <th>Quem Entregará</th>
-                                <th>Ação</th>
-                                {cod_funcionario === 19 && <th>Novo Prazo</th>}
-                            </tr>
-                        </thead>
-                        {
-                            ordensFiltrada.length > 0 ?
-                                ordensFiltrada.map((ordem) => (
-                                    <tbody>
-                                        <tr>
-                                            <th>{new Date(ordem.novo_prazoe).toLocaleDateString()}</th>
-                                            <td>{ordem.ord_codigo}</td>
-                                            <td>{ordem.cli_nome}</td>
-                                            <td>{new Date(ordem.dataAbertura).toLocaleDateString()}</td>
-                                            {(fun_categoria.substring(0, 8) === 'PROGRAMA') &&
-                                                <LinhaDestaque
-                                                    cor={corLinhaDestaqueProgramacao(ordem.estado)}
-                                                    corTexto={ordem.estado === 'ANALISADA' || ordem.estado == 'PROGRAMADA' ? '#FFF' : '#000'}
-                                                >{ordem.estado}</LinhaDestaque>
-                                            }
-                                            {(fun_categoria.substring(0, 7) === 'SUPORTE') &&
-                                                <LinhaDestaque
-                                                    cor={corLinhaDestaqueSuporte(ordem.estado)}
-                                                    corTexto={ordem.estado === 'PROGRAMADA' || ordem.estado === 'TESTADA' ? '#FFF' : '#000'}
-                                                >{ordem.estado}</LinhaDestaque>
-                                            }
-                                            <td>{ordem.prioridade}</td>
-                                            <td>{ordem.programador}</td>
-                                            <td>{ordem.quemAbriu}</td>
-                                            <td>{ordem.fun_teste}</td>
-                                            <td>{ordem.fun_entrega}</td>
-                                            <td><Button nome="Ver Detalhes" borderRadius="10px" color="#000" corTexto="#FFF" Icon={MdAssignment} click={() => SelecionaOrdem(ordem)} /></td>
-                                            {cod_funcionario === 19 && <td><Button click={() => modalPrazoEntrega(ordem.ord_codigo, ordem.prazoEntrega)} Icon={MdAlarmAdd} nome="Novo Prazo" borderRadius={"18px"} color={"black"} corTexto={"white"} /></td>}
-                                        </tr>
-                                    </tbody>
-                                ))
-                                : <h1>Carregando Ordens...</h1>
-                        }
+                    <TableContainer component={Paper}>
+                        <Table className={classes.table} size="large" aria-label="a dense table">
+                            <TableHead>
+                                <TableRow>
+                                    <StyledTableCell>Data Entrega</StyledTableCell>
+                                    <StyledTableCell>Ordem</StyledTableCell>
+                                    <StyledTableCell>Cliente</StyledTableCell>
+                                    <StyledTableCell>Data Abertura</StyledTableCell>
+                                    <StyledTableCell>Situação</StyledTableCell>
+                                    <StyledTableCell>Prioridade</StyledTableCell>
+                                    <StyledTableCell>Programador</StyledTableCell>
+                                    <StyledTableCell>Quem Abriu</StyledTableCell>
+                                    <StyledTableCell>Quem Testará</StyledTableCell>
+                                    <StyledTableCell>Quem Entregará</StyledTableCell>
+                                    <StyledTableCell>Ação</StyledTableCell>
+                                    {cod_funcionario === 19 && <th>Novo Prazo</th>}
+                                </TableRow>
+                            </TableHead>
+                            {
+                                ordensFiltrada.length > 0 ?
+                                    ordensFiltrada.map((ordem) => (
+                                        <TableBody>
+                                            <TableRow>
+                                                <StyledTableCell>{new Date(ordem.novo_prazoe).toLocaleDateString()}</StyledTableCell>
+                                                <StyledTableCell>{ordem.ord_codigo}</StyledTableCell>
+                                                <StyledTableCell>{ordem.cli_nome}</StyledTableCell>
+                                                <StyledTableCell>{new Date(ordem.dataAbertura).toLocaleDateString()}</StyledTableCell>
+                                                {(fun_categoria.substring(0, 8) === 'PROGRAMA') &&
+                                                    <LinhaDestaque
+                                                        cor={corLinhaDestaqueProgramacao(ordem.estado)}
+                                                        corTexto={ordem.estado === 'ANALISADA' || ordem.estado == 'PROGRAMADA' ? '#FFF' : '#000'}
+                                                    >{ordem.estado}</LinhaDestaque>
+                                                }
+                                                {(fun_categoria.substring(0, 7) === 'SUPORTE') &&
+                                                    <LinhaDestaque
+                                                        cor={corLinhaDestaqueSuporte(ordem.estado)}
+                                                        corTexto={ordem.estado === 'PROGRAMADA' || ordem.estado === 'TESTADA' ? '#FFF' : '#000'}
+                                                    >{ordem.estado}</LinhaDestaque>
+                                                }
+                                                <StyledTableCell>{ordem.prioridade}</StyledTableCell>
+                                                <StyledTableCell>{ordem.programador}</StyledTableCell>
+                                                <StyledTableCell>{ordem.quemAbriu}</StyledTableCell>
+                                                <StyledTableCell>{ordem.fun_teste}</StyledTableCell>
+                                                <StyledTableCell>{ordem.fun_entrega}</StyledTableCell>
+                                                <StyledTableCell><Button nome="Ver Detalhes" borderRadius="10px" color="#000" corTexto="#FFF" Icon={MdAssignment} click={() => SelecionaOrdem(ordem)} /></StyledTableCell>
+                                                {cod_funcionario === 19 && <StyledTableCell><Button click={() => modalPrazoEntrega(ordem.ord_codigo, ordem.prazoEntrega)} Icon={MdAlarmAdd} nome="Novo Prazo" borderRadius={"18px"} color={"black"} corTexto={"white"} /></StyledTableCell>}
+                                            </TableRow>
+                                        </TableBody>
+                                    ))
+                                    : <h1>Carregando Ordens...</h1>
+                            }
 
-                    </table>
+                        </Table>
+                    </TableContainer>
                 </div>
             </Container>
         </>

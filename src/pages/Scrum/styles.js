@@ -3,7 +3,7 @@ import styled from 'styled-components';
 export const Container = styled.div`
     display: grid;
     grid-template-columns: auto auto auto auto;
-    max-width: 800px;
+    max-width: 1200px;
     margin: 0 auto;   
 
     @media (max-width: 705px) {
@@ -82,8 +82,8 @@ export const Tabela = styled.table`
 `;
 
 export const LinhaDestaque = styled.th`
-    background-color: ${props=> props.cor};
-    color: ${props=> props.corTexto};
+    background-color: ${props => props.cor};
+    color: ${props => props.corTexto};
     border-radius: 8px;
     text-align: center;     
     display: flex;

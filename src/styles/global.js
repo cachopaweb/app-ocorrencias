@@ -16,9 +16,13 @@ export default createGlobalStyle`
 
     body{
         font: 14px 'Roboto', sans-serif;
-        background-color: #323540;
-        color: #FFF;
+        background-color: ${(props) => props.theme.background};
+        color: ${props => props.theme.text};
         -webkit-font-smoothing: antialiased;
+    }
+
+    h1 {
+        color: ${props => props.theme.titles};        
     }
 
     ul{

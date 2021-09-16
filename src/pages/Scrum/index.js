@@ -10,13 +10,47 @@ import Modal from '../../componentes/Modal';
 import Create_Projeto_Scrum from '../Create_Projeto_Scrum';
 import { useUsuario } from '../../context/UsuarioContext';
 
+import { withStyles, makeStyles } from '@material-ui/core/styles';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import Paper from '@material-ui/core/Paper';
+
+const StyledTableCell = withStyles((theme) => ({
+    head: {
+        backgroundColor: theme.palette.common.black,
+        color: theme.palette.common.white,
+    },
+    body: {
+        fontSize: 14,
+    },
+}))(TableCell);
+
+const StyledTableRow = withStyles((theme) => ({
+    root: {
+        '&:nth-of-type(odd)': {
+            backgroundColor: theme.palette.action.hover,
+        },
+    },
+}))(TableRow);
+
+const useStyles = makeStyles({
+    table: {
+        minWidth: 700,
+    },
+});
+
 
 function Scrum() {
+    const classes = useStyles();
     const [projetos, setProjetos] = useState([]);
     const [projetos_filtrados, setProjetos_filtrados] = useState([]);
     const [modalAtivo, setModalAtivo] = useState(false);
     const { fun_categoria } = useUsuario();
-    const history = useHistory();        
+    const history = useHistory();
 
     async function fetchProjetosScrum() {
         let response = await api.get('/projetos_scrum/EmAndamento');
@@ -38,7 +72,7 @@ function Scrum() {
     }
 
     function SelecionaProjetoRetrospectiva(projeto) {
-        history.push({ pathname: '/retrospectiva', state: { projeto_scrum: projeto.ps_codigo, cliente: projeto.cli_nome}});
+        history.push({ pathname: '/retrospectiva', state: { projeto_scrum: projeto.ps_codigo, cliente: projeto.cli_nome } });
     }
 
     return (
@@ -65,46 +99,48 @@ function Scrum() {
             <Container>
                 <Card>
 
-                    <Tabela>
-                        <thead>
-                            <tr>
-                                <th>Data Entrega</th>
-                                <th>Cód. Projeto</th>
-                                <th>Cliente</th>
-                                <th>Situação</th>
-                                <th>Funcionário</th>
-                                <th>Ação</th>
-                            </tr>
-                        </thead>
-                        {
-                            projetos_filtrados.length > 0 ?
-                                projetos_filtrados.map((projeto) => (
-                                    <tbody>
-                                        <tr>
-                                            <th>{new Date(projeto.data_entrega).toLocaleDateString()}</th>
-                                            <td>{projeto.ps_codigo}</td>
-                                            <td>{projeto.cli_nome}</td>
-                                            {(fun_categoria.substring(0, 8) === 'PROGRAMA') &&
-                                                <LinhaDestaque
-                                                cor={projeto.estado === 'A FAZER' ? '#900' : '#FFF'}
-                                                corTexto={projeto.estado === 'A FAZER' ? '#FFF' : '#000'}
-                                                >{projeto.estado}</LinhaDestaque>
-                                            }
-                                            {(fun_categoria.substring(0, 7) === 'SUPORTE') &&
-                                                <LinhaDestaque
-                                                cor={projeto.estado === 'REVISAO' ? '#900' : '#FFF'}
-                                                corTexto={projeto.estado === 'REVISAO' ? '#FFF' : '#000'}
-                                                >{projeto.estado}</LinhaDestaque>
-                                            }
-                                            <td>{projeto.funcionario}</td>
-                                            <td><Button nome="Ver Detalhes" borderRadius="10px" color="#000" corTexto="#FFF" Icon={MdAssignment} click={() => SelecionaProjeto(projeto)} /></td>
-                                            <td><Button nome="Retrospectiva" borderRadius="10px" color="#000" corTexto="#FFF" Icon={MdAutorenew} click={() => SelecionaProjetoRetrospectiva(projeto)} /></td>
-                                        </tr>
-                                    </tbody>
-                                ))
-                                : <h1>Carregando Ordens...</h1>
-                        }
-                    </Tabela>
+                    <TableContainer component={Paper}>
+                        <Table className={classes.table} aria-label="customized table">
+                            <TableHead>
+                                <TableRow>
+                                    <StyledTableCell>Data Entrega</StyledTableCell>
+                                    <StyledTableCell>Cód. Projeto</StyledTableCell>
+                                    <StyledTableCell>Cliente</StyledTableCell>
+                                    <StyledTableCell>Situação</StyledTableCell>
+                                    <StyledTableCell>Funcionário</StyledTableCell>
+                                    <StyledTableCell>Ação</StyledTableCell>
+                                </TableRow>
+                            </TableHead>
+                            {
+                                projetos_filtrados.length > 0 ?
+                                    projetos_filtrados.map((projeto) => (
+                                        <TableBody>
+                                            <TableRow>
+                                                <StyledTableCell>{new Date(projeto.data_entrega).toLocaleDateString()}</StyledTableCell>
+                                                <StyledTableCell>{projeto.ps_codigo}</StyledTableCell>
+                                                <StyledTableCell>{projeto.cli_nome}</StyledTableCell>
+                                                {(fun_categoria.substring(0, 8) === 'PROGRAMA') &&
+                                                    <LinhaDestaque
+                                                        cor={projeto.estado === 'A FAZER' ? '#900' : '#FFF'}
+                                                        corTexto={projeto.estado === 'A FAZER' ? '#FFF' : '#000'}
+                                                    >{projeto.estado}</LinhaDestaque>
+                                                }
+                                                {(fun_categoria.substring(0, 7) === 'SUPORTE') &&
+                                                    <LinhaDestaque
+                                                        cor={projeto.estado === 'REVISAO' ? '#900' : '#FFF'}
+                                                        corTexto={projeto.estado === 'REVISAO' ? '#FFF' : '#000'}
+                                                    >{projeto.estado}</LinhaDestaque>
+                                                }
+                                                <StyledTableCell>{projeto.funcionario}</StyledTableCell>
+                                                <StyledTableCell><Button nome="Ver Detalhes" borderRadius="10px" color="#000" corTexto="#FFF" Icon={MdAssignment} click={() => SelecionaProjeto(projeto)} /></StyledTableCell>
+                                                {/* <StyledTableCell><Button nome="Retrospectiva" borderRadius="10px" color="#000" corTexto="#FFF" Icon={MdAutorenew} click={() => SelecionaProjetoRetrospectiva(projeto)} /></StyledTableCell> */}
+                                            </TableRow>
+                                        </TableBody>
+                                    ))
+                                    : <h1>Carregando Ordens...</h1>
+                            }
+                        </Table>
+                    </TableContainer>
                 </Card>
             </Container>
         </>
