@@ -29,12 +29,13 @@ import TodayRoundedIcon from '@material-ui/icons/TodayRounded';
 import SpeakerNotesRoundedIcon from '@material-ui/icons/SpeakerNotesRounded';
 import SpeakerNotesOffRoundedIcon from '@material-ui/icons/SpeakerNotesOffRounded';
 import WorkRoundedIcon from '@material-ui/icons/WorkRounded';
+import DoneAllRoundedIcon from '@material-ui/icons/DoneAllRounded';
 import BallotRoundedIcon from '@material-ui/icons/BallotRounded';
 import AssignmentIndRoundedIcon from '@material-ui/icons/AssignmentIndRounded';
 import ScreenLockLandscapeRoundedIcon from '@material-ui/icons/ScreenLockLandscapeRounded';
 import Switch from '@material-ui/core/Switch';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-
+import CloudUploadIcon from '@material-ui/icons/CloudUploadRounded';
 
 function Header({ title }) {
   const history = useHistory();
@@ -156,6 +157,10 @@ function Header({ title }) {
               <ListItemIcon><WorkRoundedIcon /></ListItemIcon>
               <ListItemText primary='Ordens Em Andamento' />
             </ListItem>
+            <ListItem button key='Ordens Entregues' onClick={() => history.push('/ordensEntregues')}>
+              <ListItemIcon><DoneAllRoundedIcon /></ListItemIcon>
+              <ListItemText primary='Ordens Entregues' />
+            </ListItem>
             <ListItem button key='Scrum' onClick={() => history.push('/scrum')}>
               <ListItemIcon><BallotRoundedIcon /></ListItemIcon>
               <ListItemText primary='Scrum' />
@@ -170,6 +175,13 @@ function Header({ title }) {
             <ListItem button key='Licenças' onClick={() => history.push('/licencas')}>
               <ListItemIcon><ScreenLockLandscapeRoundedIcon /></ListItemIcon>
               <ListItemText primary='Licenças' />
+            </ListItem>
+          </List>
+          <Divider />
+          <List>
+            <ListItem button key='Ncm' onClick={() => history.push('/Ncm')}>
+              <ListItemIcon><CloudUploadIcon /></ListItemIcon>
+              <ListItemText primary='Ncm' />
             </ListItem>
           </List>
         </div>

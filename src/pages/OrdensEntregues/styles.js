@@ -1,4 +1,3 @@
-import { TableRow } from '@material-ui/core';
 import styled, { keyframes } from 'styled-components';
 
 export const Container = styled.div`
@@ -95,7 +94,6 @@ export const Container = styled.div`
 
     textarea{
         height: 150px;
-        width: 100%;
     }
 `;
 
@@ -110,49 +108,21 @@ export const LinhaDestaque = styled.th`
     align-self: center;
     height: 50px;
 `
-const colorNoDia = keyframes`    
-  0% {
-    background-color: #47B071;
-  }
-  50% {
-    background-color: #FFFFFF;
-  }
-  100% {
-    background-color: #47B071;
-  }
-`;
 
-const colorAtrasada = keyframes`    
-  0% {
-    background-color: #F77777;
-  }
-  50% {
-    background-color: #FFFFFF;
-  }
-  100% {
-    background-color: #F77777;
-  }
-`;
+export const Paginacao = styled.div`
+    display: inline-block;
+    a {
+        color: black;
+        float: left;
+        padding: 8px 16px;
+        text-decoration: none;
+        border-radius: 5px;
+    }
 
-export const ColorAnimationPusing = styled(TableRow)`
-    animation-name: ${props => props.hoje ? colorNoDia : colorAtrasada};
-    animation-duration: 2s;
-    animation-iteration-count: infinite;
-`;
+    a.active {
+        background-color: #4CAF50;
+        color: white;
+    }
 
-const rotate = keyframes`
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
-`;
-
-export const Rotate = styled.div`
-  display: inline-block;
-  animation: ${rotate} 2s linear infinite;
-  padding: 2rem 1rem;
-  font-size: 1.2rem;
+    a:hover:not(.active) {background-color: #ddd;}
 `;

@@ -1,19 +1,26 @@
 import React, { useState, useEffect } from 'react';
+import { MdAlarm, MdAccountCircle, MdAssessment } from 'react-icons/md';
 
-import { Container, Floating } from './styles';
+import { Container, ContainerEtiquetas, Floating } from './styles';
+import Etiqueta from '../../componentes/Etiqueta';
 import Card from '../../componentes/Card';
 import api from '../../services/api';
 import Header from '../../componentes/Header';
 import Button from '../../componentes/Button';
 import { useHistory } from 'react-router-dom';
-import { MdAdd, MdAccountBox } from 'react-icons/md'
+import { MdAdd, MdAccountBox, MdTimelapse } from 'react-icons/md'
 import { useUsuario } from '../../context/UsuarioContext';
 import useContrassenhaVencer from '../../Hooks/useContrassenha';
 
 function Ocorrencias() {
   const [listaOcorrencias, setListaOcorrencias] = useState([]);
   const [carregando, setCarregando] = useState(false);
+  const [carregandoNotificacoes, setCarregandoNotificacoes] = useState(false);
   const [filtrado, setFiltrado] = useState(false);
+  const [qtdOs, setQtdOs] = useState(0);
+  const [qtdOcorrencias, setQtdOcorrencias] = useState(0);
+  const [qtdScrum, setQtdScrum] = useState(0);
+  const [qtdOrdensAtrasadas, SetQtdOrdensAtrasadas] = useState(0);
   const history = useHistory();
   const { cod_funcionario } = useUsuario();
   const contrassenhasVencer = useContrassenhaVencer();
@@ -32,6 +39,30 @@ function Ocorrencias() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    fetchNotificacoes();
+  }, []);
+
+  async function fetchNotificacoes() {
+    setCarregandoNotificacoes(true);
+    const responseOrdens = await api.get('/notificacoes/ordens');
+    const { ordens } = responseOrdens.data;
+    setQtdOs(ordens);
+    ////
+    const responseOcorrencias = await api.get('/notificacoes/ocorrencias');
+    const { ocorrencias } = responseOcorrencias.data;
+    setQtdOcorrencias(ocorrencias);
+    ////
+    const responseScrum = await api.get('/notificacoes/projetos_scrum');
+    const { scrum } = responseScrum.data;
+    setQtdScrum(scrum);
+    ////
+    const responseOrdensAtrasadas = await api.get('/notificacoes/ordensAtradas/1');
+    const { ordensAtradas } = responseOrdensAtrasadas.data;
+    SetQtdOrdensAtrasadas(ordensAtradas);
+    setCarregandoNotificacoes(false);
+  }
 
   function converteData(data) {
     let arrayData = data.split('/');
@@ -65,6 +96,18 @@ function Ocorrencias() {
       {contrassenhasVencer.length > 0 && <Floating style={{ marginBottom: 140 }}>
         <Button Icon={MdAccountBox} nome={`Licenças a Vencer: ${contrassenhasVencer.length}`} color={'#F00'} corTexto={'#FFF'} click={handleClickContrassenhaVencer} borderRadius={"18px"} />
       </Floating>}
+      {carregandoNotificacoes ?
+        <Container>
+          <h1>Aguarde Carregando notificacões...</h1>
+        </Container> :
+        (
+          <ContainerEtiquetas>
+            <Etiqueta key="1" click={() => history.push('/ordensAndamento')} percentual={qtdOs} texto="Ordens" cor="rgb(98, 150, 138)" corTexto="#000"><MdAlarm /></Etiqueta>
+            <Etiqueta key="2" click={() => history.push('/ocorrencias')} percentual={qtdOcorrencias} texto="Ocorrências" cor="rgb(255, 92, 89)" corTexto="#000"><MdAccountCircle /></Etiqueta>
+            <Etiqueta key="3" click={() => history.push('/scrum')} percentual={qtdScrum} texto="Projetos Scrum" cor="rgb(45, 98, 147)" corTexto="#000"><MdAssessment /></Etiqueta>
+            <Etiqueta key="4" click={() => history.push('/ordensAndamento')} percentual={qtdOrdensAtrasadas} texto="Ordens Atrasadas" cor="rgb(153, 0, 0)" corTexto="#FFF"><MdTimelapse /></Etiqueta>
+          </ContainerEtiquetas>
+        )}
       <Container>
         {
           listaOcorrencias.length > 0 ?
@@ -77,7 +120,7 @@ function Ocorrencias() {
                 atendente={oco.atendente}
                 nomeAtendente={oco.fun_atendente}
                 cod_ocorrencia={oco.codigo}
-                data={converteData(oco.data)}
+                data={oco.data}
               />
             )
             :

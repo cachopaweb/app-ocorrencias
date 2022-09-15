@@ -3,7 +3,7 @@ import api from '../../services/api';
 import Header from '../../componentes/Header';
 import { MdAssignment, MdSave } from 'react-icons/md';
 
-import { Container, LinhaDestaque } from './styles';
+import { ColorAnimationPusing, Container, LinhaDestaque } from './styles';
 import { useUsuario } from '../../context/UsuarioContext';
 import Button from '../../componentes/Button';
 import { MdAlarmAdd } from 'react-icons/md';
@@ -63,6 +63,7 @@ function OrdensAndamento() {
     const [ordCodigo, setOrdCodigo] = useState(0);
     const [dataAntiga, setDataAntiga] = useState('');
     const [filtroOrdens, setFiltroOrdens] = useState('minhas_os');
+    const [motivo, setMotivo] = useState('');
 
     async function CarregaDadosOrdens() {
         let response = await api.get('/Ordens');
@@ -88,10 +89,11 @@ function OrdensAndamento() {
             Funcionario: cod_funcionario,
             Ordem: ordCodigo,
             PrazoAnterior: dataAntiga,
-            PrazoNovo: dataPrazoEntrega.toLocaleDateString()
+            PrazoNovo: dataPrazoEntrega.toLocaleDateString(),
+            Motivo: motivo
         }
         let response = await api.put(`/Ordens/${ordCodigo}`, data);
-        if (response.status === 203) {
+        if (response.status === 201) {
             swal('Prazo entrega atualizado com sucesso!', `Código histórico ${response.data.Historico}`, 'success')
             setDadosAlterados(true)
         } else {
@@ -145,20 +147,38 @@ function OrdensAndamento() {
         return estadoCores[estado] ?? estadoCores['DEFAULT'];
     }
 
+    const ordemEmAtraso = (data) => {
+        const dataHoje = new Date();
+        const dataOS = new Date(data);
+        return dataOS <= dataHoje;
+    }
+
+    const verificaDataHoje = (data) => {
+        const dataHoje = new Date();
+        const dataOS = new Date(data);
+        return dataOS.getDate() === dataHoje.getDate()
+            && dataOS.getMonth() === dataHoje.getMonth()
+            && dataOS.getFullYear() === dataHoje.getFullYear()
+    }
 
     return (
         <>
             <Header title={'Em Andamento'} />
-            <Modal activate={modalAtivo} setActivate={setModalAtivo} altura={'auto'} largura={'auto'}>
-                <form id="form" onSubmit={atualizarPrazoEntrega}>
-                    <div className="form-group">
-                        <label htmlFor="prazo-entrega">Novo prazo de Entrega</label>
-                        <div>
-                            <DatePicker dateFormat="dd/MM/yyyy" locale='pt-BR' selected={dataPrazoEntrega} onChange={changePrazoEntrega} />
-                            <Button color="black" corTexto="white" nome="Salvar" Icon={MdSave} tamanho_icone={20} borderRadius="10px" />
-                        </div>
+            <Modal activate={modalAtivo} setActivate={setModalAtivo}>
+                <Container>
+                    <div className="card">
+                        <form id="form" onSubmit={atualizarPrazoEntrega}>
+                            <div className="form-group">
+                                <label htmlFor="prazo-entrega">Novo prazo de Entrega</label>
+                                <div>
+                                    <DatePicker dateFormat="dd/MM/yyyy" locale='pt-BR' selected={dataPrazoEntrega} onChange={changePrazoEntrega} />
+                                    <textarea name="motivo" id="motivo" onChange={(e) => setMotivo(e.target.value)}></textarea><br />
+                                    <Button color="black" corTexto="white" nome="Salvar" Icon={MdSave} tamanho_icone={20} borderRadius="10px" />
+                                </div>
+                            </div>
+                        </form>
                     </div>
-                </form>
+                </Container>
             </Modal>
 
             <Modal activate={modalDetalhesAtivo} setActivate={setModalDetalhesAtivo} altura={'auto'} largura={'auto'}>
@@ -197,43 +217,70 @@ function OrdensAndamento() {
                                     <StyledTableCell>Quem Testará</StyledTableCell>
                                     <StyledTableCell>Quem Entregará</StyledTableCell>
                                     <StyledTableCell>Ação</StyledTableCell>
-                                    {cod_funcionario === 19 && <th>Novo Prazo</th>}
+                                    {(fun_categoria.substring(0, 8) === 'ADM') && <th>Novo Prazo</th>}
                                 </TableRow>
                             </TableHead>
-                            {
-                                ordensFiltrada.length > 0 ?
-                                    ordensFiltrada.map((ordem) => (
-                                        <TableBody>
-                                            <TableRow>
-                                                <StyledTableCell>{new Date(ordem.novo_prazoe).toLocaleDateString()}</StyledTableCell>
-                                                <StyledTableCell>{ordem.ord_codigo}</StyledTableCell>
-                                                <StyledTableCell>{ordem.cli_nome}</StyledTableCell>
-                                                <StyledTableCell>{new Date(ordem.dataAbertura).toLocaleDateString()}</StyledTableCell>
-                                                {(fun_categoria.substring(0, 8) === 'PROGRAMA') &&
-                                                    <LinhaDestaque
-                                                        cor={corLinhaDestaqueProgramacao(ordem.estado)}
-                                                        corTexto={ordem.estado === 'ANALISADA' || ordem.estado == 'PROGRAMADA' ? '#FFF' : '#000'}
-                                                    >{ordem.estado}</LinhaDestaque>
-                                                }
-                                                {(fun_categoria.substring(0, 7) === 'SUPORTE') &&
-                                                    <LinhaDestaque
-                                                        cor={corLinhaDestaqueSuporte(ordem.estado)}
-                                                        corTexto={ordem.estado === 'PROGRAMADA' || ordem.estado === 'TESTADA' ? '#FFF' : '#000'}
-                                                    >{ordem.estado}</LinhaDestaque>
-                                                }
-                                                <StyledTableCell>{ordem.prioridade}</StyledTableCell>
-                                                <StyledTableCell>{ordem.programador}</StyledTableCell>
-                                                <StyledTableCell>{ordem.quemAbriu}</StyledTableCell>
-                                                <StyledTableCell>{ordem.fun_teste}</StyledTableCell>
-                                                <StyledTableCell>{ordem.fun_entrega}</StyledTableCell>
-                                                <StyledTableCell><Button nome="Ver Detalhes" borderRadius="10px" color="#000" corTexto="#FFF" Icon={MdAssignment} click={() => SelecionaOrdem(ordem)} /></StyledTableCell>
-                                                {cod_funcionario === 19 && <StyledTableCell><Button click={() => modalPrazoEntrega(ordem.ord_codigo, ordem.prazoEntrega)} Icon={MdAlarmAdd} nome="Novo Prazo" borderRadius={"18px"} color={"black"} corTexto={"white"} /></StyledTableCell>}
-                                            </TableRow>
-                                        </TableBody>
-                                    ))
-                                    : <h1>Carregando Ordens...</h1>
-                            }
-
+                            <TableBody>
+                                {
+                                    ordensFiltrada.length > 0 ?
+                                        ordensFiltrada.map((ordem) => (
+                                            ordemEmAtraso(ordem.novo_prazoe) ?
+                                                (<ColorAnimationPusing key={ordem.ord_codigo} hoje={verificaDataHoje(ordem.novo_prazoe)}>
+                                                    <StyledTableCell>{new Date(ordem.novo_prazoe).toLocaleDateString()}</StyledTableCell>
+                                                    <StyledTableCell>{ordem.ord_codigo}</StyledTableCell>
+                                                    <StyledTableCell>{ordem.cli_nome}</StyledTableCell>
+                                                    <StyledTableCell>{new Date(ordem.dataAbertura).toLocaleDateString()}</StyledTableCell>
+                                                    {((fun_categoria.substring(0, 8) === 'PROGRAMA')) &&
+                                                        <LinhaDestaque
+                                                            cor={corLinhaDestaqueProgramacao(ordem.estado)}
+                                                            corTexto={ordem.estado === 'ANALISADA' || ordem.estado == 'PROGRAMADA' ? '#FFF' : '#000'}
+                                                        >{ordem.estado}</LinhaDestaque>
+                                                    }
+                                                    {((fun_categoria.substring(0, 7) === 'SUPORTE') || (fun_categoria.substring(0, 8) === 'ADM')) &&
+                                                        <LinhaDestaque
+                                                            cor={corLinhaDestaqueSuporte(ordem.estado)}
+                                                            corTexto={ordem.estado === 'PROGRAMADA' || ordem.estado === 'TESTADA' ? '#FFF' : '#000'}
+                                                        >{ordem.estado}</LinhaDestaque>
+                                                    }
+                                                    <StyledTableCell>{ordem.prioridade}</StyledTableCell>
+                                                    <StyledTableCell>{ordem.programador}</StyledTableCell>
+                                                    <StyledTableCell>{ordem.quemAbriu}</StyledTableCell>
+                                                    <StyledTableCell>{ordem.fun_teste}</StyledTableCell>
+                                                    <StyledTableCell>{ordem.fun_entrega}</StyledTableCell>
+                                                    <StyledTableCell><Button nome="Ver Detalhes" borderRadius="10px" color="#000" corTexto="#FFF" Icon={MdAssignment} click={() => SelecionaOrdem(ordem)} /></StyledTableCell>
+                                                    {(fun_categoria.substring(0, 8) === 'ADM') && <StyledTableCell><Button click={() => modalPrazoEntrega(ordem.ord_codigo, ordem.prazoEntrega)} Icon={MdAlarmAdd} nome="Novo Prazo" borderRadius={"18px"} color={"black"} corTexto={"white"} /></StyledTableCell>}
+                                                </ColorAnimationPusing>)
+                                                : (
+                                                    <TableRow>
+                                                        <StyledTableCell>{new Date(ordem.novo_prazoe).toLocaleDateString()}</StyledTableCell>
+                                                        <StyledTableCell>{ordem.ord_codigo}</StyledTableCell>
+                                                        <StyledTableCell>{ordem.cli_nome}</StyledTableCell>
+                                                        <StyledTableCell>{new Date(ordem.dataAbertura).toLocaleDateString()}</StyledTableCell>
+                                                        {((fun_categoria.substring(0, 8) === 'PROGRAMA')) &&
+                                                            <LinhaDestaque
+                                                                cor={corLinhaDestaqueProgramacao(ordem.estado)}
+                                                                corTexto={ordem.estado === 'ANALISADA' || ordem.estado == 'PROGRAMADA' ? '#FFF' : '#000'}
+                                                            >{ordem.estado}</LinhaDestaque>
+                                                        }
+                                                        {((fun_categoria.substring(0, 7) === 'SUPORTE') || (fun_categoria.substring(0, 8) === 'ADM')) &&
+                                                            <LinhaDestaque
+                                                                cor={corLinhaDestaqueSuporte(ordem.estado)}
+                                                                corTexto={ordem.estado === 'PROGRAMADA' || ordem.estado === 'TESTADA' ? '#FFF' : '#000'}
+                                                            >{ordem.estado}</LinhaDestaque>
+                                                        }
+                                                        <StyledTableCell>{ordem.prioridade}</StyledTableCell>
+                                                        <StyledTableCell>{ordem.programador}</StyledTableCell>
+                                                        <StyledTableCell>{ordem.quemAbriu}</StyledTableCell>
+                                                        <StyledTableCell>{ordem.fun_teste}</StyledTableCell>
+                                                        <StyledTableCell>{ordem.fun_entrega}</StyledTableCell>
+                                                        <StyledTableCell><Button nome="Ver Detalhes" borderRadius="10px" color="#000" corTexto="#FFF" Icon={MdAssignment} click={() => SelecionaOrdem(ordem)} /></StyledTableCell>
+                                                        {(fun_categoria.substring(0, 8) === 'ADM') && <StyledTableCell><Button click={() => modalPrazoEntrega(ordem.ord_codigo, ordem.prazoEntrega)} Icon={MdAlarmAdd} nome="Novo Prazo" borderRadius={"18px"} color={"black"} corTexto={"white"} /></StyledTableCell>}
+                                                    </TableRow>
+                                                )
+                                        ))
+                                        : <h1>Carregando Ordens...</h1>
+                                }
+                            </TableBody>
                         </Table>
                     </TableContainer>
                 </div>

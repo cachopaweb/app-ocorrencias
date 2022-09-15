@@ -19,6 +19,8 @@ import Create_Projeto_Scrum from '../pages/Create_Projeto_Scrum';
 import Retrospectiva from '../pages/Retrospectiva';
 import QuadroKanban from '../componentes/QuadroKanban';
 import Calendario from '../componentes/Calendario';
+import Ncm from '../pages/Ncm';
+import OrdensEntregues from '../pages/OrdensEntregues';
 
 
 const PrivateRoute = ({ component: Component, ...rest }) => {
@@ -50,6 +52,7 @@ function Routes() {
         <PrivateRoute path="/contaReceber" component={ContaReceber} />
         <PrivateRoute path='/ocorrenciasFinalizadas' component={OcorrenciasFinalizadas} />
         <PrivateRoute path='/ordensAndamento' component={OrdensAndamento} />
+        <PrivateRoute path='/ordensEntregues' component={OrdensEntregues} />
         <PrivateRoute path='/ordemDetalhe' component={OrdemDetalhe} />
         <PrivateRoute path='/licencas' component={Licencas} />
         <PrivateRoute path='/scrum' component={Scrum} />
@@ -59,6 +62,7 @@ function Routes() {
         <PrivateRoute path='/retrospectiva' component={Retrospectiva} />
         <PrivateRoute path='/QuadroKanban' component={QuadroKanban} />
         <PrivateRoute path='/Calendario' component={Calendario} />
+        <PrivateRoute path='/Ncm' component={Ncm} />
         <Route path="*" component={() => <h1>Pagina nao encontrada</h1>} />
       </Switch>
     </Router>

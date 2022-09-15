@@ -20,6 +20,7 @@ export const Container = styled.div`
         font-weight: 400;  
         font-size: 18px;  
         align-items: center;
+        text-align: center;
     }
     #percent{
         margin: 10px 0 25px;

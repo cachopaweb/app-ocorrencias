@@ -20,3 +20,15 @@ export const Floating = styled.div`
     right: 20px
   }
 `;
+
+export const ContainerEtiquetas = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 10px 0;
+    @media (max-width: 900px){
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+    
+`
