@@ -5,10 +5,8 @@ import Graficos from '../Graficos';
 import { Container } from './styles';
 
 function Burndown({ projeto_id }) {
-    const [datas, setDatas] = useState([]);
-    const [linhaIdeal, setlinhaIdeal] = useState([]);
-    const [linhaReal, setlinhaReal] = useState([]);
     const [carregando, setCarregando] = useState(false);
+    const [dadosfinal, setDadosFinal] = useState([]);
 
     async function fetchBurndownProjeto() {
         setCarregando(true)
@@ -17,41 +15,37 @@ function Burndown({ projeto_id }) {
             return new Date(datas).toLocaleDateString()
         });
         const dados = response.data;
-        setDatas(datas_corrigidas);
-        setlinhaIdeal(dados.ideal);
-        setlinhaReal(dados.real);
+        const result = renderChart(datas_corrigidas, dados.ideal, dados.real);
+        setDadosFinal(result);
         setCarregando(false)
     }
 
     useEffect(() => {
-        fetchBurndownProjeto();
+        fetchBurndownProjeto()
     }, [])
 
 
-    function renderChart() {
-        return {
-            labels: datas,
-            datasets: [
-                {
-                    label: '# Linha Ideal',
-                    data: linhaIdeal,
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    tension: 0.1
-                },
-                {
-                    label: '# Linha Real',
-                    data: linhaReal,
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    tension: 0.1
-                },
-            ]
-        };
+    function renderChart(datas, linhaIdeal, linhaReal) {
+        let dadosaux = [];
+        for (let i = 0; i < datas.length; i++) {
+            const datas_burndown = datas[i];
+            const ideal = linhaIdeal[i];
+            const real = linhaReal[i];
+            dadosaux.push([datas_burndown, ideal, real])
+        }
+        const data = [
+            ["Datas", "Linha Ideal", "Linha Real"],
+            ...dadosaux
+        ];
+        return data;
     }
 
     return (
         <Container>
-            {carregando ? <h1>Aguarde, carregando burndown...</h1> : <Graficos data={renderChart()} titulo="Burndown" tipo="line" />}
+            {carregando ?
+                <h1>Aguarde, carregando burndown...</h1> :
+                <Graficos data={dadosfinal} titulo="Burndown" tipo="AreaChart" />
+            }
         </Container>
     );
 }

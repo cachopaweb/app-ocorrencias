@@ -1,41 +1,39 @@
-import React from 'react';
+import React, { useEffect, useState } from "react";
+import { Chart } from "react-google-charts";
+import { Container } from "./styles";
 
-import { Chart } from 'chart.js';
-import { useEffect } from 'react';
-
-function Graficos({ titulo, tipo = 'horizontalBar', data }) {
+function Graficos({ titulo, tipo = 'AreaChart', data }) {
+    const [options, setOptions] = useState({});
+    const [carregando, setCarregando] = useState(false);
     function renderChart() {
-        var ctx = document.getElementById('canvas').getContext('2d');
-        new Chart(ctx, {
-            type: tipo,
-            data: data,
-            options: {
-                elements: {
-                    rectangle: {
-                        borderWidth: 2,
-                    }
-                },
-                responsive: true,
-                legend: {
-                    position: 'bottom',
-                },
-                title: {
-                    display: true,
-                    text: titulo
-                }
-            }
+        setOptions({
+            title: titulo,
+            hAxis: { title: "Dias", titleTextStyle: { color: "#333" } },
+            vAxis: { minValue: 0 },
+            chartArea: { width: "50%", height: "70%" },
         });
     }
 
-    useEffect(()=>{
+    useEffect(() => {
+        setCarregando(true);
         renderChart();
+        setCarregando(false);
     }, [data])
 
     return (
-        <canvas
-            id="canvas"
-            width={400}
-            height={400} />);
+        <Container>
+            {carregando ?
+                <h1>Aguarde, carregando gráfico...</h1> :
+                <Chart
+                    chartType={tipo}
+                    width="100%"
+                    height="400px"
+                    data={data}
+                    options={options}
+                />
+            }
+        </Container>
+    );
 }
 
 export default Graficos;

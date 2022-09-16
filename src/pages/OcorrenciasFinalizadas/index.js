@@ -7,7 +7,7 @@ import api from '../../services/api';
 import Header from '../../componentes/Header';
 import FiltroData from '../../componentes/FiltroData';
 import Etiqueta from '../../componentes/Etiqueta';
-import Graficos from '../../componentes/Graficos';
+import Graficos from '../../componentes/Graficos2';
 import { tipo_erro } from '../../constants';
 
 function OcorrenciasFinalizadas() {
@@ -139,10 +139,10 @@ function OcorrenciasFinalizadas() {
         CarregaDadosOcorrencias();
     }, [])
 
-    useEffect(()=>{
-        if (carregando){
+    useEffect(() => {
+        if (carregando) {
             swal('Aguarde...', 'Carregando dados de ocorrencias', 'info')
-        }else{
+        } else {
             swal('Ok', 'Dados carregados com sucesso', 'success')
         }
     }, [carregando])
@@ -167,12 +167,12 @@ function OcorrenciasFinalizadas() {
                     </ContainerGrafico>
                 </ContainerBuscaGrafico>
                 <ContainerEtiquetas>
-                    <Etiqueta key="1" click={()=> FiltrarPorTipoErro(-1)} texto="Ordens Geradas" percentual={OrdensGeradas} cor="rgba(255, 255, 255, 0.8)" corTexto="#000"><MdAlarm /></Etiqueta>
-                    <Etiqueta key="2" click={()=> FiltrarPorTipoErro(0)} texto="Erro Usuário" percentual={ErroUsuario} cor="rgba(255, 0, 235, 0.8)" corTexto="#000"><MdAccountCircle /></Etiqueta>
-                    <Etiqueta key="3" click={()=> FiltrarPorTipoErro(1)} texto="Erro Sistema" percentual={ErroSistema} cor="rgba(0, 0, 0, 0.8)" corTexto="#FFF"><MdAssessment /></Etiqueta>
-                    <Etiqueta key="4" click={()=> FiltrarPorTipoErro(2)} texto="Programação Nova" percentual={ProgramacaoNova} cor="rgba(255, 0, 0, 0.8)" corTexto="#FFF"><MdAlarmAdd /></Etiqueta>
-                    <Etiqueta key="5" click={()=> FiltrarPorTipoErro(3)} texto="Dúvidas do Usuário" percentual={DuvidaUsuario} cor="rgba(0, 255, 25, 0.8)" corTexto="#000"><MdQuestionAnswer /></Etiqueta>
-                    <Etiqueta key="6" click={()=> FiltrarPorTipoErro(4)} texto="Outros" percentual={Outros} cor="rgba(0, 255, 255, 0.8)" corTexto="#000"><MdReorder /></Etiqueta>
+                    <Etiqueta key="1" click={() => FiltrarPorTipoErro(-1)} texto="Ordens Geradas" percentual={OrdensGeradas} cor="rgba(255, 255, 255, 0.8)" corTexto="#000"><MdAlarm /></Etiqueta>
+                    <Etiqueta key="2" click={() => FiltrarPorTipoErro(0)} texto="Erro Usuário" percentual={ErroUsuario} cor="rgba(255, 0, 235, 0.8)" corTexto="#000"><MdAccountCircle /></Etiqueta>
+                    <Etiqueta key="3" click={() => FiltrarPorTipoErro(1)} texto="Erro Sistema" percentual={ErroSistema} cor="rgba(0, 0, 0, 0.8)" corTexto="#FFF"><MdAssessment /></Etiqueta>
+                    <Etiqueta key="4" click={() => FiltrarPorTipoErro(2)} texto="Programação Nova" percentual={ProgramacaoNova} cor="rgba(255, 0, 0, 0.8)" corTexto="#FFF"><MdAlarmAdd /></Etiqueta>
+                    <Etiqueta key="5" click={() => FiltrarPorTipoErro(3)} texto="Dúvidas do Usuário" percentual={DuvidaUsuario} cor="rgba(0, 255, 25, 0.8)" corTexto="#000"><MdQuestionAnswer /></Etiqueta>
+                    <Etiqueta key="6" click={() => FiltrarPorTipoErro(4)} texto="Outros" percentual={Outros} cor="rgba(0, 255, 255, 0.8)" corTexto="#000"><MdReorder /></Etiqueta>
                 </ContainerEtiquetas>
 
                 <div className="card">
