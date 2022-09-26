@@ -3,15 +3,15 @@ import { Chart } from "react-google-charts";
 import { Container } from "./styles";
 
 function Graficos({ titulo, tipo = 'AreaChart', data }) {
-    const [options, setOptions] = useState({});
+    let options = {};
     const [carregando, setCarregando] = useState(false);
     function renderChart() {
-        setOptions({
+        options = {
             title: titulo,
             hAxis: { title: "Dias", titleTextStyle: { color: "#333" } },
             vAxis: { minValue: 0 },
             chartArea: { width: "50%", height: "70%" },
-        });
+        };
     }
 
     useEffect(() => {
