@@ -11,7 +11,7 @@ import api from '../../services/api';
 
 registerLocale('pt-BR', pt_br);
 
-function FiltroData({funcSubmitted, dataInic, dataFin, setCodContrato}){
+function FiltroData({ funcSubmitted, dataInic, dataFin, setCodContrato, ocutarBuscaClientes = false }) {
     const [dataInicial, setDataInicial] = useState(new Date());
     const [dataFinal, setDataFinal] = useState(new Date());
     const [clientes, setClientes] = useState([]);
@@ -25,10 +25,10 @@ function FiltroData({funcSubmitted, dataInic, dataFin, setCodContrato}){
         dataFin(date);
     };
 
-    function changeContrato(contrato){
+    function changeContrato(contrato) {
         setCodContrato(contrato);
     }
-        
+
     useEffect(() => {
         getClientes()
     }, [])
@@ -50,23 +50,27 @@ function FiltroData({funcSubmitted, dataInic, dataFin, setCodContrato}){
                         <label htmlFor="data">Data Final</label>
                         <DatePicker dateFormat="dd/MM/yyyy" locale='pt-BR' selected={dataFinal} onChange={changeDataFinal} disabled={PorCliente} />
                     </div>
-                    <div className="form-group">
-                    <label htmlFor="clientes">Escolha o cliente</label>
-                        <input type="checkbox" value={PorCliente} onChange={()=> setPorCliente(!PorCliente)} />    
-                        {
-                            clientes.length > 0 ?
-                            <select id="clientes" className="input-control" disabled={!PorCliente} onChange={(e)=> changeContrato(e.target.value)}>
+                    {!ocutarBuscaClientes && (
+                        <>
+                            <div className="form-group">
+                                <label htmlFor="clientes">Escolha o cliente</label>
+                                <input type="checkbox" value={PorCliente} onChange={() => setPorCliente(!PorCliente)} />
                                 {
-                                clientes.map(cliente => <option key={cliente.contrato} value={cliente.contrato}>{cliente.nome}</option>)
+                                    clientes.length > 0 ?
+                                        <select id="clientes" className="input-control" disabled={!PorCliente} onChange={(e) => changeContrato(e.target.value)}>
+                                            {
+                                                clientes.map(cliente => <option key={cliente.contrato} value={cliente.contrato}>{cliente.nome}</option>)
+                                            }
+                                        </select>
+                                        : <h3>Carregando clientes</h3>
                                 }
-                            </select>
-                            : <h3>Carregando clientes</h3>
-                        }
-                    </div>
-                    <div>
-                        <Button Icon={MdSearch} nome={"Buscar"} color={"black"} corTexto={"white"} borderRadius={"18px"} />
-                    </div>
-                </form>   
+                            </div>
+                            <div>
+                                <Button Icon={MdSearch} nome={"Buscar"} color={"black"} corTexto={"white"} borderRadius={"18px"} />
+                            </div>
+                        </>
+                    )}
+                </form>
             </div>
         </Container>
     );

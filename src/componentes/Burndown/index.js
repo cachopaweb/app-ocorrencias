@@ -1,12 +1,16 @@
 import React, { useEffect } from 'react';
 import api from '../../services/api';
 import { useState } from 'react';
+
 import Graficos from '../Graficos';
 import { Container } from './styles';
+import FiltroData from '../FiltroData';
 
 function Burndown({ projeto_id }) {
     const [carregando, setCarregando] = useState(false);
     const [dadosfinal, setDadosFinal] = useState([]);
+    const [dataInicial, setDataInicial] = useState(new Date((new Date()).getDate() - 30));
+    const [dataFinal, setDataFinal] = useState(new Date());
     let totalOcorrencias = 0;
     let totalDatasFinalizadas = 0;
     let datasRealConvertidas = 0;
@@ -14,7 +18,7 @@ function Burndown({ projeto_id }) {
 
     async function fetchBurndownProjeto() {
         setCarregando(true)
-        let response = await api.get(`/Burndown/${projeto_id}`);
+        let response = await api.get(`/Burndown/${projeto_id}?data1=${dataInicial.toLocaleDateString()}&data2=${dataFinal.toLocaleDateString()}`);
         const dados = response.data;
         let datasIdeal = dados.ideais;
         let datasReal = dados.reais;
@@ -142,10 +146,11 @@ function Burndown({ projeto_id }) {
 
     useEffect(() => {
         fetchBurndownProjeto()
-    }, [])
+    }, [dataInicial, dataFinal])
 
     return (
         <Container>
+            <FiltroData dataInic={setDataInicial} dataFin={setDataFinal} ocutarBuscaClientes />
             {carregando ?
                 <h1>Aguarde, carregando burndown...</h1> :
                 <Graficos data={dadosfinal} titulo="Burndown" tipo="AreaChart" />

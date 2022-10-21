@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { MdShowChart } from 'react-icons/md';
+import swal from 'sweetalert';
+
 import BoardContext from './context';
 import { Centralizar, Container, Floating } from './styles';
 import Lista from './Lista';
@@ -10,8 +13,6 @@ import api from '../../services/api';
 import Button from '../../componentes/Button';
 import Burndown from '../Burndown';
 import Modal from '../Modal';
-import { MdShowChart } from 'react-icons/md';
-import swal from 'sweetalert';
 
 export default function QuadroScrum() {
   const [lista, setLista] = useState([]);
@@ -72,6 +73,7 @@ export default function QuadroScrum() {
               </Modal>
             )
           }
+
           <Container>
             {
               lista.length > 0 &&
