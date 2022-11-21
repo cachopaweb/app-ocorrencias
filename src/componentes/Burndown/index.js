@@ -29,7 +29,7 @@ function Burndown({ projeto_id }) {
         datasRealConvertidas = converteDatas(datasReal);
         datasIdealConvertidas = converteDatas(datasIdeal);
         //retorna os dados do grafico        
-        setDadosFinal(insereDadosTabela(datasIdealConvertidas))
+        setDadosFinal(insereDadosTabela(datasIdealConvertidas, datasRealConvertidas))
         setCarregando(false)
     }
 
@@ -37,7 +37,6 @@ function Burndown({ projeto_id }) {
         var data = new Date();
 
         if (dataString == '0') {
-
             return null;
         }
         else {
@@ -122,25 +121,15 @@ function Burndown({ projeto_id }) {
         return Math.abs(end - start) / 86400000;
     }
 
-    function insereDadosTabela(datasIdeal) {
-        let datainicial = menorData(datasIdeal);
-        let datafinal = maiorData(datasIdeal);
-        let auxData = datainicial;
-        let diferencaDias = calculateDateDiff(datainicial, datafinal);
-        let razaoIdeal = totalOcorrencias / diferencaDias;
-        let auxIdeal = totalOcorrencias;
-        let auxReal = totalOcorrencias;
-        let dadosTabela = [
-            ["Datas", "Linha Ideal", "Linha Real"]];
-        while (auxData <= datafinal) {
-
-            auxReal = auxReal - verificaNumeroDatas(auxData);
-            auxIdeal = auxIdeal - razaoIdeal;
-            dadosTabela.push([converteDataParaString(auxData), parseFloat(auxIdeal.toFixed(2)), auxReal]);
-
-            auxData.setHours(auxData.getHours() + 24);
+    function insereDadosTabela(datasIdeal, datasReal) {
+        let dadosTabela = [["Datas", "Linha Ideal", "Linha Real"]];
+        let num_tarefas = datasIdeal.length;
+        let tarefas_pendentes = datasIdeal.length;
+        for (var i = 0; i < datasIdeal.length - 1; i++) {
+            if (datasReal[i] && (datasIdeal[i] <= datasReal[i]))
+                tarefas_pendentes--;
+            dadosTabela.push([converteDataParaString(datasIdeal[i]), num_tarefas - i, tarefas_pendentes]);
         }
-        ////
         return dadosTabela;
     }
 
