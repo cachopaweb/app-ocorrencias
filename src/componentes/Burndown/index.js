@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import api from '../../services/api';
 import { useState } from 'react';
+import { Chart } from "react-google-charts";
 
 import Graficos from '../Graficos';
 import { Container } from './styles';
@@ -8,8 +9,9 @@ import FiltroData from '../FiltroData';
 
 function Burndown({ projeto_id }) {
     const [carregando, setCarregando] = useState(false);
+    const [flag, setFlag] = useState(true);
     const [dadosfinal, setDadosFinal] = useState([]);
-    const [dataInicial, setDataInicial] = useState(new Date((new Date()).getDate() - 30));
+    const [dataInicial, setDataInicial] = useState(new Date());
     const [dataFinal, setDataFinal] = useState(new Date());
     let totalOcorrencias = 0;
     let totalDatasFinalizadas = 0;
@@ -29,9 +31,14 @@ function Burndown({ projeto_id }) {
         datasRealConvertidas = converteDatas(datasReal);
         datasIdealConvertidas = converteDatas(datasIdeal);
         //retorna os dados do grafico        
-        setDadosFinal(insereDadosTabela(datasIdealConvertidas, datasRealConvertidas))
-        setCarregando(false)
+        setDadosFinal(insereDadosTabela(datasRealConvertidas));
+        setCarregando(false);
     }
+
+    function proximoDia(data, dias) {
+        return new Date(data.getTime() + 86400000);
+    }
+
 
     function converteStringParaData(dataString) {
         var data = new Date();
@@ -69,11 +76,11 @@ function Burndown({ projeto_id }) {
             dia = data.getDate().toString();
         }
 
-        if ((data.getMonth() + 1) < 10) {
-            mes = '0' + (data.getMonth() + 1).toString();
+        if (data.getMonth() < 10) {
+            mes = '0' + data.getMonth().toString();
         }
         else {
-            mes = (data.getMonth() + 1).toString();
+            mes = data.getMonth().toString();
         }
 
         ano = data.getFullYear().toString();
@@ -121,14 +128,52 @@ function Burndown({ projeto_id }) {
         return Math.abs(end - start) / 86400000;
     }
 
-    function insereDadosTabela(datasIdeal, datasReal) {
+    function listaDatasString(lista) {
+        var i;
+        let retorno = [];
+        for (i = 0; i < lista.length; i++) {
+            if ((lista[i] != null) && (lista[i] != 0)) {
+                retorno.push(converteDataParaString(lista[i]));
+            }
+        }
+        return retorno;
+    }
+
+    function insereDadosTabela(datasReal) {
         let dadosTabela = [["Datas", "Linha Ideal", "Linha Real"]];
-        let num_tarefas = datasIdeal.length;
-        let tarefas_pendentes = datasIdeal.length;
-        for (var i = 0; i < datasIdeal.length - 1; i++) {
-            if (datasReal[i] && (datasIdeal[i] <= datasReal[i]))
-                tarefas_pendentes--;
-            dadosTabela.push([converteDataParaString(datasIdeal[i]), num_tarefas - i, tarefas_pendentes]);
+        setDadosFinal(dadosTabela);
+        let inicial = dataInicial;
+        let final = dataFinal;
+        datasReal = datasReal.sort();
+        let num_tarefas = datasReal.length;
+        let tarefas_pendentes = datasReal.length;
+        let datasconcluidas = listaDatasString(datasReal);
+        let j = 0;
+        let i = 0;
+        inicial.setHours(0);
+        inicial.setMinutes(0);
+        inicial.setSeconds(0);
+        inicial.setMilliseconds(0);
+        final.setHours(0);
+        final.setMinutes(0);
+        final.setSeconds(0);
+        final.setMilliseconds(0);
+        let diferencaDias = calculateDateDiff(inicial, final);
+        let razao = datasReal.length / diferencaDias;
+        let eixoIdeal = datasReal.length;
+
+        while (inicial.valueOf() != final.valueOf()) {
+            for (j = 0; j < datasconcluidas.length; j++) {
+                if (datasconcluidas[j] != null) {
+                    if (datasconcluidas[j].localeCompare(converteDataParaString(inicial)) == 0) {
+                        tarefas_pendentes--;
+                    }
+                }
+            }
+            dadosTabela.push([converteDataParaString(inicial), parseFloat(parseFloat(eixoIdeal).toFixed(2)), tarefas_pendentes]);
+            eixoIdeal = eixoIdeal - razao;
+            i++;
+            inicial = proximoDia(inicial);
         }
         return dadosTabela;
     }
@@ -142,7 +187,20 @@ function Burndown({ projeto_id }) {
             <FiltroData dataInic={setDataInicial} dataFin={setDataFinal} ocutarBuscaClientes />
             {carregando ?
                 <h1>Aguarde, carregando burndown...</h1> :
-                <Graficos data={dadosfinal} titulo="Burndown" tipo="AreaChart" />
+                // <Graficos data={dadosfinal} titulo="Burndown" tipo="AreaChart" />
+                <div><Chart
+                    chartType={'AreaChart'}
+                    width="100%"
+                    height="400px"
+                    data={dadosfinal}
+                    options={{
+                        title: 'Burndown',
+                        hAxis: { title: "Dias", titleTextStyle: { color: "#333" } },
+                        vAxis: { minValue: 0 },
+                        chartArea: { width: "50%", height: "70%" },
+                    }}
+                />       
+                </div>
             }
         </Container>
     );
