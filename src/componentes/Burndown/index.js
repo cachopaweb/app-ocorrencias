@@ -36,7 +36,11 @@ function Burndown({ projeto_id }) {
     }
 
     function proximosDias(data, dias) {
-        return new Date(data.getTime() + (dias * 86400000));
+        if(data != 0)
+        {
+            return new Date(data.getTime() + (dias * 86400000));
+        }
+        return 0;
     }
 
 
@@ -142,22 +146,24 @@ function Burndown({ projeto_id }) {
     function insereDadosTabela(DatasReal, DatasIdeal)
     {
         var dataInicial = DatasIdeal[0];
-        var dataFinal = DatasIdeal[DatasIdeal.length];
+        var totalProjetos = DatasIdeal.length;
+        var dataFinal = DatasIdeal[DatasIdeal.length -1];
         let vetorReal=[];
         let vetorIdeal=[];
-        var intervaloDias = (dataFinal - dataInicial) /86400000;
+        var intervaloDias = parseInt(((dataFinal - dataInicial) /86400000)/totalProjetos);
 
         DatasReal.forEach(function(data, i) {
             if(data!=null)
             {
                 vetorReal.push({
                     x:data,
-                    y: i
+                    y: totalProjetos - i
                 })
             }
+
         });
 
-        for(var j = DatasIdeal.length; j <= 0; j--)
+        for(var j = totalProjetos; j > 0; j--)
         {
             vetorIdeal.push(
                 {
@@ -165,10 +171,14 @@ function Burndown({ projeto_id }) {
                     y:j
                 }
             )
+
             dataInicial = proximosDias(dataInicial, intervaloDias);
+
+            
         }
         return(
         [{
+
             type: "spline",
             name: "Ideal",
             showInLegend: true,
@@ -177,8 +187,7 @@ function Burndown({ projeto_id }) {
         },
         {
             type: "spline",
-            name: "Profit",
-            axisYType: "secondary",
+            name: "Real",
             showInLegend: true,
             xValueFormatString: "DD/MM/YYYY",
             dataPoints:vetorReal

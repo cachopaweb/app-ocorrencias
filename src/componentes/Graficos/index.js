@@ -19,20 +19,35 @@ function Graficos({ data }) {
         this.chart.render(e.data);
     }
 
+
+    const optionsTeste =
+    {
+        
+        animationEnabled: true,	
+        title:{
+            text: "BurnDown"
+        },
+        axisY : {
+            title: "Projetos",
+            includeZero: false
+        },
+        toolTip: {
+            shared: true
+        },
+        data:data
+    }
+
     const options = {
         theme: "light2",
         animationEnabled: true,
         title: {
             text: "BurnDown"
         },
-        subtitles: [{
-            text: "Click Legend to Hide or Unhide Data Series"
-        }],
         axisX: {
-            title: "States"
+            title: "Datas"
         },
         axisY: {
-            title: "Units Sold",
+            title: "Ideal",
             titleFontColor: "#6D78AD",
             lineColor: "#6D78AD",
             labelFontColor: "#6D78AD",
@@ -40,7 +55,7 @@ function Graficos({ data }) {
             includeZero: false
         },
         axisY2: {
-            title: "Profit in USD",
+            title: "Real",
             titleFontColor: "#51CDA0",
             lineColor: "#51CDA0",
             labelFontColor: "#51CDA0",
@@ -86,7 +101,7 @@ function Graficos({ data }) {
 
     return (
         <div className="Grafico">
-            <CanvasJSChart options={options}
+            <CanvasJSChart options={optionsTeste}
             />
             {/*You can get reference to the chart instance as shown above using onRef. This allows you to access all chart properties and methods*/}
         </div>
