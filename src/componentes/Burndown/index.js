@@ -31,12 +31,16 @@ function Burndown({ projeto_id }) {
         datasRealConvertidas = converteDatas(datasReal);
         datasIdealConvertidas = converteDatas(datasIdeal);
         //retorna os dados do grafico        
-        setDadosFinal(insereDadosTabela(datasRealConvertidas));
+        setDadosFinal(insereDadosTabela(datasRealConvertidas,datasIdealConvertidas));
         setCarregando(false);
     }
 
-    function proximoDia(data, dias) {
-        return new Date(data.getTime() + 86400000);
+    function proximosDias(data, dias) {
+        if(data != 0)
+        {
+            return new Date(data.getTime() + (dias * 86400000));
+        }
+        return 0;
     }
 
 
@@ -139,11 +143,75 @@ function Burndown({ projeto_id }) {
         return retorno;
     }
 
-    function insereDadosTabela(datasReal) {
+    function insereDadosTabela(DatasReal, DatasIdeal)
+    {
+        var dataInicial = DatasIdeal[0];
+        var totalProjetos = DatasIdeal.length;
+        var dataFinal = DatasIdeal[DatasIdeal.length -1];
+        let vetorReal=[];
+        let vetorIdeal=[];
+        var intervaloDias = parseInt(((dataFinal - dataInicial) /86400000)/totalProjetos);
+
+        DatasReal.forEach(function(data, i) {
+            if(data!=null)
+            {
+                vetorReal.push({
+                    x:data,
+                    y: totalProjetos - i
+                })
+            }
+
+        });
+
+        for(var j = totalProjetos; j > 0; j--)
+        {
+            vetorIdeal.push(
+                {
+                    x: dataInicial,
+                    y:j
+                }
+            )
+
+            dataInicial = proximosDias(dataInicial, intervaloDias);
+
+            
+        }
+        return(
+        [{
+
+            type: "spline",
+            name: "Ideal",
+            showInLegend: true,
+            xValueFormatString: "DD/MM/YYYY",
+            dataPoints: vetorIdeal
+        },
+        {
+            type: "spline",
+            name: "Real",
+            showInLegend: true,
+            xValueFormatString: "DD/MM/YYYY",
+            dataPoints:vetorReal
+        }]);
+
+    }
+
+/*    function insereDadosTabela(datasReal,datasIdeal) {
         let dadosTabela = [["Datas", "Linha Ideal", "Linha Real"]];
         setDadosFinal(dadosTabela);
-        let inicial = dataInicial;
-        let final = dataFinal;
+        let inicial;
+        let final;
+        let datasPrevistas = listaDatasString(datasIdeal);
+        if(datasPrevistas.length > 0)
+        {
+            inicial = datasIdeal[0];
+            final = datasIdeal[datasIdeal.length - 1];
+        }
+        else
+        {
+            inicial = dataInicial;
+            final = dataFinal;
+        }
+
         datasReal = datasReal.sort();
         let num_tarefas = datasReal.length;
         let tarefas_pendentes = datasReal.length;
@@ -175,8 +243,9 @@ function Burndown({ projeto_id }) {
             i++;
             inicial = proximoDia(inicial);
         }
+        console.log(dadosTabela);
         return dadosTabela;
-    }
+    }*/
 
     useEffect(() => {
         fetchBurndownProjeto()
@@ -187,20 +256,7 @@ function Burndown({ projeto_id }) {
             <FiltroData dataInic={setDataInicial} dataFin={setDataFinal} ocutarBuscaClientes />
             {carregando ?
                 <h1>Aguarde, carregando burndown...</h1> :
-                // <Graficos data={dadosfinal} titulo="Burndown" tipo="AreaChart" />
-                <div><Chart
-                    chartType={'AreaChart'}
-                    width="100%"
-                    height="400px"
-                    data={dadosfinal}
-                    options={{
-                        title: 'Burndown',
-                        hAxis: { title: "Dias", titleTextStyle: { color: "#333" } },
-                        vAxis: { minValue: 0 },
-                        chartArea: { width: "50%", height: "70%" },
-                    }}
-                />       
-                </div>
+                <Graficos data={dadosfinal} />
             }
         </Container>
     );
