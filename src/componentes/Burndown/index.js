@@ -191,7 +191,8 @@ function Burndown({ projeto_id }) {
                 axisY : {
                     title: "Projetos",
                     includeZero: false,
-                    maximum: totalProjetos
+                    maximum: totalProjetos,
+                    minimum: 1
                 },
                 toolTip: {
                     shared: true
