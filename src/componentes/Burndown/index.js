@@ -172,16 +172,6 @@ function Burndown({ projeto_id }) {
                 y:1
             },
         ]
-        /*for(var j = totalProjetos; j > 0; j--)
-        {
-            vetorIdeal.push(
-                {
-                    x: dataInicial>dataFinal ? dataFinal : dataInicial,
-                    y:j
-                }
-            )
-            dataInicial = proximosDias(dataInicial, intervaloDias);
-        }*/
         return(
             {
                 animationEnabled: true,	
