@@ -55,7 +55,7 @@ function OrdensEntregues() {
     const [modalClienteAtivo, setModalClienteAtivo] = useState(false);
     const [contratoSelecionado, setContratoSelecionado] = useState(0);
     const [clienteSelecionado, setClienteSelecionado] = useState({});
-    const [quantidade, setQuantidade] = useState(10);
+    const [quantidade, setQuantidade] = useState(5);
 
     async function CarregaDadosOrdens() {
         let response = await api.get(`/Ordens/entregues/${quantidade}`);

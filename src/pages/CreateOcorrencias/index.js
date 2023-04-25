@@ -9,10 +9,12 @@ import { MdSave, MdCancel } from 'react-icons/md'
 import Header from '../../componentes/Header';
 import { tipo_erro } from '../../constants';
 
-function CreateOcorrencias() {
+
+function CreateOcorrencias({codigo_projeto_scrum = 0, retornarPara = null}) {
   const [projetos_scrum, setProjetosScrum] = useState([]);
   const [erro, setErro] = useState('Erro de Sistema')
-  const { cod_funcionario } = useUsuario();
+  const [cod_projeto_scrum, setCod_projeto_scrum] = useState(codigo_projeto_scrum);
+  const { cod_funcionario } = useUsuario();  
   const history = useHistory();
 
   function dataAtualFormatada() {
@@ -29,8 +31,7 @@ function CreateOcorrencias() {
     event.preventDefault();
     const select = document.querySelector('#projetos_scrum');
     const index = select.selectedIndex;
-    console.log(index);
-    const cod_projeto_scrum = select.options[select.selectedIndex].value;
+    console.log(index);    
     const cliente = select.options[select.selectedIndex].innerText;
     const ocorrencia = document.querySelector('#ocorrencia');
     if (ocorrencia.value === '' ){
@@ -52,8 +53,11 @@ function CreateOcorrencias() {
     // console.log(create);
     const response = await api.post('/Ocorrencias', create);
     if (!response.error) {
-      swal("Ocorrência aberta com sucesso!", "Bom trabalho", "success");  
-      history.push('/ocorrencias');
+      swal("Ocorrência aberta com sucesso!", "Bom trabalho", "success"); 
+      if (!retornarPara) 
+        history.push('/ocorrencias')
+      else
+        retornarPara();
     } else {
       swal("Algo deu errado!", response.error, "error");
     }
@@ -69,7 +73,10 @@ function CreateOcorrencias() {
   }
 
   function cancelar() {
-    history.push('/ocorrencias');
+    if (!retornarPara) 
+      history.push('/ocorrencias')
+    else
+      retornarPara();
   }
 
   return (
@@ -82,7 +89,7 @@ function CreateOcorrencias() {
             <label htmlFor="projetos_scrum">Escolha o cliente</label>
               {
                 projetos_scrum.length > 0 ?
-                  <select id="projetos_scrum" className="input-control" autoFocus={true}>
+                  <select id="projetos_scrum" className="input-control" autoFocus={true} value={cod_projeto_scrum} onChange={(e)=> setCod_projeto_scrum(e.target.value)}>
                     {
                       projetos_scrum.map(projetos => <option key={projetos.contrato} value={projetos.ps_codigo}>{projetos.cli_nome}</option>)
                     }

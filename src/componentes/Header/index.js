@@ -127,7 +127,7 @@ function Header({ title }) {
 
   return (
     <div className={classes.grow}>
-      <Drawer anchor={anchor} open={showMenu}>
+      <Drawer anchor={anchor} open={showMenu} onClick={() => setshowMenu(!showMenu)}>
         <div
           className={clsx(classes.list, {
             [classes.fullList]: anchor === 'top' || anchor === 'bottom',
@@ -171,6 +171,10 @@ function Header({ title }) {
             <ListItem button key='Clientes' onClick={() => history.push('/clientes')}>
               <ListItemIcon><AssignmentIndRoundedIcon /></ListItemIcon>
               <ListItemText primary='Clientes' />
+            </ListItem>
+            <ListItem button key='ClientesSemOcorrencias' onClick={() => history.push('/clientesSemOcorrencias')}>
+              <ListItemIcon><AssignmentIndRoundedIcon /></ListItemIcon>
+              <ListItemText primary='Clientes Sem Ocorrências' />
             </ListItem>
             <ListItem button key='Licenças' onClick={() => history.push('/licencas')}>
               <ListItemIcon><ScreenLockLandscapeRoundedIcon /></ListItemIcon>

@@ -21,6 +21,7 @@ import QuadroKanban from '../componentes/QuadroKanban';
 import Calendario from '../componentes/Calendario';
 import Ncm from '../pages/Ncm';
 import OrdensEntregues from '../pages/OrdensEntregues';
+import ClientesSemOcorrencias from '../pages/ClientesSemOcorrencias';
 
 
 const PrivateRoute = ({ component: Component, ...rest }) => {
@@ -48,6 +49,7 @@ function Routes() {
         <PrivateRoute path="/ocorrencias" component={Ocorrencia} />
         <PrivateRoute path="/create" component={createOcorrencia} />
         <PrivateRoute path="/clientes" component={Clientes} />
+        <PrivateRoute path="/clientesSemOcorrencias" component={ClientesSemOcorrencias} />
         <PrivateRoute path="/aberturaOS" component={AberturaOS} />
         <PrivateRoute path="/contaReceber" component={ContaReceber} />
         <PrivateRoute path='/ocorrenciasFinalizadas' component={OcorrenciasFinalizadas} />
