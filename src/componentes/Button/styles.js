@@ -6,7 +6,10 @@ export const Container = styled.button`
     font-weight: 600;
     color: ${props => props.corTexto || "black"};
     background-color: ${props => props.color || "#323540" };
-    margin: 5px 5px 0px;
+    margin-top: 5px  ;
+    margin-left: 5px  ;
+    margin-bottom: ${props => props.bottom || "0px"};
+    margin-right: 5px;
     padding: 10px 10px;
     text-decoration: none;
     transition: all 150ms linear 0s;

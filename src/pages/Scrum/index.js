@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { MdAdd, MdAssignment, MdAutorenew } from 'react-icons/md';
 import { useHistory } from 'react-router-dom';
+import Burndown from '../../componentes/Burndown';
 
 import { Container, Pesquisa, Floating, Tabela, LinhaDestaque, Card } from './styles';
 import Header from '../../componentes/Header';
@@ -9,6 +10,7 @@ import Button from '../../componentes/Button';
 import Modal from '../../componentes/Modal';
 import Create_Projeto_Scrum from '../Create_Projeto_Scrum';
 import { useUsuario } from '../../context/UsuarioContext';
+import { MdShowChart } from 'react-icons/md';
 
 import { withStyles, makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
@@ -51,6 +53,7 @@ function Scrum() {
     const [modalAtivo, setModalAtivo] = useState(false);
     const { fun_categoria } = useUsuario();
     const history = useHistory();
+    const [burndownAtivo, setBurndownAtivo] = useState(false);
 
     async function fetchProjetosScrum() {
         let response = await api.get('/projetos_scrum/EmAndamento');
@@ -78,14 +81,12 @@ function Scrum() {
     return (
         <>
             <Header title={"Scrum"} />
-            <Floating>
-                {
-                    <Button Icon={MdAdd} tamanho_icone={40} borderRadius={"50%"} corTexto={"white"} click={() => setModalAtivo(true)} />
-                }
-            </Floating>
             {modalAtivo && <Modal activate={modalAtivo} setActivate={setModalAtivo}>
                 <Create_Projeto_Scrum />
             </Modal>}
+            {burndownAtivo && <Modal activate={burndownAtivo} setActivate={setBurndownAtivo} altura='600px' largura='700px'>
+                <Burndown projeto_id={0} />
+              </Modal>} 
             <Pesquisa>
                 <div id="form">
                     <form>
@@ -137,11 +138,20 @@ function Scrum() {
                                             </TableRow>
                                         </TableBody>
                                     ))
+                                                                       
                                     : <h1>Carregando Ordens...</h1>
                             }
                         </Table>
                     </TableContainer>
                 </Card>
+                <Floating>
+              {
+               <>
+                <Button Icon={MdShowChart} bottom={"40px"} tamanho_icone={40} borderRadius={"50%"} corTexto={"white"} click={() => setBurndownAtivo(!burndownAtivo)} /> 
+                <Button Icon={MdAdd} tamanho_icone={40} borderRadius={"50%"} corTexto={"white"} click={() => setModalAtivo(true)} />
+               </> 
+              }
+            </Floating>
             </Container>
         </>
     );
