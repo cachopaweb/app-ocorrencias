@@ -21,10 +21,10 @@ function Licencas() {
     const [dataLimite, setDataLimite] = useState(new Date());
     const [modalGerarAtivo, setModalGerarAtivo] = useState(false);
     const [licencaSelecionada, setLicencaSelecionada] = useState({});
-    const { state } = useLocation();    
-    const history = useHistory();   
+    const { state } = useLocation();
+    const history = useHistory();
     const [licencasVencer, setLicencasVencer] = useState(state?.licencasVencer || []);
-    
+
     async function fetchLicencas() {
         let response = await api.get('/contrassenha');
         setLicencas(response.data);
@@ -39,10 +39,10 @@ function Licencas() {
             limite: (new Date(dataLimite)).toLocaleDateString(),
             codigo: licencaSelecionada.codigo
         });
-        if (response.status === 200){
-            swal('Contrassenha atualizada com sucesso!', 'Bom trabalho!', 'success') 
-            history.push('/ocorrencias');               
-        }else{
+        if (response.status === 200) {
+            swal('Contrassenha atualizada com sucesso!', 'Bom trabalho!', 'success')
+            history.push('/ocorrencias');
+        } else {
             swal(`Erro ao atualizar contrassenha. ${response.data.error}`, 'Algo deu errado!', 'error')
         }
     }
@@ -53,34 +53,72 @@ function Licencas() {
         setNovaSenha(licenca.senha)
     }
 
-    function changeDataLimite(data){
+    function changeDataLimite(data) {
         setDataLimite(data)
     }
 
     useEffect(() => {
-        if (licencasVencer.length === 0)
-            fetchLicencas();
+        fetchLicencas();
     }, [])
 
     return (
         <>
-            <Header title={licencasVencer.length === 0 ? 'Licenças': 'Licenças a Vencer'} />
+            <Header title={licencasVencer.length === 0 ? 'Licenças' : 'Licenças a Vencer'} />
             <Container>
                 <Modal activate={modalGerarAtivo} setActivate={setModalGerarAtivo} altura={350} largura={350} >
-                    <form id="form" onSubmit={SubmitNovaLicenca}>
-                        <div className="form-group">
-                            <label htmlFor="senha">Senha</label>
-                            <input type="text" value={novaSenha} onChange={(e)=> setNovaSenha(e.target.value)} />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="data">Data Limite</label>
-                            <DatePicker dateFormat="dd/MM/yyyy" locale='pt-BR' selected={dataLimite} onChange={changeDataLimite} />
-                        </div>
-                        <Button nome="Gerar" borderRadius="8px" color="green" corTexto="white" Icon={MdSave} />
-                    </form>
+                    <div id="form">
+                        <form onSubmit={SubmitNovaLicenca}>
+                            <div className="form-group">
+                                <label htmlFor="senha">Senha</label>
+                                <input type="text" value={novaSenha} onChange={(e) => setNovaSenha(e.target.value)} />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="data">Data Limite</label>
+                                <DatePicker dateFormat="dd/MM/yyyy" locale='pt-BR' selected={dataLimite} onChange={changeDataLimite} />
+                            </div>
+                            <Button nome="Gerar" borderRadius="8px" color="green" corTexto="white" Icon={MdSave} />
+                        </form>
+                    </div>
                 </Modal>
-                <div className="card">
-                    <h1>{licencasVencer.length === 0 ? 'Licenças Software' : 'Licenças Software a Vencer'}</h1>
+                {licencasVencer.length > 0 && (
+                    <div className="card">
+                        <h1>Licenças de Softwares a Vencer</h1>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Cliente</th>
+                                    <th>Senha</th>
+                                    <th>Contrassenha</th>
+                                    <th>Data Uso</th>
+                                    <th>Data Limite</th>
+                                    <th>Num PCs</th>
+                                    <th>Ação</th>
+                                </tr>
+                            </thead>
+                            {
+                                licencasVencer.length > 0 ?
+                                    licencasVencer.map((licenca) => (
+                                        <tbody>
+                                            <tr>
+                                                <th>{licenca.codigo}</th>
+                                                <td>{licenca.nome_cliente}</td>
+                                                <td>{licenca.senha}</td>
+                                                <td>{licenca.contra_senha}</td>
+                                                <td>{String(licenca.data_uso).length > 0 ? new Date(licenca.data_uso).toLocaleDateString() : ''}</td>
+                                                <td>{licenca.data_limite}</td>
+                                                <td>{licenca.pcs}</td>
+                                                <td><Button click={() => handleClickGerar(licenca)} nome="Gerar" color="red" corTexto="#FFF" Icon={MdEvent} borderRadius="10px" /></td>
+                                            </tr>
+                                        </tbody>
+                                    ))
+                                    : <h1>Carregando licenças a vencer...</h1>
+                            }
+
+                        </table>
+                    </div>)}
+                {licencas.length > 0 && (<div className="card">
+                    <h1>Licenças de Softwares ativas</h1>
                     <table>
                         <thead>
                             <tr>
@@ -91,12 +129,11 @@ function Licencas() {
                                 <th>Data Uso</th>
                                 <th>Data Limite</th>
                                 <th>Num PCs</th>
-                                {licencasVencer.length > 0 && <th>Ação</th>}
+                                <th>Ação</th>
                             </tr>
                         </thead>
-                        {                            
-                            licencas.length > 0 && licencasVencer.length === 0 ? (
-                                licencas.length > 0 ? 
+                        {
+                            licencas.length > 0 ?
                                 licencas.map((licenca) => (
                                     <tbody>
                                         <tr>
@@ -104,36 +141,19 @@ function Licencas() {
                                             <td>{licenca.nome_cliente}</td>
                                             <td>{licenca.senha}</td>
                                             <td>{licenca.contra_senha}</td>
-                                            <td>{new Date(licenca.data_uso).toLocaleDateString()}</td>
-                                            <td>{licenca.data_limite}</td>
-                                            <td>{licenca.pcs}</td>                                            
-                                        </tr>
-                                    </tbody>
-                                ))
-                                : <h1>Carregando licenças...</h1>
-                            )
-                            : (
-                                licencasVencer.length > 0 ? 
-                                licencasVencer.map((licenca) => (
-                                    <tbody>
-                                        <tr>
-                                            <th>{licenca.codigo}</th>
-                                            <td>{licenca.nome_cliente}</td>
-                                            <td>{licenca.senha}</td>
-                                            <td>{licenca.contra_senha}</td>
-                                            <td>{new Date(licenca.data_uso).toLocaleDateString()}</td>
+                                            <td>{String(licenca.data_uso).length > 0 ? new Date(licenca.data_uso).toLocaleDateString() : ''}</td>
                                             <td>{licenca.data_limite}</td>
                                             <td>{licenca.pcs}</td>
-                                            {licencasVencer?.length > 0 && <td><Button click={()=> handleClickGerar(licenca)} nome="Gerar" color="#05F" corTexto="#FFF" Icon={MdEvent} borderRadius="10px" /></td>}
+                                            <td><Button click={() => handleClickGerar(licenca)} nome="Gerar" color="#05F" corTexto="#FFF" Icon={MdEvent} borderRadius="10px" /></td>
                                         </tr>
                                     </tbody>
                                 ))
                                 : <h1>Carregando licenças...</h1>
-                            )
+
                         }
 
                     </table>
-                </div>                
+                </div>)}
             </Container>
         </>
     );
