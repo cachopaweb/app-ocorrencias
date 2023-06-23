@@ -36,7 +36,7 @@ function Licencas() {
         if (novaSenha === '') { swal('O campo Senha é obrigatório!', 'Informe a Senha!', 'warning'); return; }
         let response = await api.post('/contrassenha', {
             senha: novaSenha,
-            limite: (new Date(dataLimite)).toLocaleDateString(),
+            limite: dataLimite,
             codigo: licencaSelecionada.codigo
         });
         if (response.status === 200) {
@@ -105,13 +105,14 @@ function Licencas() {
                                                 <td>{licenca.nome_cliente}</td>
                                                 <td>{licenca.senha}</td>
                                                 <td>{licenca.contra_senha}</td>
-                                                <td>{String(licenca.data_uso).length > 0 ? new Date(licenca.data_uso).toLocaleDateString() : ''}</td>
+                                                <td>{String(licenca.data_uso).length > 0 ? new Date(licenca.data_uso).toLocaleDateString(): ''}</td>
                                                 <td>{licenca.data_limite}</td>
                                                 <td>{licenca.pcs}</td>
                                                 <td><Button click={() => handleClickGerar(licenca)} nome="Gerar" color="red" corTexto="#FFF" Icon={MdEvent} borderRadius="10px" /></td>
                                             </tr>
                                         </tbody>
-                                    ))
+                                    )
+                                    )
                                     : <h1>Carregando licenças a vencer...</h1>
                             }
 
@@ -147,9 +148,9 @@ function Licencas() {
                                             <td><Button click={() => handleClickGerar(licenca)} nome="Gerar" color="#05F" corTexto="#FFF" Icon={MdEvent} borderRadius="10px" /></td>
                                         </tr>
                                     </tbody>
-                                ))
+                                )
+                                )
                                 : <h1>Carregando licenças...</h1>
-
                         }
 
                     </table>
