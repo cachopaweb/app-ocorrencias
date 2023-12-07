@@ -113,7 +113,7 @@ function Licencas() {
                                     <th>Senha</th>
                                     <th>Contrassenha</th>
                                     <th>Data Uso</th>
-                                    <th style='th:hover{cursor: pointer}' onClick={() => setAuxOrdDataVencer(!auxOrdDataVencer)}> Data Limite </th>
+                                    <th className='hover' onClick={() => setAuxOrdDataVencer(!auxOrdDataVencer)}> Data Limite </th>
                                     <th>Num PCs</th>
                                     <th>Ação</th>
                                 </tr>
@@ -150,7 +150,7 @@ function Licencas() {
                                 <th>Senha</th>
                                 <th>Contrassenha</th>
                                 <th>Data Uso</th>
-                                <th style='th:hover{cursor: pointer}' onClick={() => setAuxOrdData(!auxOrdData)}>Data Limite</th>
+                                <th className='hover' onClick={() => setAuxOrdData(!auxOrdData)}>Data Limite</th>
                                 <th>Num PCs</th>
                                 <th>Ação</th>
                             </tr>

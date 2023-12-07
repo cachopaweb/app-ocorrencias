@@ -31,5 +31,12 @@ export const Container = styled.div`
         padding: 8px;
     }
 
+    .hover:hover{
+        cursor: pointer;
+        background-color: red;
+        border-radius: 8px;
+        color: #FFFF;
+    }
+
     tr:nth-child(even){background-color: #f2f2f2}    
 `;
