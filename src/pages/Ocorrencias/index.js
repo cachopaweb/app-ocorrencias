@@ -64,12 +64,6 @@ function Ocorrencias() {
     setCarregandoNotificacoes(false);
   }
 
-  function converteData(data) {
-    let arrayData = data.split('/');
-    let date = new Date(parseInt(arrayData[2] + '20'), arrayData[0] - 1, arrayData[1]);
-    return date;
-  }
-
   async function filtrarPorUsuario() {
     if (!filtrado) {
       let lista = await listaOcorrencias.filter((ocorrencia) => {
