@@ -95,11 +95,13 @@ function Card({ cliente, contrato, projeto_id, ocorrencia, atendente = 0, nomeAt
 
   //esta função separa as ocorrencias com espaços em branco
   function addSeparator(ocorrencia) {
-    return ocorrencia.split('\n\n').map((item) => {
+    let lista = ocorrencia.split('\n\n');
+    lista = lista.map((item) => {
       if (item.length > 0) {
         return AddCheckbox(item + '\n\n');
       }
     });
+    return lista;
   }
 
   function contaCheckBox() {
