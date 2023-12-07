@@ -24,11 +24,20 @@ function Licencas() {
     const { state } = useLocation();
     const history = useHistory();
     const [licencasVencer, setLicencasVencer] = useState(state?.licencasVencer || []);
+    const [auxOrdData, setAuxOrdData] = useState(false);
 
     async function fetchLicencas() {
         let response = await api.get('/contrassenha');
         setLicencas(response.data);
     }
+    function converterStringParaData(dataString) {
+        var partes = dataString.split("/");
+        var dia = parseInt(partes[0], 10);
+        var mes = parseInt(partes[1], 10) - 1; 
+        var ano = parseInt(partes[2], 10);
+        var data = new Date(ano, mes, dia);
+        return data;
+      }
 
     async function SubmitNovaLicenca(e) {
         e.preventDefault();
@@ -61,6 +70,12 @@ function Licencas() {
         fetchLicencas();
     }, [])
 
+    useEffect(()=>{
+        auxOrdData ? licencas.sort((a, b) => converterStringParaData(a.data_limite) - converterStringParaData(b.data_limite)):
+        licencas.sort((a, b) => converterStringParaData(b.data_limite) - converterStringParaData(a.data_limite));
+
+    }, [auxOrdData])
+
     return (
         <>
             <Header title={licencasVencer.length === 0 ? 'Licenças' : 'Licenças a Vencer'} />
@@ -91,7 +106,7 @@ function Licencas() {
                                     <th>Senha</th>
                                     <th>Contrassenha</th>
                                     <th>Data Uso</th>
-                                    <th>Data Limite</th>
+                                    <th className='hover:cursor-pointer' onClick={() => setAuxOrdData(!auxOrdData)}> Data Limite </th>
                                     <th>Num PCs</th>
                                     <th>Ação</th>
                                 </tr>
@@ -128,7 +143,7 @@ function Licencas() {
                                 <th>Senha</th>
                                 <th>Contrassenha</th>
                                 <th>Data Uso</th>
-                                <th>Data Limite</th>
+                                <th onClick={() =>setAuxOrdData(!auxOrdData)}>Data Limite</th>
                                 <th>Num PCs</th>
                                 <th>Ação</th>
                             </tr>

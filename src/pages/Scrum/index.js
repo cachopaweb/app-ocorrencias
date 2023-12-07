@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { MdAdd, MdAssignment, MdAutorenew } from 'react-icons/md';
+import { MdAdd, MdAssignment, MdAutorenew, MdTimer } from 'react-icons/md';
 import { useHistory } from 'react-router-dom';
 import Burndown from '../../componentes/Burndown';
+import Cronograma from '../../componentes/Cronograma';
 
 import { Container, Pesquisa, Floating, Tabela, LinhaDestaque, Card } from './styles';
 import Header from '../../componentes/Header';
@@ -54,6 +55,7 @@ function Scrum() {
     const { fun_categoria } = useUsuario();
     const history = useHistory();
     const [burndownAtivo, setBurndownAtivo] = useState(false);
+    const [cronogramaAtivo, setCronogramaAtivo] = useState(false);
 
     async function fetchProjetosScrum() {
         let response = await api.get('/projetos_scrum/EmAndamento');
@@ -81,6 +83,9 @@ function Scrum() {
     return (
         <>
             <Header title={"Scrum"} />
+            {cronogramaAtivo && <Modal activate={cronogramaAtivo} setActivate={setCronogramaAtivo}>
+                <Cronograma/>
+            </Modal>}
             {modalAtivo && <Modal activate={modalAtivo} setActivate={setModalAtivo}>
                 <Create_Projeto_Scrum />
             </Modal>}
@@ -147,6 +152,7 @@ function Scrum() {
                 <Floating>
               {
                <>
+                <Button Icon={MdTimer} bottom={"40px"} tamanho_icone={40} borderRadius={"50%"} corTexto={"white"} click={() => setCronogramaAtivo(!cronogramaAtivo)} />
                 <Button Icon={MdShowChart} bottom={"40px"} tamanho_icone={40} borderRadius={"50%"} corTexto={"white"} click={() => setBurndownAtivo(!burndownAtivo)} /> 
                 <Button Icon={MdAdd} tamanho_icone={40} borderRadius={"50%"} corTexto={"white"} click={() => setModalAtivo(true)} />
                </> 
