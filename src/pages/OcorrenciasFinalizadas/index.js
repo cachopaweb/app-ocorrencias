@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MdAlarm, MdAccountCircle, MdAssessment, MdAlarmAdd, MdQuestionAnswer, MdReorder } from 'react-icons/md';
+import { MdAlarm, MdAccountCircle, MdAssessment, MdAlarmAdd, MdQuestionAnswer, MdReorder, MdPhoneIphone } from 'react-icons/md';
 import swal from 'sweetalert';
 
 import { Container, ContainerEtiquetas, ContainerGrafico, ContainerBuscaGrafico } from './styles';
@@ -22,6 +22,7 @@ function OcorrenciasFinalizadas() {
     const [ProgramacaoNova, setProgramacaoNova] = useState(0);
     const [DuvidaUsuario, setDuvidaUsuario] = useState(0);
     const [Outros, setOutros] = useState(0);
+    const [ligacaoDeRotina, setLigacaoDeRotina] = useState(0);
     const [carregando, setCarregando] = useState(false);
     const [dadosGrafico, setDadosGrafico] = useState({});
 
@@ -49,11 +50,14 @@ function OcorrenciasFinalizadas() {
         let outros = ContaTipoOcorrencia('OUTROS', auxOcorrencias);
         if (outros > 0)
             setOutros((outros / totalOcorrencias) * 100);
+        let ligacaoRotina = ContaTipoOcorrencia('LIGAÇÃO DE ROTINA', auxOcorrencias);
+        if (ligacaoRotina > 0)
+            setLigacaoDeRotina((ligacaoRotina / totalOcorrencias) * 100);
     }
 
     function MontaDadosGrafico() {
         let dados = {
-            labels: ['ERRO DE SISTEMA', 'ERRO DE USUARIO', 'IMPLEMENTACAO NOVA', 'DUVIDA USUARIO', 'OUTROS'],
+            labels: ['ERRO DE SISTEMA', 'ERRO DE USUARIO', 'IMPLEMENTACAO NOVA', 'DUVIDA USUARIO', 'OUTROS', 'LIGAÇÃO DE ROTINA'],
             datasets: [
                 {
                     label: 'ERRO DE SISTEMA',
@@ -84,6 +88,12 @@ function OcorrenciasFinalizadas() {
                     backgroundColor: 'rgba(0, 255, 255, 0.8)',
                     borderWidth: 1,
                     data: [0, 0, 0, 0, Outros]
+                },
+                {
+                    label: 'LIGAÇÃO DE ROTINA',
+                    backgroundColor: 'rgba(34, 11, 128, 0.8)',
+                    borderWidth: 1,
+                    data: [0, 0, 0, 0, ligacaoDeRotina]
                 },
             ]
         };
@@ -173,6 +183,7 @@ function OcorrenciasFinalizadas() {
                     <Etiqueta key="4" click={() => FiltrarPorTipoErro(2)} texto="Programação Nova" percentual={ProgramacaoNova} cor="rgba(255, 0, 0, 0.8)" corTexto="#FFF"><MdAlarmAdd /></Etiqueta>
                     <Etiqueta key="5" click={() => FiltrarPorTipoErro(3)} texto="Dúvidas do Usuário" percentual={DuvidaUsuario} cor="rgba(0, 255, 25, 0.8)" corTexto="#000"><MdQuestionAnswer /></Etiqueta>
                     <Etiqueta key="6" click={() => FiltrarPorTipoErro(4)} texto="Outros" percentual={Outros} cor="rgba(0, 255, 255, 0.8)" corTexto="#000"><MdReorder /></Etiqueta>
+                    <Etiqueta key="7" click={() => FiltrarPorTipoErro(5)} texto="Ligação de Rotina" percentual={ligacaoDeRotina} cor="rgba(34, 11, 128, 0.8)" corTexto="#FFF"><MdPhoneIphone /></Etiqueta>
                 </ContainerEtiquetas>
 
                 <div className="card">
