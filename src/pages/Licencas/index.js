@@ -25,6 +25,7 @@ function Licencas() {
     const history = useHistory();
     const [licencasVencer, setLicencasVencer] = useState(state?.licencasVencer || []);
     const [auxOrdData, setAuxOrdData] = useState(false);
+    const [auxOrdDataVencer, setAuxOrdDataVencer] = useState(false);
 
     async function fetchLicencas() {
         let response = await api.get('/contrassenha');
@@ -76,6 +77,12 @@ function Licencas() {
 
     }, [auxOrdData])
 
+    useEffect(()=>{
+        auxOrdDataVencer ? licencasVencer.sort((a, b) => converterStringParaData(a.data_limite) - converterStringParaData(b.data_limite)):
+        licencasVencer.sort((a, b) => converterStringParaData(b.data_limite) - converterStringParaData(a.data_limite));
+
+    }, [auxOrdDataVencer])
+
     return (
         <>
             <Header title={licencasVencer.length === 0 ? 'Licenças' : 'Licenças a Vencer'} />
@@ -106,7 +113,7 @@ function Licencas() {
                                     <th>Senha</th>
                                     <th>Contrassenha</th>
                                     <th>Data Uso</th>
-                                    <th className='hover:cursor-pointer' onClick={() => setAuxOrdData(!auxOrdData)}> Data Limite </th>
+                                    <th style='th:hover{cursor: pointer}' onClick={() => setAuxOrdDataVencer(!auxOrdDataVencer)}> Data Limite </th>
                                     <th>Num PCs</th>
                                     <th>Ação</th>
                                 </tr>
@@ -143,7 +150,7 @@ function Licencas() {
                                 <th>Senha</th>
                                 <th>Contrassenha</th>
                                 <th>Data Uso</th>
-                                <th onClick={() =>setAuxOrdData(!auxOrdData)}>Data Limite</th>
+                                <th style='th:hover{cursor: pointer}' onClick={() => setAuxOrdData(!auxOrdData)}>Data Limite</th>
                                 <th>Num PCs</th>
                                 <th>Ação</th>
                             </tr>
@@ -158,7 +165,7 @@ function Licencas() {
                                             <td>{licenca.senha}</td>
                                             <td>{licenca.contra_senha}</td>
                                             <td>{String(licenca.data_uso).length > 0 ? new Date(licenca.data_uso).toLocaleDateString() : ''}</td>
-                                            <td>{licenca.data_limite}</td>
+                                            <td >{licenca.data_limite}</td>
                                             <td>{licenca.pcs}</td>
                                             <td><Button click={() => handleClickGerar(licenca)} nome="Gerar" color="#05F" corTexto="#FFF" Icon={MdEvent} borderRadius="10px" /></td>
                                         </tr>
