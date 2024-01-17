@@ -47,10 +47,10 @@ function Login() {
             setCod_funcionario(fun_codigo);
             setFunCategoria(categoria);
             setLogin(login_usu);
-            history.push('/ocorrencias')
+            history.push('/')
         } else {
             alert('Usuario nao permitido!')
-            history.replace('/');
+            history.replace('/login');
         }
     }
 

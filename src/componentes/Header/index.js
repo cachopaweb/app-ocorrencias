@@ -16,6 +16,7 @@ import Menu from '@material-ui/core/Menu';
 import MenuIcon from '@material-ui/icons/Menu';
 import DashboardRoundedIcon from '@material-ui/icons/DashboardRounded';
 import AccountCircle from '@material-ui/icons/AccountCircle';
+import ExitIcon from '@material-ui/icons/ExitToApp';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import MoreIcon from '@material-ui/icons/MoreVert';
 import Drawer from '@material-ui/core/Drawer';
@@ -41,7 +42,7 @@ function Header({ title }) {
   const history = useHistory();
   const anchor = 'left';
   const classes = useStyles();
-  const { usu_codigo, login, isDarkTheme, setIsDarkTheme } = useUsuario();
+  const { usu_codigo, login, isDarkTheme, setIsDarkTheme, setUsu_codigo } = useUsuario();
   const [showMenu, setshowMenu] = useState(false);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
@@ -71,6 +72,12 @@ function Header({ title }) {
     setMobileMoreAnchorEl(event.currentTarget);
   };
 
+  const logout = ()=>{
+    //para sair do usuario
+    localStorage.setItem('usuario_logado', '');
+    setUsu_codigo(0);
+  }
+
   const menuId = 'primary-search-account-menu';
   const renderMenu = (
     <Menu
@@ -83,6 +90,9 @@ function Header({ title }) {
       onClose={handleMenuClose}
     >
       <MenuItem onClick={handleMenuClose}>{usu_codigo > 0 ? login : 'Usuário não logado'}</MenuItem>
+      <IconButton onClick={logout}>
+        <ExitIcon />
+      </IconButton>
     </Menu>
   );
 
@@ -145,7 +155,7 @@ function Header({ title }) {
               <ListItemIcon><TodayRoundedIcon /></ListItemIcon>
               <ListItemText primary='Calendário' />
             </ListItem>
-            <ListItem button key='Ocorrências' onClick={() => history.push('/ocorrencias')}>
+            <ListItem button key='Ocorrências' onClick={() => history.push('/')}>
               <ListItemIcon><SpeakerNotesRoundedIcon /></ListItemIcon>
               <ListItemText primary='Ocorrências' />
             </ListItem>
