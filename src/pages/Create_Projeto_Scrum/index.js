@@ -31,7 +31,7 @@ const Create_Projeto_Scrum = () => {
 
     if (response.status === 201){
       swal('Projeto criado com sucesso', 'Bom trabalho', 'success');
-      history.push('/ocorrencias'); 
+      history.push('/'); 
     }else{
       swal('Não foi possível abrir o projeto scrum!', `Erro ${response.data.error}`, 'error');
     }

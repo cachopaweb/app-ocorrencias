@@ -97,7 +97,7 @@ function Ocorrencias() {
         (
           <ContainerEtiquetas>
             <Etiqueta key="1" click={() => history.push('/ordensAndamento')} percentual={qtdOs} texto="Ordens" cor="rgb(98, 150, 138)" corTexto="#000"><MdAlarm /></Etiqueta>
-            <Etiqueta key="2" click={() => history.push('/ocorrencias')} percentual={qtdOcorrencias} texto="Ocorrências" cor="rgb(255, 92, 89)" corTexto="#000"><MdAccountCircle /></Etiqueta>
+            <Etiqueta key="2" click={() => history.push('/')} percentual={qtdOcorrencias} texto="Ocorrências" cor="rgb(255, 92, 89)" corTexto="#000"><MdAccountCircle /></Etiqueta>
             <Etiqueta key="3" click={() => history.push('/scrum')} percentual={qtdScrum} texto="Projetos Scrum" cor="rgb(45, 98, 147)" corTexto="#000"><MdAssessment /></Etiqueta>
             <Etiqueta key="4" click={() => history.push('/ordensAndamento')} percentual={qtdOrdensAtrasadas} texto="Ordens Atrasadas" cor="rgb(153, 0, 0)" corTexto="#FFF"><MdTimelapse /></Etiqueta>
           </ContainerEtiquetas>

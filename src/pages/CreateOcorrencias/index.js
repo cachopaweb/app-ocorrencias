@@ -55,7 +55,7 @@ function CreateOcorrencias({codigo_projeto_scrum = 0, retornarPara = null}) {
     if (!response.error) {
       swal("Ocorrência aberta com sucesso!", "Bom trabalho", "success"); 
       if (!retornarPara) 
-        history.push('/ocorrencias')
+        history.push('/')
       else
         retornarPara();
     } else {
@@ -74,7 +74,7 @@ function CreateOcorrencias({codigo_projeto_scrum = 0, retornarPara = null}) {
 
   function cancelar() {
     if (!retornarPara) 
-      history.push('/ocorrencias')
+      history.push('/')
     else
       retornarPara();
   }

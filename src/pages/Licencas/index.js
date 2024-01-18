@@ -51,7 +51,7 @@ function Licencas() {
         });
         if (response.status === 200) {
             swal('Contrassenha atualizada com sucesso!', 'Bom trabalho!', 'success')
-            history.push('/ocorrencias');
+            history.push('/');
         } else {
             swal(`Erro ao atualizar contrassenha. ${response.data.error}`, 'Algo deu errado!', 'error')
         }
