@@ -4,11 +4,15 @@ import Header from '../../componentes/Header';
 import { useLocation } from 'react-router-dom';
 import { Container } from './styles';
 import Button from '../../componentes/Button';
-import { MdAttachMoney } from 'react-icons/md';
+import { MdAttachMoney, MdPrint } from 'react-icons/md';
+import Modal from '../../componentes/Modal';
+import Recibo from '../../componentes/Recibos/recibo';
 
 function ContaReceber() {
   const [aReceber, setContaReceber] = useState([]);  
   const [carregando, setCarregando] = useState(false);  
+  const [modalRecibo, setModalRecibo] = useState(false);
+  const [recibo, setRecibo] = useState({cliente:'Fulano', endereco: 'Rua do Fulano', valor:"168,00" });
   const { state } = useLocation();
   const [total, SetTotal] = useState(0.0);
   function dataAtualFormatada() {
@@ -36,6 +40,10 @@ function ContaReceber() {
     SetTotal(soma);
   }
 
+  function ImprimiRecibo(){
+    setModalRecibo(true);
+  }
+
   useEffect(()=>{
     fetchData();    
   }, [])  
@@ -43,6 +51,9 @@ function ContaReceber() {
   return (
       <>
         <Header title={'Conta a Receber'} />
+        <Modal activate={modalRecibo} setActivate={setModalRecibo} altura={'auto'} largura={'auto'}>
+                {modalRecibo && <Recibo recibo={recibo} />}
+            </Modal>
         <Container>
             <div className='card'>                                
                 {
@@ -65,7 +76,8 @@ function ContaReceber() {
                               {index === aReceber.length-1 &&                                  
                                   <tr style={{ display: 'flex', flexFlow: 'flex-end' }}>
                                     <td><strong>Total: R$ {parseFloat(total).toFixed(2)}</strong></td>   
-                                    <Button nome="Ver Total" click={()=> SomaTotal()} Icon={MdAttachMoney} color={'Black'} corTexto={'white'} borderRadius={'18px'} />                          
+                                    <Button nome="Ver Total" click={()=> SomaTotal()} Icon={MdAttachMoney} color={'Black'} corTexto={'white'} borderRadius={'18px'} />
+                                    <Button nome="Imprimir Recibo" click={()=> ImprimiRecibo()} Icon={MdPrint} color={'Black'} corTexto={'white'} borderRadius={'18px'} />                               
                                   </tr>
                               }
                             </tbody>                  

@@ -3,6 +3,7 @@ import GlobalStyle from './styles/global';
 import Routes from './Routes';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import './globals.css'
 
 import UsuarioProvider from './context/UsuarioContext';
 
