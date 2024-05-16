@@ -20,6 +20,7 @@ import Retrospectiva from '../pages/Retrospectiva';
 import QuadroKanban from '../componentes/QuadroKanban';
 import Calendario from '../componentes/Calendario';
 import Ncm from '../pages/Ncm';
+import GeraRecibos from '../pages/Recibos';
 import OrdensEntregues from '../pages/OrdensEntregues';
 import ClientesSemOcorrencias from '../pages/ClientesSemOcorrencias';
 
@@ -65,6 +66,7 @@ function Routes() {
         <PrivateRoute path='/QuadroKanban' component={QuadroKanban} />
         <PrivateRoute path='/Calendario' component={Calendario} />
         <PrivateRoute path='/Ncm' component={Ncm} />
+        <PrivateRoute path='/recibos' component={GeraRecibos}/>
         <Route path="*" component={() => <h1>Pagina nao encontrada</h1>} />
       </Switch>
     </Router>

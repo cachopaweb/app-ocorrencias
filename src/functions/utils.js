@@ -8,6 +8,32 @@ function reaisPorExtenso(numero) {
   
   }
   
+
+    function converteMesAnoParaRef(mes, ano)
+    {
+      let mesFinal;
+      let anoFinal;
+      if(mes.length === 1)
+        {
+          mesFinal = '0'+mes
+        }
+        else
+        {
+          mesFinal = mes;
+        }
+
+        if(ano.lenght === 4)
+          {
+            anoFinal = ano.substr(2);
+          }
+          else
+          {
+            anoFinal = ano;
+          }
+
+      return mesFinal+'/'+anoFinal;
+    }
+
   function extraiDia(data){
     if(data[1]==='/')
       {
@@ -42,4 +68,4 @@ function dataAtualPorExtenso()
   return dataPorExtenso(dataAtual);
 
 }
-  export { reaisPorExtenso, extraiDia, formatarNumeroVigula, dataAtualPorExtenso, dataPorExtenso };
+  export { reaisPorExtenso, extraiDia, formatarNumeroVigula, dataAtualPorExtenso, dataPorExtenso, converteMesAnoParaRef };

@@ -24,6 +24,7 @@ import List from '@material-ui/core/List';
 import Divider from '@material-ui/core/Divider';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
+import { Money } from '@material-ui/icons';
 import ListItemText from '@material-ui/core/ListItemText';
 import useContrassenhaVencer from '../../Hooks/useContrassenha';
 import TodayRoundedIcon from '@material-ui/icons/TodayRounded';
@@ -186,6 +187,10 @@ function Header({ title }) {
             <ListItem button key='ClientesSemOcorrencias' onClick={() => history.push('/clientesSemOcorrencias')}>
               <ListItemIcon><AssignmentIndRoundedIcon /></ListItemIcon>
               <ListItemText primary='Clientes Sem Ocorrências' />
+            </ListItem>
+            <ListItem button key='Recibos' onClick={() => history.push('/recibos')}>
+              <ListItemIcon><Money /></ListItemIcon>
+              <ListItemText primary='Recibos' />
             </ListItem>
             <ListItem button key='Licenças' onClick={() => history.push('/licencas')}>
               <ListItemIcon><ScreenLockLandscapeRoundedIcon /></ListItemIcon>
