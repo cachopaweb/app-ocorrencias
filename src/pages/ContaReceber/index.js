@@ -7,12 +7,14 @@ import Button from '../../componentes/Button';
 import { MdAttachMoney, MdPrint } from 'react-icons/md';
 import Modal from '../../componentes/Modal';
 import Recibo from '../../componentes/Recibos/recibo';
+import { extraiDia, reaisPorExtenso } from '../../functions/utils';
+
 
 function ContaReceber() {
   const [aReceber, setContaReceber] = useState([]);  
   const [carregando, setCarregando] = useState(false);  
   const [modalRecibo, setModalRecibo] = useState(false);
-  const [recibo, setRecibo] = useState({cliente:'Fulano', endereco: 'Rua do Fulano', valor:"168,00" });
+  const [recibo, setRecibo] = useState();
   const { state } = useLocation();
   const [total, SetTotal] = useState(0.0);
   function dataAtualFormatada() {
@@ -30,7 +32,7 @@ function ContaReceber() {
       const data1 = '01/01/1900';
       const data2 = dataAtualFormatada();
       let response = await api.get(`/Clientes/${state.contrato}?data1=${data1}&data2=${data2}`);
-      await setContaReceber(response.data);      
+      await setContaReceber(response.data);
       setCarregando(false)       
   }
 
@@ -40,7 +42,16 @@ function ContaReceber() {
     SetTotal(soma);
   }
 
-  function ImprimiRecibo(){
+  function ImprimiRecibo(conta){
+    console.log(conta);
+    setRecibo({cliente : conta.nome,
+      endereco : conta.endereco+' - '+conta.cidade,
+      valor: conta.valor,
+      referencia: 'Mensalidade Ref. A '+conta.referencia,                
+      valortxt: reaisPorExtenso(conta.valor),
+      venc: extraiDia(conta.vencimento),
+      codPix: conta.codRecebimento
+      });
     setModalRecibo(true);
   }
 
@@ -64,6 +75,7 @@ function ContaReceber() {
                               <th>Duplicata</th>
                               <th>Vencimento</th>
                               <th>Valor</th>
+                              <th>Ação</th>
                             </tr>
                           </thread>
                           {aReceber.map((conta, index)=> (                            
@@ -71,13 +83,14 @@ function ContaReceber() {
                               <tr>
                                 <th key={conta.duplicata} scope="row">{conta.duplicata}</th>
                                 <td>{new Date(conta.vencimento).toLocaleDateString()}</td>
-                                <td>R$ {parseFloat(conta.valor).toFixed(2)}</td>                              
+                                <td>R$ {parseFloat(conta.valor).toFixed(2)}</td>
+                                <td><Button nome="Imprimir Recibo" click={()=> ImprimiRecibo(conta)} Icon={MdPrint} color={'Black'} corTexto={'white'} borderRadius={'18px'} /></td>                              
                               </tr>   
                               {index === aReceber.length-1 &&                                  
                                   <tr style={{ display: 'flex', flexFlow: 'flex-end' }}>
                                     <td><strong>Total: R$ {parseFloat(total).toFixed(2)}</strong></td>   
                                     <Button nome="Ver Total" click={()=> SomaTotal()} Icon={MdAttachMoney} color={'Black'} corTexto={'white'} borderRadius={'18px'} />
-                                    <Button nome="Imprimir Recibo" click={()=> ImprimiRecibo()} Icon={MdPrint} color={'Black'} corTexto={'white'} borderRadius={'18px'} />                               
+                                                                   
                                   </tr>
                               }
                             </tbody>                  
