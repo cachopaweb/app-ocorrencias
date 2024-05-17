@@ -5,11 +5,12 @@ import logo from '../../assets/portalCom.png'
 import {QRCodeSVG} from 'qrcode.react';
 import './recibo.css'
 import { dataAtualPorExtenso, formatarNumeroVigula } from '../../functions/utils';
+import  Pix from '../Pix/Pix';
 
 function Impressao({ dados }) {
     const [code, setCode] = useState('');
     const [carregando, setCarregando] = useState(true);
-    const Pix = require('../Pix/Pix');
+    
     useEffect(() => {
         setCarregando(true);
         const pix = new Pix(
