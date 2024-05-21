@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect } from 'react';
 import Header from '../../componentes/Header';
 import { Container } from './styles';
@@ -11,6 +10,7 @@ import api from '../../services/api';
 import { reaisPorExtenso } from '../../functions/utils';
 import { useReactToPrint } from 'react-to-print';
 import { Impressao } from '../../componentes/Recibos/printRecibo';
+import './../../tail.css'
 
 function GeraRecibos() {
 
@@ -23,39 +23,40 @@ function GeraRecibos() {
             documentTitle: "Recibos",
             content: () => document.getElementById('print'),
         });
-    
+
 
         return (
             <>
-            {carregandoModal ? 
-            <></>
-            :
-            <div>
-                <div id='print' className='hidden print:block'>
-                    {recibos.map(recibo =>
-                        <div className='flex flex-col divide-y divide-dashed divide-slate-500 '>
-                            <Impressao dados={recibo} />
-                            <Impressao dados={recibo} />
-                        </div>
-                    )}
-                </div>
-
-                <div className='flex flex-row bg-white h-36'>
+                {carregandoModal ?
+                    <></>
+                    :
                     <div>
-                        <h1>Clique no Botão Abaixo!</h1>
-                    </div>
-                    <button 
-                        id="botaoImpressao"
-                        className={`fixed pl-3 bottom-4 px-4 py-3 flex items-center bg-black space rounded-md text-white font-bold`}
-                        onClick={handlePrint}
-                    >
-                        <i className="fas fa-print"></i>
-                        <span>Imprimir</span>
-                    </button>
-                </div>
-        </div>
+                        <div id='print' className='hidden print:block'>
+                            {recibos.map(recibo =>
+                                <div className='flex flex-col divide-y divide-dashed divide-slate-500 '>
+                                    <Impressao dados={recibo} />
+                                    <Impressao dados={recibo} />
+                                </div>
+                            )}
+                        </div>
 
-        }
+                        <div className='flex flex-row bg-white h-36'>
+                            <div>
+                                <h1>Clique no Botão Abaixo!</h1>
+                            </div>
+                            <button
+                                id="botaoImpressao"
+                                className={`fixed pl-3 bottom-4 px-4 py-3 flex items-center bg-black space rounded-md text-white font-bold`}
+                                onClick={handlePrint}
+                            >
+                                <i className="fas fa-print"></i>
+                                <span>Imprimir</span>
+                            </button>
+                        </div>
+
+                    </div>
+
+                }
 
             </>
         )

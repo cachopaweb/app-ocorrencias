@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import './recibo.css'
-
+import './../../tail.css'
 import { Impressao } from './printRecibo';
 
 export default function Recibo({ recibo }) {
@@ -29,7 +29,8 @@ export default function Recibo({ recibo }) {
                     </div>
                     :
                     <>
-                        <div id='print' className='hidden print:block'>
+                    
+                        <div id='print' className='print-only'>
                             <div className='flex flex-col divide-y divide-dashed divide-slate-500 '>
                             <Impressao dados={recibo} />
                             <Impressao dados={recibo} />
