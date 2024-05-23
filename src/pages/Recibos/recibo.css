@@ -1,0 +1,18 @@
+@tailwind base;
+
+@tailwind components;
+
+@tailwind utilities;
+
+
+/* Estilo para exibir o elemento apenas na impressão */
+@media print {
+    .print-only {
+        display: block !important; /* !important para garantir que sobrescreva o Tailwind */
+    }
+}
+
+/* Estilo para esconder o elemento na visualização normal */
+.print-only {
+    display: none;
+}

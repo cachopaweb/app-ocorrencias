@@ -11,6 +11,7 @@ import { reaisPorExtenso } from '../../functions/utils';
 import { useReactToPrint } from 'react-to-print';
 import { Impressao } from '../../componentes/Recibos/printRecibo';
 import './../../tail.css'
+import './recibo.css'
 
 function GeraRecibos() {
 
@@ -31,7 +32,7 @@ function GeraRecibos() {
                     <></>
                     :
                     <div>
-                        <div id='print' className='hidden print:block'>
+                        <div id='print' className='print-only'>
                             {recibos.map(recibo =>
                                 <div className='flex flex-col divide-y divide-dashed divide-slate-500 '>
                                     <Impressao dados={recibo} />

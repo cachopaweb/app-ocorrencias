@@ -33,7 +33,7 @@ function Impressao({ dados }) {
 
                 <div>
                     <div className='flex flex-row text-[12px] w-[794px] h-[561px] text-black'>
-                        <img className='print-only' src={left} alt="" />
+                        <img className='print-only border-0' src={left} alt="" />
                         <div className='flex flex-col'>
                             <Cabecalho valor={dados.valor} />
                             <div className='pt-2'>
@@ -71,16 +71,17 @@ function Impressao({ dados }) {
 function Cabecalho({ valor }) {
     return (
         <>
-            <div className='flex flex-row w-full pt-5 rounded-b-[20px] border-slate-700 border-b-2 border-l-2 border-r-2'>
-                <img className='h-28 p-2' src={icon} alt="" />
-                <img className='h-28 p-2' src={logo} alt="" />
-                <div className='pl-10 pr-2 pt-3'>
-                    <div className='rounded-[20px] h-20 w-36 text-black border-slate-700 border-2'>
-                        <p className='pl-3 pt-3 font-bold '>VALOR</p>
-                        <p className='pt-5 pl-5 text-2xl'>R$ {formatarNumeroVigula(valor)}</p>
+
+                <div className='flex flex-row w-full pt-5 rounded-b-[20px] bordaEstilizada border-slate-700 border-b-2 border-l-2 border-r-2'>
+                    <img className='h-28 p-2 bordaEstilizada' src={icon} alt="" />
+                    <img className='h-28 p-2 bordaEstilizada' src={logo} alt="" />
+                    <div className='pl-10 pr-2 pt-3'>
+                        <div className='bordaEstilizada rounded-[20px] h-20 w-36 text-black border-slate-700 border-2'>
+                            <p className='pl-3 pt-3 font-bold '>VALOR</p>
+                            <p className='pt-5 pl-5 text-2xl'>R$ {formatarNumeroVigula(valor)}</p>
+                        </div>
                     </div>
                 </div>
-            </div>
         </>
     );
 }
@@ -88,7 +89,7 @@ function Cabecalho({ valor }) {
 function Linha({ texto, valor }) {
     return (
         <div className='pt-4'>
-            <div className='border-black border-2'>
+            <div className='border-black border-2 bordaEstilizada'>
                 <p className='pl-2 pt-1'>{texto}</p>
                 <p className='font-normal text-xs pl-2'>{valor}</p>
             </div>
@@ -99,7 +100,7 @@ function Linha({ texto, valor }) {
 function LinhaDividida({ textoUm, textoDois, valorUm, valorDois }) {
     return (
         <div className='pt-2'>
-            <div className='border-black border-2'>
+            <div className='border-black border-2 bordaEstilizada'>
                 <div className='flex flex-row justify-between'>
                     <div>
                         <p className='pl-2 pt-1'>{textoUm}</p>

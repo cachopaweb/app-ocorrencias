@@ -6,6 +6,14 @@
     box-sizing: border-box
 }
 
+
+.bordaEstilizada{
+    box-sizing: border-box;
+    border-width: 0;
+    border-style: solid;
+    border-color: currentColor
+}
+
 html {
     -moz-tab-size: 4;
     tab-size: 4
@@ -182,14 +190,7 @@ body {
     line-height: inherit
 }
 
-*,
-::after,
-::before {
-    box-sizing: border-box;
-    border-width: 0;
-    border-style: solid;
-    border-color: currentColor
-}
+
 
 hr {
     border-top-width: 1px
