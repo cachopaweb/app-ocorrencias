@@ -41,7 +41,7 @@ function GeraRecibos() {
                             )}
                         </div>
 
-                        <div className='flex flex-row bg-white h-36'>
+                        <div className='flex flex-row bg-white h-36 justify-center items-center'>
                             <div>
                                 <h1>Clique no Botão Abaixo!</h1>
                             </div>
@@ -69,13 +69,16 @@ function GeraRecibos() {
         var ano = document.getElementById("idAno").value.toString();
         let mes = document.getElementById("idMes").value.toString();
         let ref = mes + '/' + ano;
-        let sql = `SELECT CLI_NOME, CLI_ENDERECO, CLI_CIDADE, CLI_BAIRRO, HON_REFERENCIA, HON_VALOR, HON_TIPO, CONT_VENCIMENTO, REC_FAT FROM CLIENTES, CONTRATOS, HONORARIOS, RECEBIMENTOS WHERE HON_FAT = REC_FAT AND CLI_CODIGO = CONT_CLI AND CONT_CODIGO = HON_CONT AND CONT_ESTADO = 1 AND HON_TIPO = 'Mensalidade' AND CONT_RECIBO = 'SIM' AND (HON_REFERENCIA = '${ref}') AND HON_DATAC = '01/01/1900' ORDER BY CLI_NOME`;
+        let sql = `SELECT CLI_NOME, CLI_ENDERECO, CID_NOME CLI_CIDADE, CLI_BAIRRO, HON_REFERENCIA, HON_VALOR, HON_TIPO, CONT_VENCIMENTO, 
+                   REC_FAT FROM CLIENTES, CONTRATOS, HONORARIOS, RECEBIMENTOS, CIDADES WHERE HON_FAT = REC_FAT AND CLI_CODIGO = CONT_CLI 
+                   AND CONT_CODIGO = HON_CONT AND CONT_ESTADO = 1 AND HON_TIPO = 'Mensalidade' AND CONT_RECIBO = 'SIM' 
+                   AND (HON_REFERENCIA = '${ref}') AND HON_DATAC = '01/01/1900' AND CLI_CID = CID_CODIGO ORDER BY CLI_NOME`;
         let json = { 'sql': sql };
         let listaRecibos = [];
         const response = await api.post('/v1/dataset', json);
         response.data.map(rec => listaRecibos.push({
             cliente: rec.CLI_NOME,
-            endereco: rec.CLI_ENDERECO + ' - ' + rec.CLI_CIDADE,
+            endereco: (rec.CLI_ENDERECO ? rec.CLI_ENDERECO + ' - ' : '') + (rec.CLI_BAIRRO ? rec.CLI_BAIRRO + ' - ' : '') + rec.CLI_CIDADE,
             valor: rec.HON_VALOR,
             referencia: 'Mensalidade Ref. A ' + rec.HON_REFERENCIA,
             valortxt: reaisPorExtenso(rec.HON_VALOR),
@@ -89,10 +92,23 @@ function GeraRecibos() {
 
     }
 
+    const keyDownMes = (event)=>{
+        if (event.key === 'Enter'){
+            const edtAno = document.getElementById('idAno');
+            edtAno.focus()
+        }
+    }
+
+    const keyDownAno = async (event)=>{
+        if (event.key === 'Enter'){
+            await imprimirRecibos()
+        }        
+    }
+
     return (
         <>
             <Header title={'Recibos'} />
-            <Modal activate={modalRecibo} setActivate={setModalRecibo} altura={'auto'} largura={'auto'}>
+            <Modal activate={modalRecibo} setActivate={setModalRecibo} altura={'auto'} largura={'150px'}>
                 {modalRecibo && <Recibos recibos={recibos} />}
             </Modal>
             <Container>
@@ -101,12 +117,12 @@ function GeraRecibos() {
                         <div className='flex flex-row'>
                             <div className='flex flex-col'>
                                 <p>Digite o mês</p>
-                                <input id='idMes' max="2" className='border border-slate-600 h-6' type="number" ></input>
+                                <input id='idMes' max="2" onKeyDown={keyDownMes} className='border border-slate-600 h-6' type="number" ></input>
                                 <span className='text-xs text-slate-600'>Digite apenas dois dígitos</span>
                             </div>
                             <div className='flex flex-col pl-10'>
                                 <p>Digite o ano</p>
-                                <input id='idAno' max={2} className='border border-slate-600 h-6' type="number"></input>
+                                <input id='idAno' max={2} onKeyDown={keyDownAno} className='border border-slate-600 h-6' type="number"></input>
                                 <span className='text-xs text-slate-600'>Digite apenas dois dígitos</span>
                             </div>
                         </div>
