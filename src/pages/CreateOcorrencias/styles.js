@@ -69,7 +69,7 @@ export const Container = styled.div`
         margin-bottom: 5px;
         height: 40px;
     }
-    
+
     textarea{
         height: 150px;
     }    

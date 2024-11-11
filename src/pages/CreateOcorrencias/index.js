@@ -8,6 +8,7 @@ import { useUsuario } from '../../context/UsuarioContext';
 import { MdSave, MdCancel } from 'react-icons/md'
 import Header from '../../componentes/Header';
 import { tipo_erro } from '../../constants';
+import DatePicker from "react-datepicker";
 
 
 function CreateOcorrencias({codigo_projeto_scrum = 0, retornarPara = null}) {
@@ -15,10 +16,11 @@ function CreateOcorrencias({codigo_projeto_scrum = 0, retornarPara = null}) {
   const [erro, setErro] = useState('Erro de Sistema')
   const [cod_projeto_scrum, setCod_projeto_scrum] = useState(codigo_projeto_scrum);
   const { cod_funcionario } = useUsuario();  
+  const [data, setData] = useState(new Date());
   const history = useHistory();
 
-  function dataAtualFormatada() {
-    var data = new Date(),
+  function dataAtualFormatada(aData) {
+    var data = aData,
       dia = data.getDate().toString(),
       diaF = (dia.length === 1) ? '0' + dia : dia,
       mes = (data.getMonth() + 1).toString(), //+1 pois no getMonth Janeiro começa com zero.
@@ -39,7 +41,7 @@ function CreateOcorrencias({codigo_projeto_scrum = 0, retornarPara = null}) {
       return;
     }
     const create = {
-      Data: dataAtualFormatada(),
+      Data: dataAtualFormatada(data),
       Finalizada: null,
       Funcionario: cod_funcionario,
       Modulo_Sistema: 1,
@@ -50,7 +52,7 @@ function CreateOcorrencias({codigo_projeto_scrum = 0, retornarPara = null}) {
       codigo: 0,
       projeto_scrum: cod_projeto_scrum
     }
-    // console.log(create);
+    //console.log(create);
     const response = await api.post('/Ocorrencias', create);
     if (!response.error) {
       swal("Ocorrência aberta com sucesso!", "Bom trabalho", "success"); 
@@ -79,6 +81,10 @@ function CreateOcorrencias({codigo_projeto_scrum = 0, retornarPara = null}) {
       retornarPara();
   }
 
+  function changeData(date) {    
+    setData(date);
+};
+
   return (
     <>
       <Header title={'Nova Ocorrência'} />
@@ -106,7 +112,13 @@ function CreateOcorrencias({codigo_projeto_scrum = 0, retornarPara = null}) {
                   }
                 </select>
               }
-            </div>            
+            </div>  
+            <div className="form-group">
+              <label htmlFor="data">Data</label>
+              <div>
+                <DatePicker dateFormat="dd/MM/yyyy" locale='pt-BR' selected={data} onChange={changeData} />
+              </div>
+            </div>          
             <div className="form-group">
               <label htmlFor="ocorrencia">Ocorrencia</label>
               <textarea className="input-control" type="text" name="ocorrencia" id="ocorrencia" placeholder="informe a ocorrencia" />
