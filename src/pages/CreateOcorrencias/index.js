@@ -29,6 +29,17 @@ function CreateOcorrencias({codigo_projeto_scrum = 0, retornarPara = null}) {
     return diaF + "/" + mesF + "/" + anoF;
   }
 
+  function dataAtualFormatadaAmericano(aData) {
+    var data = aData,
+        dia = data.getDate().toString(),
+        diaF = (dia.length === 1) ? '0' + dia : dia,
+        mes = (data.getMonth() + 1).toString(), // +1 pois no getMonth Janeiro começa com zero.
+        mesF = (mes.length === 1) ? '0' + mes : mes,
+        anoF = data.getFullYear();
+    return mesF + "-" + diaF + "-" + anoF;
+}
+
+
   async function insereOcorrencia(event) {
     event.preventDefault();
     const select = document.querySelector('#projetos_scrum');
@@ -41,7 +52,7 @@ function CreateOcorrencias({codigo_projeto_scrum = 0, retornarPara = null}) {
       return;
     }
     const create = {
-      Data: dataAtualFormatada(data),
+      Data: dataAtualFormatadaAmericano(data),
       Finalizada: null,
       Funcionario: cod_funcionario,
       Modulo_Sistema: 1,
