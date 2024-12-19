@@ -7,8 +7,9 @@ import api from '../../services/api';
 import Header from '../../componentes/Header';
 import FiltroData from '../../componentes/FiltroData';
 import Etiqueta from '../../componentes/Etiqueta';
-import Graficos from '../../componentes/Graficos2';
+import { DonutTiposOcorrencias, DonutTiposOrdemOcorrencia, Graficos, Tabela } from '../../componentes/Graficos2';
 import { tipo_erro } from '../../constants';
+import './../../tail.css'
 
 function OcorrenciasFinalizadas() {
     const [ocorrencias, SetOcorrencias] = useState([]);
@@ -25,8 +26,19 @@ function OcorrenciasFinalizadas() {
     const [ligacaoDeRotina, setLigacaoDeRotina] = useState(0);
     const [carregando, setCarregando] = useState(false);
     const [dadosGrafico, setDadosGrafico] = useState({});
+    const [dadosDonutUm, setDadosDonutUm] = useState({});
+    const [dadosTabela, setDadosTabela] = useState({});
 
-    function ContaOrdens(auxOcorrencias) {
+    async function ContaOrdens(auxOcorrencias) {
+
+        let erroSistemaPorc = 0;
+        let erroUsuarioPorc = 0;
+        let progNovaPorc = 0;
+        let duvidaUsuarioPorc = 0;
+        let outrosPorc = 0;
+        let ligacaoDeRotinaPorc = 0;
+
+
         let totalOcorrencias = auxOcorrencias.length;
         //ordens geradas
         let gerouOrdens = auxOcorrencias.filter((oco) => {
@@ -36,23 +48,80 @@ function OcorrenciasFinalizadas() {
         setOrdensGeradas((numOrdensGeradas / totalOcorrencias) * 100);
         //erro de usuario
         let erroSistema = ContaTipoOcorrencia('ERRO DE SISTEMA', auxOcorrencias);
-        if (erroSistema > 0)
-            setErroSistema((erroSistema / totalOcorrencias) * 100)
+        if (erroSistema > 0) {
+            erroSistemaPorc = (erroSistema / totalOcorrencias) * 100;
+            setErroSistema(erroSistemaPorc);
+        }
+
         let erroUsuario = ContaTipoOcorrencia('ERRO DE USUARIO', auxOcorrencias);
-        if (erroUsuario > 0)
-            setErroUsuario((erroUsuario / totalOcorrencias) * 100)
+        if (erroUsuario > 0) {
+            erroUsuarioPorc = (erroUsuario / totalOcorrencias) * 100;
+            setErroUsuario(erroUsuarioPorc);
+        }
         let progNova = ContaTipoOcorrencia('IMPLEMENTACAO NOVA', auxOcorrencias);
-        if (progNova > 0)
-            setProgramacaoNova((progNova / totalOcorrencias) * 100)
+        if (progNova > 0) {
+            progNovaPorc = (progNova / totalOcorrencias) * 100;
+            setProgramacaoNova(progNovaPorc);
+        }
+
         let duvida = ContaTipoOcorrencia('DUVIDA USUARIO', auxOcorrencias);
-        if (duvida > 0)
-            setDuvidaUsuario((duvida / totalOcorrencias) * 100)
+        if (duvida > 0) {
+            duvidaUsuarioPorc = (duvida / totalOcorrencias) * 100;
+            setDuvidaUsuario(duvidaUsuarioPorc);
+        }
+
         let outros = ContaTipoOcorrencia('OUTROS', auxOcorrencias);
-        if (outros > 0)
-            setOutros((outros / totalOcorrencias) * 100);
+        if (outros > 0) {
+            outrosPorc = (outros / totalOcorrencias) * 100;
+            setOutros(outrosPorc);
+        }
+
         let ligacaoRotina = ContaTipoOcorrencia('LIGAÇÃO DE ROTINA', auxOcorrencias);
-        if (ligacaoRotina > 0)
-            setLigacaoDeRotina((ligacaoRotina / totalOcorrencias) * 100);
+        if (ligacaoRotina > 0) {
+            ligacaoDeRotinaPorc = (ligacaoRotina / totalOcorrencias) * 100;
+            setLigacaoDeRotina(ligacaoDeRotinaPorc);
+        }
+
+
+        setDadosDonutUm({
+            labels: ['ERRO DE SISTEMA', 'ERRO DE USUARIO', 'IMPLEMENTACAO NOVA', 'DUVIDA USUARIO', 'OUTROS', 'LIGAÇÃO DE ROTINA'],
+            datasets: [
+                {
+                    label: 'Percentual',
+                    data: [erroSistemaPorc, erroUsuarioPorc, progNovaPorc, duvidaUsuarioPorc, outrosPorc, ligacaoDeRotinaPorc],
+                    backgroundColor: ['#000000cc', '#ff00ebcc', '#ff0000cc', '#00ff19cc', '#220b80cc'],
+                },
+            ],
+        })
+    }
+
+
+    function carredaDadosDonutUm(auxOcorrencias) {
+        setDadosDonutUm({
+            labels: ['ERRO DE SISTEMA', 'ERRO DE USUARIO', 'IMPLEMENTACAO NOVA', 'DUVIDA USUARIO', 'OUTROS', 'LIGAÇÃO DE ROTINA'],
+            datasets: [
+                {
+                    label: 'Percentual',
+                    data: [ErroSistema, ErroUsuario, ProgramacaoNova, DuvidaUsuario, Outros, ligacaoDeRotina],
+                    backgroundColor: ['#000000cc', '#ff00ebcc', '#ff0000cc', '#00ff19cc', '#220b80cc'],
+                },
+            ],
+        })
+
+    }
+
+    async function carregaDadosTabela(auxOcorrencias) {
+
+        let totalOcorrencias = auxOcorrencias.length;
+        //ordens geradas
+        let gerouOrdens = auxOcorrencias.filter((oco) => {
+            return oco.abriuOS === 'SIM'
+        });
+        let numOrdensGeradas = gerouOrdens.length;
+        setDadosTabela({
+            ordens: numOrdensGeradas,
+            ocorrencias: totalOcorrencias
+        })
     }
 
     function MontaDadosGrafico() {
@@ -124,9 +193,10 @@ function OcorrenciasFinalizadas() {
     async function CarregaDadosOcorrencias() {
         setCarregando(true)
         let response = await api.get('/OcorrenciasFinalizadas');
+        await carregaDadosTabela(response.data);
         SetOcorrencias(response.data);
         setOcorrenciasFiltro(response.data);
-        ContaOrdens(response.data);
+        await ContaOrdens(response.data);
         setCarregando(false)
     }
 
@@ -141,7 +211,7 @@ function OcorrenciasFinalizadas() {
         }
         SetOcorrencias(response.data);
         setOcorrenciasFiltro(response.data);
-        ContaOrdens(response.data);
+        await ContaOrdens(response.data);
         setCarregando(false)
     }
 
@@ -170,12 +240,21 @@ function OcorrenciasFinalizadas() {
         <>
             <Header title={'Finalizadas'} />
             <Container>
+            <div className='flex-col space-y-10'>
                 <ContainerBuscaGrafico>
-                    <FiltroData funcSubmitted={handleFiltro} dataInic={setDataInicial} dataFin={setDataFinal} setCodContrato={setCodContrato} />
+                    <div className='flex-col'>
+                        {carregando ? <> </> :
+
+                            <Tabela data={dadosTabela} />
+                        }
+                        <FiltroData funcSubmitted={handleFiltro} dataInic={setDataInicial} dataFin={setDataFinal} setCodContrato={setCodContrato} />
+                    </div>
                     <ContainerGrafico>
                         <Graficos titulo="Estatísticas de Ocorrências" tipo="horizontalBar" data={dadosGrafico} />
                     </ContainerGrafico>
                 </ContainerBuscaGrafico>
+
+                { /*
                 <ContainerEtiquetas>
                     <Etiqueta key="1" click={() => FiltrarPorTipoErro(-1)} texto="Ordens Geradas" percentual={OrdensGeradas} cor="rgba(255, 255, 255, 0.8)" corTexto="#000"><MdAlarm /></Etiqueta>
                     <Etiqueta key="2" click={() => FiltrarPorTipoErro(0)} texto="Erro Usuário" percentual={ErroUsuario} cor="rgba(255, 0, 235, 0.8)" corTexto="#000"><MdAccountCircle /></Etiqueta>
@@ -185,7 +264,21 @@ function OcorrenciasFinalizadas() {
                     <Etiqueta key="6" click={() => FiltrarPorTipoErro(4)} texto="Outros" percentual={Outros} cor="rgba(0, 255, 255, 0.8)" corTexto="#000"><MdReorder /></Etiqueta>
                     <Etiqueta key="7" click={() => FiltrarPorTipoErro(5)} texto="Ligação de Rotina" percentual={ligacaoDeRotina} cor="rgba(34, 11, 128, 0.8)" corTexto="#FFF"><MdPhoneIphone /></Etiqueta>
                 </ContainerEtiquetas>
+                */}
 
+                {carregando ? <></> :
+                <div className='flex flex-row'>
+                    <ContainerGrafico>
+                        <DonutTiposOcorrencias data={dadosDonutUm} />
+
+                    </ContainerGrafico>
+                    <ContainerGrafico>
+                        <DonutTiposOrdemOcorrencia data={dadosDonutUm} />
+
+                    </ContainerGrafico>
+                </div>
+                }
+                </div>
                 <div className="card">
                     <h1>Ocorrências Finalizadas</h1>
                     <table>
