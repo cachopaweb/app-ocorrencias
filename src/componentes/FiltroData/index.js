@@ -7,6 +7,7 @@ import pt_br from 'date-fns/locale/pt-BR';
 import Button from '../../componentes/Button';
 import { MdSearch } from 'react-icons/md';
 import api from '../../services/api';
+import './../../tail.css'
 
 
 registerLocale('pt-BR', pt_br);
@@ -40,7 +41,7 @@ function FiltroData({ funcSubmitted, dataInic, dataFin, setCodContrato, ocutarBu
 
     return (
         <Container>
-            <div className="card">
+            <div className="bg-white shadow-md rounded-lg overflow-hidden">
                 <form onSubmit={funcSubmitted}>
                     <div className="form-group">
                         <label htmlFor="data">Data Inicial</label>
