@@ -62,7 +62,7 @@ function DonutTiposOrdemOcorrencia({data}){
                 },
                 title: {
                     display: true,
-                    text: 'Ocorrencias'
+                    text: 'Ordens'
                 }
             }
         });

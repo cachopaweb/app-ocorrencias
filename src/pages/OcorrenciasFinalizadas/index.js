@@ -27,6 +27,7 @@ function OcorrenciasFinalizadas() {
     const [carregando, setCarregando] = useState(false);
     const [dadosGrafico, setDadosGrafico] = useState({});
     const [dadosDonutUm, setDadosDonutUm] = useState({});
+    const [dadosDonutDois, setDadosDonutDois] = useState({});
     const [dadosTabela, setDadosTabela] = useState({});
 
     async function ContaOrdens(auxOcorrencias) {
@@ -37,13 +38,31 @@ function OcorrenciasFinalizadas() {
         let duvidaUsuarioPorc = 0;
         let outrosPorc = 0;
         let ligacaoDeRotinaPorc = 0;
-
+        let erroSistemaOrdem = 0;
+        let implementacaNovaOrdem = 0;
+        let outrosOrdem = 0;
 
         let totalOcorrencias = auxOcorrencias.length;
         //ordens geradas
         let gerouOrdens = auxOcorrencias.filter((oco) => {
             return oco.abriuOS === 'SIM'
         });
+
+        gerouOrdens.forEach(ordem => {
+            if(ordem.ocorrencia === 'ERRO DE SISTEMA')
+            {
+                erroSistemaOrdem++;
+            }
+            else if(ordem.ocorrencia === 'IMPLEMENTACAO NOVA')
+            {
+                implementacaNovaOrdem++;
+            }
+            else if(ordem.ocorrencia === 'OUTROS')
+            {
+                outrosOrdem++;
+            }
+        });
+
         let numOrdensGeradas = gerouOrdens.length;
         setOrdensGeradas((numOrdensGeradas / totalOcorrencias) * 100);
         //erro de usuario
@@ -92,22 +111,18 @@ function OcorrenciasFinalizadas() {
                     backgroundColor: ['#000000cc', '#ff00ebcc', '#ff0000cc', '#00ff19cc', '#220b80cc'],
                 },
             ],
-        })
-    }
+        });
 
-
-    function carredaDadosDonutUm(auxOcorrencias) {
-        setDadosDonutUm({
-            labels: ['ERRO DE SISTEMA', 'ERRO DE USUARIO', 'IMPLEMENTACAO NOVA', 'DUVIDA USUARIO', 'OUTROS', 'LIGAÇÃO DE ROTINA'],
+        setDadosDonutDois({
+            labels: ['ERRO DE SISTEMA', 'IMPLEMENTAÇÃO NOVA', 'OUTROS'],
             datasets: [
                 {
-                    label: 'Percentual',
-                    data: [ErroSistema, ErroUsuario, ProgramacaoNova, DuvidaUsuario, Outros, ligacaoDeRotina],
-                    backgroundColor: ['#000000cc', '#ff00ebcc', '#ff0000cc', '#00ff19cc', '#220b80cc'],
+                    label: '',
+                    data: [erroSistemaOrdem, implementacaNovaOrdem, outrosOrdem],
+                    backgroundColor: ['#000000cc', '#ff00ebcc', '#ff0000cc'],
                 },
             ],
         })
-
     }
 
     async function carregaDadosTabela(auxOcorrencias) {
@@ -118,6 +133,7 @@ function OcorrenciasFinalizadas() {
             return oco.abriuOS === 'SIM'
         });
         let numOrdensGeradas = gerouOrdens.length;
+
         setDadosTabela({
             ordens: numOrdensGeradas,
             ocorrencias: totalOcorrencias
@@ -273,7 +289,7 @@ function OcorrenciasFinalizadas() {
 
                     </ContainerGrafico>
                     <ContainerGrafico>
-                        <DonutTiposOrdemOcorrencia data={dadosDonutUm} />
+                        <DonutTiposOrdemOcorrencia data={dadosDonutDois} />
 
                     </ContainerGrafico>
                 </div>
