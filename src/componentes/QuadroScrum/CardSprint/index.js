@@ -161,6 +161,10 @@ export default function CardSprint({ data, index, listIndex, cliente, contrato }
               <span><strong>Data Sprint: </strong></span>
               {new Date(data.data).toLocaleDateString()}
             </p>
+            <p>
+              <span><strong>Data Ent. Real: </strong></span>
+              {new Date(data.dataEntregaReal).toLocaleDateString()}
+            </p>
           </strong>
         </header>
         <p>{data.content}</p>

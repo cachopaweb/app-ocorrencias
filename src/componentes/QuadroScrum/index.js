@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MdShowChart } from 'react-icons/md';
+import { MdShowChart, MdAddToQueue } from 'react-icons/md';
 import swal from 'sweetalert';
 
 import BoardContext from './context';
@@ -13,6 +13,7 @@ import api from '../../services/api';
 import Button from '../../componentes/Button';
 import Burndown from '../Burndown';
 import Modal from '../Modal';
+import { useUsuario } from '../../context/UsuarioContext';
 
 export default function QuadroScrum() {
   const [lista, setLista] = useState([]);
@@ -21,6 +22,7 @@ export default function QuadroScrum() {
   const [burndownAtivo, setBurndownAtivo] = useState(false);
   const [carregando, setCarregando] = useState(false);
   const [atualizar, setAtualizar] = useState(false);
+  const { cod_funcionario } = useUsuario();
 
   async function fetchQuadroScrum() {
     try {
@@ -56,6 +58,24 @@ export default function QuadroScrum() {
     ))
   }
 
+  const criaBacklogsImplantacao = async () =>{
+    try {
+      setCarregando(true)
+      let response = await api.post(`/quadroScrum/criaBacklogsImplantacao/${projeto_id}/funcionario/${cod_funcionario}`)
+      if (response.status === 200)
+      {
+        swal('Backlogs de implantação criado com sucesso!', 'Deu certo', 'success');
+      }else{
+        swal('Falha ao criar backlogs', response.data, 'error')
+      }
+      setCarregando(false)
+      await fetchQuadroScrum()
+    } catch (error) {
+      setCarregando(false)
+      swal(error, 'erro', error)
+    }
+  }
+
 
   return (
     carregando ?
@@ -88,7 +108,10 @@ export default function QuadroScrum() {
             }
             <Floating>
               {
-                <Button Icon={MdShowChart} tamanho_icone={40} borderRadius={"50%"} corTexto={"white"} click={() => setBurndownAtivo(!burndownAtivo)} />
+                <>
+                  <Button Icon={MdShowChart} tamanho_icone={40} borderRadius={"50%"} corTexto={"white"} click={() => setBurndownAtivo(!burndownAtivo)} />
+                  <Button Icon={MdAddToQueue} tamanho_icone={40} borderRadius={"50%"} corTexto={"white"} click={() => criaBacklogsImplantacao()} />
+                </>
               }
             </Floating>
           </Container>
