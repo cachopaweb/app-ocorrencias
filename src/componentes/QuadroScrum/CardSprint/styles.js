@@ -11,8 +11,9 @@ export const Container = styled.div`
   border-top: 20px solid rgb(230, 236, 245, 0.4); 
   transition: width 0.6s;
   header{
-      position: absolute;
-      top: -22px;
+      position: relative;
+      top: -10px;
+      height: 40px;
   }  
 
   p{
