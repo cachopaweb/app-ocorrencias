@@ -23,6 +23,7 @@ import Ncm from '../pages/Ncm';
 import GeraRecibos from '../pages/Recibos';
 import OrdensEntregues from '../pages/OrdensEntregues';
 import ClientesSemOcorrencias from '../pages/ClientesSemOcorrencias';
+import ClientesReceber from '../pages/ClientesReceber'
 
 
 const PrivateRoute = ({ component: Component, ...rest }) => {
@@ -67,6 +68,7 @@ function Routes() {
         <PrivateRoute path='/Calendario' component={Calendario} />
         <PrivateRoute path='/Ncm' component={Ncm} />
         <PrivateRoute path='/recibos' component={GeraRecibos}/>
+        <PrivateRoute path='/clientesReceber' component={ClientesReceber}/>
         <Route path="*" component={() => <h1>Pagina nao encontrada</h1>} />
       </Switch>
     </Router>

@@ -39,6 +39,7 @@ import Switch from '@material-ui/core/Switch';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import CloudUploadIcon from '@material-ui/icons/CloudUploadRounded';
 import ListAltIcon from '@material-ui/icons/ListAltRounded';
+import MonetizationOnIcon from '@material-ui/icons/MonetizationOn';
 
 function Header({ title }) {
   const history = useHistory();
@@ -187,6 +188,10 @@ function Header({ title }) {
             <ListItem button key='ClientesSemOcorrencias' onClick={() => history.push('/clientesSemOcorrencias')}>
               <ListItemIcon><AssignmentIndRoundedIcon /></ListItemIcon>
               <ListItemText primary='Clientes Sem Ocorrências' />
+            </ListItem>
+            <ListItem button key='ClientesReceber' onClick={() => history.push('/clientesReceber')}>
+              <ListItemIcon><MonetizationOnIcon /></ListItemIcon>
+              <ListItemText primary='Clientes a Receber' />
             </ListItem>
             <ListItem button key='Recibos' onClick={() => history.push('/recibos')}>
               <ListItemIcon><Money /></ListItemIcon>
