@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import swal from 'sweetalert';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 import { Container, TextoChecado, ProgressBar } from './styles';
 import Button from '../Button';
@@ -119,7 +121,15 @@ function Card({ cliente, contrato, projeto_id, ocorrencia, atendente = 0, nomeAt
             {!showActions ? <ProgressBar percent={((num_tarefas_realizadas / num_tarefas) * 100) * -1} >
               <div className="progress">{parseFloat(((num_tarefas_realizadas / num_tarefas) * 100) * -1).toFixed(0)}%</div>
             </ProgressBar> : null}
-            {!showActions ? <p>{addSeparator(ocorrencia)}</p> : <p>{ocorrencia}</p>}
+            {!showActions ? (
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {ocorrencia}
+              </ReactMarkdown>
+            ) : (
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {ocorrencia}
+              </ReactMarkdown>
+            )}
           </div>
           {showActions ?
             <div className="actions">
