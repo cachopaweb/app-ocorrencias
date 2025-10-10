@@ -24,6 +24,10 @@ function Ocorrencias() {
   const history = useHistory();
   const { cod_funcionario } = useUsuario();
   const contrassenhasVencer = useContrassenhaVencer();
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatMessage, setChatMessage] = useState("");
+  const [chatLoading, setChatLoading] = useState(false);
+  const [chatResponse, setChatResponse] = useState("");
 
   async function fetchData() {
     setCarregando(true);
@@ -86,6 +90,7 @@ function Ocorrencias() {
       <Header title={'Ocorrências'} />
       <Floating style={{ marginBottom: 80 }}>
         <Button Icon={MdAccountBox} nome={'Filtrar'} color={'black'} corTexto={'white'} click={() => filtrarPorUsuario()} borderRadius={"18px"} />
+        <Button Icon={MdAssessment} nome={'Chat'} color={'#1976d2'} corTexto={'#FFF'} click={() => setChatOpen(!chatOpen)} borderRadius={"18px"} style={{ marginLeft: 10 }} />
       </Floating>
       {contrassenhasVencer.length > 0 && <Floating style={{ marginBottom: 140 }}>
         <Button Icon={MdAccountBox} nome={`Licenças a Vencer: ${contrassenhasVencer.length}`} color={'#F00'} corTexto={'#FFF'} click={handleClickContrassenhaVencer} borderRadius={"18px"} />
@@ -128,6 +133,57 @@ function Ocorrencias() {
           <Button Icon={MdAdd} tamanho_icone={40} borderRadius={"50%"} corTexto={"white"} click={() => history.push('/create')} />
         }
       </Floating>
+
+      {chatOpen && (
+        <div style={{
+          position: 'fixed',
+          bottom: 100,
+          right: 30,
+          background: '#fff',
+          border: '1px solid #ccc',
+          borderRadius: 12,
+          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+          zIndex: 9999,
+          width: 320,
+          padding: 16
+        }}>
+          <h3 style={{ marginTop: 0 }}>Assistente</h3>
+          <textarea
+            value={chatMessage}
+            onChange={e => setChatMessage(e.target.value)}
+            rows={3}
+            style={{ width: '100%', resize: 'none', marginBottom: 8 }}
+            placeholder="Digite sua mensagem..."
+          />
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <button
+              onClick={async () => {
+                if (!chatMessage.trim()) return;
+                setChatLoading(true);
+                setChatResponse("");
+                try {
+                  const res = await fetch('https://n8n-portal.sytes.net/webhook/assistente', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mensagem: chatMessage })
+                  });
+                  const data = await res.json();
+                  console.log(data);
+                  setChatResponse(data[0].output || JSON.stringify(data));
+                } catch (err) {
+                  setChatResponse("Erro ao enviar mensagem");
+                }
+                setChatLoading(false);
+              }}
+              disabled={chatLoading}
+              style={{ background: '#1976d2', color: '#fff', border: 'none', borderRadius: 8, padding: '6px 16px', cursor: 'pointer' }}
+            >Enviar</button>
+            <button onClick={() => setChatOpen(false)} style={{ background: '#ccc', border: 'none', borderRadius: 8, padding: '6px 16px', cursor: 'pointer' }}>Fechar</button>
+          </div>
+          {chatLoading && <div style={{ marginTop: 8 }}>Enviando...</div>}
+          {chatResponse && <div style={{ marginTop: 8, whiteSpace: 'pre-wrap' }}>{chatResponse}</div>}
+        </div>
+      )}
     </>
   );
 }
