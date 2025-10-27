@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { MdAlarm, MdAccountCircle, MdAssessment } from 'react-icons/md';
+import PortalIA from '../../componentes/PortalIA';
 
 import { Container, ContainerEtiquetas, Floating } from './styles';
 import Etiqueta from '../../componentes/Etiqueta';
@@ -11,6 +12,7 @@ import { useHistory } from 'react-router-dom';
 import { MdAdd, MdAccountBox, MdTimelapse } from 'react-icons/md'
 import { useUsuario } from '../../context/UsuarioContext';
 import useContrassenhaVencer from '../../Hooks/useContrassenha';
+
 
 function Ocorrencias() {
   const [listaOcorrencias, setListaOcorrencias] = useState([]);
@@ -25,9 +27,6 @@ function Ocorrencias() {
   const { cod_funcionario } = useUsuario();
   const contrassenhasVencer = useContrassenhaVencer();
   const [chatOpen, setChatOpen] = useState(false);
-  const [chatMessage, setChatMessage] = useState("");
-  const [chatLoading, setChatLoading] = useState(false);
-  const [chatResponse, setChatResponse] = useState("");
 
   async function fetchData() {
     setCarregando(true);
@@ -134,56 +133,7 @@ function Ocorrencias() {
         }
       </Floating>
 
-      {chatOpen && (
-        <div style={{
-          position: 'fixed',
-          bottom: 100,
-          right: 30,
-          background: '#fff',
-          border: '1px solid #ccc',
-          borderRadius: 12,
-          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-          zIndex: 9999,
-          width: 320,
-          padding: 16
-        }}>
-          <h3 style={{ marginTop: 0 }}>Assistente</h3>
-          <textarea
-            value={chatMessage}
-            onChange={e => setChatMessage(e.target.value)}
-            rows={3}
-            style={{ width: '100%', resize: 'none', marginBottom: 8 }}
-            placeholder="Digite sua mensagem..."
-          />
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <button
-              onClick={async () => {
-                if (!chatMessage.trim()) return;
-                setChatLoading(true);
-                setChatResponse("");
-                try {
-                  const res = await fetch('https://n8n-portal.sytes.net/webhook/assistente', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ mensagem: chatMessage })
-                  });
-                  const data = await res.json();
-                  console.log(data);
-                  setChatResponse(data[0].output || JSON.stringify(data));
-                } catch (err) {
-                  setChatResponse("Erro ao enviar mensagem");
-                }
-                setChatLoading(false);
-              }}
-              disabled={chatLoading}
-              style={{ background: '#1976d2', color: '#fff', border: 'none', borderRadius: 8, padding: '6px 16px', cursor: 'pointer' }}
-            >Enviar</button>
-            <button onClick={() => setChatOpen(false)} style={{ background: '#ccc', border: 'none', borderRadius: 8, padding: '6px 16px', cursor: 'pointer' }}>Fechar</button>
-          </div>
-          {chatLoading && <div style={{ marginTop: 8 }}>Enviando...</div>}
-          {chatResponse && <div style={{ marginTop: 8, whiteSpace: 'pre-wrap' }}>{chatResponse}</div>}
-        </div>
-      )}
+      <PortalIA isOpen={chatOpen} onClose={() => setChatOpen(false)} />
     </>
   );
 }
