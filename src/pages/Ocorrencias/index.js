@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MdAlarm, MdAccountCircle, MdAssessment } from 'react-icons/md';
 import PortalIA from '../../componentes/PortalIA';
+import swal from 'sweetalert';
 
 import { Container, ContainerEtiquetas, Floating } from './styles';
 import Etiqueta from '../../componentes/Etiqueta';
@@ -9,7 +10,7 @@ import api from '../../services/api';
 import Header from '../../componentes/Header';
 import Button from '../../componentes/Button';
 import { useHistory } from 'react-router-dom';
-import { MdAdd, MdAccountBox, MdTimelapse } from 'react-icons/md'
+import { MdAdd, MdAccountBox, MdTimelapse, MdCheckCircle } from 'react-icons/md'
 import { useUsuario } from '../../context/UsuarioContext';
 import useContrassenhaVencer from '../../Hooks/useContrassenha';
 
@@ -80,6 +81,65 @@ function Ocorrencias() {
     }
   }
 
+  async function finalizarOcorrenciasNaoAtendidas() {
+    const ocorrenciasNaoAtendidas = listaOcorrencias.filter((oco) => oco.atendente === 0 || oco.atendente === null);
+    
+    if (ocorrenciasNaoAtendidas.length === 0) {
+      swal("Nenhuma ocorrência não atendida!", "Todas as ocorrências já foram atendidas.", "info");
+      return;
+    }
+
+    swal({
+      title: "Finalizar Ocorrências",
+      text: `Tem certeza que deseja finalizar ${ocorrenciasNaoAtendidas.length} ocorrência(s) não atendida(s)? Será adicionado você como atendente e 10 minutos como tempo de atendimento.`,
+      icon: "warning",
+      buttons: ["Cancelar", "Confirmar"],
+      dangerMode: true,
+    }).then(async (willDelete) => {
+      if (willDelete) {
+        setCarregando(true);
+        let sucessos = 0;
+        let erros = 0;
+
+        for (const ocorrencia of ocorrenciasNaoAtendidas) {
+          try {
+            // Primeiro atende a ocorrência
+            const requestAtender = {
+              fun_codigo: cod_funcionario
+            };
+            await api.put(`/Ocorrencias/${ocorrencia.codigo}`, JSON.stringify(requestAtender));
+
+            // Depois finaliza com 10 minutos
+            const requestFinalizar = {
+              fun_codigo: cod_funcionario,
+              finalizada: 'S',
+              tempoAtendimento: 10
+            };
+            const response = await api.put(`/Ocorrencias/${ocorrencia.codigo}`, JSON.stringify(requestFinalizar));
+            
+            if (response.data.fun_codigo > 0) {
+              sucessos++;
+            } else {
+              erros++;
+            }
+          } catch (error) {
+            erros++;
+            console.error(`Erro ao finalizar ocorrência ${ocorrencia.codigo}:`, error);
+          }
+        }
+
+        setCarregando(false);
+        swal(
+          `Processo Concluído!`,
+          `${sucessos} ocorrência(s) finalizada(s) com sucesso. ${erros > 0 ? `${erros} erro(s) encontrado(s).` : ''}`,
+          sucessos > 0 ? "success" : "error"
+        ).then(() => {
+          window.location.reload();
+        });
+      }
+    });
+  }
+
   const handleClickContrassenhaVencer = () => {
     history.push({ pathname: '/licencas', state: { licencasVencer: contrassenhasVencer } });
   }
@@ -89,6 +149,7 @@ function Ocorrencias() {
       <Header title={'Ocorrências'} />
       <Floating style={{ marginBottom: 80 }}>
         <Button Icon={MdAccountBox} nome={'Filtrar'} color={'black'} corTexto={'white'} click={() => filtrarPorUsuario()} borderRadius={"18px"} />
+        <Button Icon={MdCheckCircle} nome={'Finalizar Não Atendidas'} color={'#27ae60'} corTexto={'white'} click={() => finalizarOcorrenciasNaoAtendidas()} borderRadius={"18px"} style={{ marginLeft: 10 }} />
         <Button Icon={MdAssessment} nome={'Chat'} color={'#1976d2'} corTexto={'#FFF'} click={() => setChatOpen(!chatOpen)} borderRadius={"18px"} style={{ marginLeft: 10 }} />
       </Floating>
       {contrassenhasVencer.length > 0 && <Floating style={{ marginBottom: 140 }}>
