@@ -7,8 +7,7 @@
     "@fullcalendar/interaction": "^5.7.2",
     "@fullcalendar/react": "^5.7.0",
     "@fullcalendar/timegrid": "^5.7.2",
-    "@material-ui/core": "^4.12.3",
-    "@material-ui/icons": "^4.11.2",
+    "@radix-ui/react-icons": "^1.3.0",
     "@sweetalert/with-react": "^0.1.1",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
@@ -16,48 +15,44 @@
     "axios": "^0.19.2",
     "canvasjs": "^1.8.3",
     "chart.js": "^2.9.4",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
     "devlop": "^1.1.0",
     "extenso": "^2.0.1",
     "faz-um-pix": "^2.0.2",
     "immer": "^7.0.5",
+    "lucide-react": "^0.424.0",
     "pix-react": "^1.0.4",
     "qrcode.react": "^3.1.0",
-    "react": "^16.13.1",
+    "react": "^18.3.1",
     "react-datepicker": "^2.16.0",
     "react-dnd": "^11.1.3",
     "react-dnd-html5-backend": "^11.1.3",
-    "react-dom": "^16.13.1",
+    "react-dom": "^18.3.1",
     "react-dropzone": "^11.2.0",
     "react-google-charts": "^4.0.0",
     "react-icons": "^3.11.0",
     "react-markdown": "^7.0.1",
     "react-qrcode-logo": "^2.10.0",
     "react-router-dom": "^5.3.4",
-    "react-scripts": "^3.4.1",
     "react-to-print": "^2.15.1",
     "remark-gfm": "^3.0.1",
     "styled-components": "^5.1.0",
-    "sweetalert": "^2.1.2"
+    "sweetalert": "^2.1.2",
+    "tailwind-merge": "^2.5.2",
+    "tailwindcss-animate": "^1.0.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.41",
+    "tailwindcss": "^3.4.10",
+    "vite": "^5.4.1"
   },
   "scripts": {
-    "start": "react-scripts --openssl-legacy-provider start",
-    "build": "react-scripts --openssl-legacy-provider build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   }
 }
