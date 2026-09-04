@@ -1,54 +1,56 @@
 import React, { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom'
-import swal from 'sweetalert';
-import Button from '../../componentes/Button';
-import api from '../../services/api'
+import { useHistory } from 'react-router-dom';
+import swal from '@/lib/feedback';
+import DatePicker from '../../componentes/DatePicker';
+import { 
+  PlusCircle, 
+  Calendar, 
+  AlertCircle, 
+  X, 
+  Save, 
+  FileText,
+  User
+} from 'lucide-react';
+
+import { Button } from '../../componentes/Button';
+import { Input, Select, Textarea } from '../../componentes/Input';
+import api from '../../services/api';
 import { useUsuario } from '../../context/UsuarioContext';
-import { MdSave, MdCancel } from 'react-icons/md'
 import { tipo_erro } from '../../constants';
-import DatePicker from "react-datepicker";
 
-
-function CreateOcorrencias({codigo_projeto_scrum = 0, retornarPara = null}) {
+function CreateOcorrencias({ codigo_projeto_scrum = 0, retornarPara = null }) {
   const [projetos_scrum, setProjetosScrum] = useState([]);
-  const [erro, setErro] = useState('Erro de Sistema')
+  const [erro, setErro] = useState('Erro de Sistema');
   const [cod_projeto_scrum, setCod_projeto_scrum] = useState(codigo_projeto_scrum);
-  const { cod_funcionario } = useUsuario();  
+  const { cod_funcionario } = useUsuario();
   const [data, setData] = useState(new Date());
   const history = useHistory();
 
-  function dataAtualFormatada(aData) {
-    var data = aData,
-      dia = data.getDate().toString(),
-      diaF = (dia.length === 1) ? '0' + dia : dia,
-      mes = (data.getMonth() + 1).toString(), //+1 pois no getMonth Janeiro começa com zero.
-      mesF = (mes.length === 1) ? '0' + mes : mes,
-      anoF = data.getFullYear();
-    return diaF + "/" + mesF + "/" + anoF;
-  }
-
   function dataAtualFormatadaAmericano(aData) {
-    var data = aData,
-        dia = data.getDate().toString(),
-        diaF = (dia.length === 1) ? '0' + dia : dia,
-        mes = (data.getMonth() + 1).toString(), // +1 pois no getMonth Janeiro começa com zero.
-        mesF = (mes.length === 1) ? '0' + mes : mes,
-        anoF = data.getFullYear();
-    return mesF + "-" + diaF + "-" + anoF;
-}
-
+    const dataObj = aData || new Date();
+    const dia = dataObj.getDate().toString();
+    const diaF = dia.length === 1 ? '0' + dia : dia;
+    const mes = (dataObj.getMonth() + 1).toString();
+    const mesF = mes.length === 1 ? '0' + mes : mes;
+    const anoF = dataObj.getFullYear();
+    return mesF + '-' + diaF + '-' + anoF;
+  }
 
   async function insereOcorrencia(event) {
     event.preventDefault();
     const select = document.querySelector('#projetos_scrum');
-    const index = select.selectedIndex;
-    console.log(index);    
-    const cliente = select.options[select.selectedIndex].innerText;
-    const ocorrencia = document.querySelector('#ocorrencia');
-    if (ocorrencia.value === '' ){
-      swal("Texto da Ocorrência obrigatório!", 'Preencha a ocorrência', "warning");
+    if (!select || select.selectedIndex < 0) {
+      swal('Selecione um cliente!', 'Escolha um cliente válido', 'warning');
       return;
     }
+    const cliente = select.options[select.selectedIndex]?.innerText || '';
+    const ocorrencia = document.querySelector('#ocorrencia');
+    if (!ocorrencia || ocorrencia.value.trim() === '') {
+      swal('Texto da Ocorrência obrigatório!', 'Preencha a ocorrência', 'warning');
+      return;
+    }
+
+    const selectedItem = projetos_scrum[select.selectedIndex];
     const create = {
       Data: dataAtualFormatadaAmericano(data),
       Finalizada: null,
@@ -56,93 +58,187 @@ function CreateOcorrencias({codigo_projeto_scrum = 0, retornarPara = null}) {
       Modulo_Sistema: 1,
       Obs: ocorrencia.value,
       Ocorrencia: erro.toUpperCase(),
-      contrato: projetos_scrum[select.selectedIndex].contrato,
+      contrato: selectedItem ? selectedItem.contrato : '',
       cli_nome: cliente,
       codigo: 0,
       projeto_scrum: cod_projeto_scrum
-    }
-    //console.log(create);
+    };
+
     const response = await api.post('/Ocorrencias', create);
     if (!response.error) {
-      swal("Ocorrência aberta com sucesso!", "Bom trabalho", "success"); 
-      if (!retornarPara) 
-        history.push('/')
-      else
+      swal('Ocorrência aberta com sucesso!', 'Bom trabalho', 'success');
+      if (!retornarPara) {
+        history.push('/');
+      } else {
         retornarPara();
+      }
     } else {
-      swal("Algo deu errado!", response.error, "error");
+      swal('Algo deu errado!', response.error, 'error');
     }
   }
 
   useEffect(() => {
-    getClientes()
-  }, [])
+    getClientes();
+  }, []);
 
   async function getClientes() {
-    const response = await api.get('/projetos_scrum');
-    setProjetosScrum(response.data);
+    try {
+      const response = await api.get('/projetos_scrum');
+      const data = response.data || [];
+      setProjetosScrum(data);
+      if (data.length > 0 && !cod_projeto_scrum) {
+        setCod_projeto_scrum(data[0].ps_codigo);
+      }
+    } catch (err) {
+      console.error('Erro ao buscar projetos scrum:', err);
+    }
   }
 
   function cancelar() {
-    if (!retornarPara) 
-      history.push('/')
-    else
+    if (!retornarPara) {
+      history.push('/');
+    } else {
       retornarPara();
+    }
   }
 
-  function changeData(date) {    
+  function changeData(date) {
     setData(date);
-};
+  }
 
   return (
-    <>
-      <div className="flex justify-center items-center w-full text-black font-bold">
-        <div id="form" className="py-5 m-0 w-[98vh]">
-          <form onSubmit={insereOcorrencia} className="m-[15px] bg-white p-5 rounded-lg shadow-lg">
-            <div className="flex flex-col mb-[10px]">
-            <label htmlFor="projetos_scrum" className="mb-[5px]">Escolha o cliente</label>
-              {
-                projetos_scrum.length > 0 ?
-                  <select id="projetos_scrum" className="p-[5px] text-base w-full text-[1.1em] my-[5px] h-[40px]" autoFocus={true} value={cod_projeto_scrum} onChange={(e)=> setCod_projeto_scrum(e.target.value)}>
-                    {
-                      projetos_scrum.map(projetos => <option key={projetos.contrato} value={projetos.ps_codigo}>{projetos.cli_nome}</option>)
-                    }
-                  </select>
-                  : <h3 className="mb-[30px]">Carregando projetos_scrum</h3>
-              }
-            </div>
-            <div className="flex flex-col mb-[10px]">
-              <label htmlFor="erro" className="mb-[5px]">Tipo de Erro</label>
-              {            
-                <select id="erro" className="p-[5px] text-base w-full text-[1.1em] my-[5px] h-[40px]" value={erro} onChange={(e)=> setErro(e.target.value)}>
-                  {
-                    tipo_erro.map(erro => <option key={erro.id} value={erro.tipo}>{erro.tipo}</option>)
-                  }
-                </select>
-              }
-            </div>  
-            <div className="flex flex-col mb-[10px]">
-              <label htmlFor="data" className="mb-[5px]">Data</label>
-              <div>
-                <DatePicker dateFormat="dd/MM/yyyy" locale='pt-BR' selected={data} onChange={changeData} />
-              </div>
-            </div>          
-            <div className="flex flex-col mb-[10px]">
-              <label htmlFor="ocorrencia" className="mb-[5px]">Ocorrencia</label>
-              <textarea className="p-[5px] text-base h-[150px] w-full text-[1.1em] my-[5px]" type="text" name="ocorrencia" id="ocorrencia" placeholder="informe a ocorrencia" />
-            </div>
-            <div className="flex justify-around items-center">
-              <div className="m-[20px_8px_10px]">
-                <Button Icon={MdCancel} click={cancelar} nome={"Cancelar"} color={"red"} corTexto={"white"} borderRadius={'30px'} />
-              </div>
-              <div className="m-[20px_8px_10px]">
-                <Button Icon={MdSave} click={insereOcorrencia} nome={"Salvar"} color={"green"} corTexto={"white"} borderRadius={'30px'} />
-              </div>
-            </div>
-          </form>
+    <div className="max-w-3xl mx-auto py-6 px-4 w-full">
+      <form
+        onSubmit={insereOcorrencia}
+        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-8 shadow-sm flex flex-col gap-6"
+      >
+        {/* Cabeçalho do Card */}
+        <div className="flex items-center gap-3.5 pb-5 border-b border-slate-200 dark:border-slate-800">
+          <div className="p-2.5 bg-indigo-50 dark:bg-indigo-950/60 rounded-xl text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/50 shrink-0">
+            <PlusCircle className="w-6 h-6" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">
+              Nova Ocorrência
+            </h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              Registre um novo chamado de atendimento para o cliente
+            </p>
+          </div>
         </div>
-      </div>
-    </>
+
+        {/* Campos organizados */}
+        <div className="flex flex-col gap-5">
+          {/* Cliente */}
+          <div className="flex flex-col">
+            <label
+              htmlFor="projetos_scrum"
+              className="font-medium text-sm text-slate-700 dark:text-slate-300 mb-1.5 flex items-center gap-1.5"
+            >
+              <User className="w-4 h-4 text-indigo-500" />
+              Cliente
+            </label>
+            {projetos_scrum.length > 0 ? (
+              <Select
+                id="projetos_scrum"
+                name="projetos_scrum"
+                autoFocus={true}
+                value={cod_projeto_scrum}
+                onChange={(e) => setCod_projeto_scrum(e.target.value)}
+              >
+                {projetos_scrum.map((projetos) => (
+                  <option key={projetos.contrato} value={projetos.ps_codigo}>
+                    {projetos.cli_nome}
+                  </option>
+                ))}
+              </Select>
+            ) : (
+              <div className="flex items-center gap-2 p-3 text-sm text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-800">
+                <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
+                <span>Carregando projetos_scrum...</span>
+              </div>
+            )}
+          </div>
+
+          {/* Tipo de Erro */}
+          <div className="flex flex-col">
+            <label
+              htmlFor="erro"
+              className="font-medium text-sm text-slate-700 dark:text-slate-300 mb-1.5 flex items-center gap-1.5"
+            >
+              <AlertCircle className="w-4 h-4 text-indigo-500" />
+              Tipo de Erro
+            </label>
+            <Select
+              id="erro"
+              name="erro"
+              value={erro}
+              onChange={(e) => setErro(e.target.value)}
+            >
+              {tipo_erro.map((item) => (
+                <option key={item.id} value={item.tipo}>
+                  {item.tipo}
+                </option>
+              ))}
+            </Select>
+          </div>
+
+          {/* Data */}
+          <div className="flex flex-col">
+            <label
+              htmlFor="data"
+              className="font-medium text-sm text-slate-700 dark:text-slate-300 mb-1.5 flex items-center gap-1.5"
+            >
+              <Calendar className="w-4 h-4 text-indigo-500" />
+              Data
+            </label>
+            <DatePicker
+              id="data"
+              dateFormat="dd/MM/yyyy"
+              locale="pt-BR"
+              selected={data}
+              onChange={changeData}
+              className="flex h-10 w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-transparent transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+              wrapperClassName="w-full"
+            />
+          </div>
+
+          {/* Ocorrência / Descrição */}
+          <div className="flex flex-col">
+            <label
+              htmlFor="ocorrencia"
+              className="font-medium text-sm text-slate-700 dark:text-slate-300 mb-1.5 flex items-center gap-1.5"
+            >
+              <FileText className="w-4 h-4 text-indigo-500" />
+              Ocorrência / Descrição
+            </label>
+            <Textarea
+              id="ocorrencia"
+              name="ocorrencia"
+              rows={5}
+              placeholder="Descreva detalhadamente a ocorrência informada pelo cliente..."
+            />
+          </div>
+        </div>
+
+        {/* Rodapé com botões de ação alinhados à direita */}
+        <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
+          <Button
+            type="button"
+            variant="outline"
+            Icon={X}
+            onClick={cancelar}
+            nome="Cancelar"
+          />
+          <Button
+            type="submit"
+            variant="indigo"
+            Icon={Save}
+            nome="Salvar Ocorrência"
+          />
+        </div>
+      </form>
+    </div>
   );
 }
 

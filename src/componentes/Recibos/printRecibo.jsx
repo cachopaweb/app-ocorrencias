@@ -5,7 +5,6 @@ import logo from '../../assets/portalCom.png'
 import { QRCodeSVG } from 'qrcode.react';
 import { dataAtualPorExtenso, formatarNumeroVigula } from '../../functions/utils';
 import Pix from '../Pix/Pix';
-import './../../tail.css'
 import './recibo.css'
 
 function Impressao({ dados }) {

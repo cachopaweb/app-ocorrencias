@@ -1,0 +1,1 @@
+var e=`/assets/Icone_Portal-D2ImRRal.png`;export{e as t};

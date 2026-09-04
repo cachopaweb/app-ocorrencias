@@ -1,12 +1,13 @@
 import React, { useContext } from 'react';
 import { useDrag } from 'react-dnd';
-import { MdDelete } from 'react-icons/md';
-
-import swal from 'sweetalert';
+import { Trash2 } from 'lucide-react';
+import swal from '@/lib/feedback';
+import Badge from '../../Badge';
 import api from '../../../services/api';
 import BoardContext from '../context';
+import { cn } from '../../../lib/utils';
 
-export default function CardBacklog({ data, index, listIndex}) {
+export default function CardBacklog({ data, index, listIndex }) {
   const { setAtualizar } = useContext(BoardContext);
 
   const [{ isDragging }, dragRef] = useDrag({
@@ -16,14 +17,17 @@ export default function CardBacklog({ data, index, listIndex}) {
     }),
   });
 
-  const handleDeleteBacklog = async (id)=> {
-    console.log(id)
-    const response = await api.delete(`/backlog/${id}`);
-    console.log(response)
-    return (response.status === 204);
-  }
+  const handleDeleteBacklog = async (id) => {
+    try {
+      const response = await api.delete(`/backlog/${id}`);
+      return (response.status === 204);
+    } catch (error) {
+      console.error(error);
+      return false;
+    }
+  };
 
-  const onDelete = (id)=>{
+  const onDelete = (id) => {
     swal({
       title: "Deseja excluir este Backlog?",
       text: "",
@@ -31,43 +35,70 @@ export default function CardBacklog({ data, index, listIndex}) {
       buttons: true,
       dangerMode: true,
     })
-    .then((willDelete) => {
+    .then(async (willDelete) => {
       if (willDelete) {
-        const isDeleted = handleDeleteBacklog(id);
-        if (isDeleted){
-          swal("Backlog excluido com sucesso", {
+        const isDeleted = await handleDeleteBacklog(id);
+        if (isDeleted) {
+          swal("Backlog excluído com sucesso", {
             icon: "success",
           });
-          setAtualizar();
-        }else{
-          swal("Falha ao deletar Backlog!", {icon: "warning"})
+          setAtualizar(true);
+        } else {
+          swal("Falha ao deletar Backlog!", { icon: "warning" });
         }        
       } 
     });
-  }
+  };
 
-   return (
+  return (
     <div
       ref={dragRef}
-      className={`relative mb-[10px] text-black p-[15px] shadow-[0_1px_4px_0_rgba(192,208,230,0.8)] border-t-[20px] border-t-[rgba(230,236,245,0.4)] transition-transform hover:-translate-y-[2px] ${
-        isDragging
-          ? 'border-2 border-dashed border-black/20 pt-[31px] rounded-none bg-transparent shadow-none cursor-grabbing [&_p]:opacity-0 [&_img]:opacity-0 [&_span]:opacity-0'
-          : 'bg-white rounded-[5px]'
-      }`}
+      className={cn(
+        "relative mb-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 shadow-xs hover:shadow-md hover:border-indigo-300 dark:hover:border-indigo-600 transition-all cursor-grab active:cursor-grabbing group text-slate-800 dark:text-slate-100 select-none",
+        isDragging && "border-2 border-dashed border-indigo-400 dark:border-indigo-500 bg-indigo-50/20 dark:bg-indigo-950/20 opacity-60 rounded-xl shadow-none cursor-grabbing"
+      )}
     >
-      <header className="absolute top-[-22px]">
-        {data.labels.map(label => (
-          <span 
-            key={label} 
-            className="w-[10px] h-[10px] rounded-[2px] inline-block" 
-            style={{ backgroundColor: label }} 
-          />
-        ))}
-        <span id="ocorrencia" className="ml-[10px]">{`Cod. Ocorrencia: ${data.ocorrencia}`}</span>
+      <header className="flex items-center justify-between gap-2 mb-2">
+        <div className="flex items-center gap-1.5 flex-wrap">
+          {data.labels && data.labels.map((label, idx) => (
+            <span 
+              key={idx} 
+              className="w-2.5 h-2.5 rounded-full inline-block shrink-0 ring-1 ring-black/5 dark:ring-white/10" 
+              style={{ backgroundColor: label }} 
+              title={`Prioridade: ${label}`}
+            />
+          ))}
+          {data.ocorrencia && (
+            <Badge variant="secondary" size="sm" className="font-mono text-[11px] px-1.5 py-0.5">
+              #{data.ocorrencia}
+            </Badge>
+          )}
+        </div>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete(data.id);
+          }}
+          className="opacity-0 group-hover:opacity-100 focus:opacity-100 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition-all p-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer shrink-0 ml-auto"
+          title="Excluir Backlog"
+          aria-label="Excluir Backlog"
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+        </button>
       </header>
-      <h3>{data.titulo}</h3>
-      <p className="conteudo font-medium text-justify whitespace-pre-wrap w-full">{data.content}</p>   
-      <button onClick={()=> onDelete(data.id)}><MdDelete size={20} color='red' /></button>
+
+      {data.titulo && (
+        <h3 className="font-semibold text-sm text-slate-900 dark:text-slate-100 mb-1 leading-snug">
+          {data.titulo}
+        </h3>
+      )}
+
+      {data.content && (
+        <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-3 leading-relaxed whitespace-pre-wrap">
+          {data.content}
+        </p>
+      )}
     </div>
   );
 }

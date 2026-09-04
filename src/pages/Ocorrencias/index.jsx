@@ -1,19 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { MdAlarm, MdAccountCircle, MdAssessment } from 'react-icons/md';
+import { useHistory } from 'react-router-dom';
+import { 
+  Filter, 
+  CheckCheck, 
+  MessageSquare, 
+  Plus, 
+  AlertCircle, 
+  AlertTriangle,
+  Clock, 
+  Layers, 
+  Inbox, 
+  Loader2 
+} from 'lucide-react';
+
 import PortalIA from '../../componentes/PortalIA';
-import swal from 'sweetalert';
-
-
+import swal from '@/lib/feedback';
 import Etiqueta from '../../componentes/Etiqueta';
 import Card from '../../componentes/Card';
 import api from '../../services/api';
-import Header from '../../componentes/Header';
 import Button from '../../componentes/Button';
-import { useHistory } from 'react-router-dom';
-import { MdAdd, MdAccountBox, MdTimelapse, MdCheckCircle } from 'react-icons/md'
 import { useUsuario } from '../../context/UsuarioContext';
 import useContrassenhaVencer from '../../Hooks/useContrassenha';
-
 
 function Ocorrencias() {
   const [listaOcorrencias, setListaOcorrencias] = useState([]);
@@ -31,11 +38,17 @@ function Ocorrencias() {
 
   async function fetchData() {
     setCarregando(true);
-    const response = await api.get('/Ocorrencias');
-    if (response.data.length > 0) {
-      setListaOcorrencias(response.data);
-      setCarregando(false);
-    } else {
+    try {
+      const response = await api.get('/Ocorrencias');
+      if (response.data && response.data.length > 0) {
+        setListaOcorrencias(response.data);
+      } else {
+        setListaOcorrencias([]);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar ocorrências:", error);
+      setListaOcorrencias([]);
+    } finally {
       setCarregando(false);
     }
   }
@@ -50,28 +63,33 @@ function Ocorrencias() {
 
   async function fetchNotificacoes() {
     setCarregandoNotificacoes(true);
-    const responseOrdens = await api.get('/notificacoes/ordens');
-    const { ordens } = responseOrdens.data;
-    setQtdOs(ordens);
-    ////
-    const responseOcorrencias = await api.get('/notificacoes/ocorrencias');
-    const { ocorrencias } = responseOcorrencias.data;
-    setQtdOcorrencias(ocorrencias);
-    ////
-    const responseScrum = await api.get('/notificacoes/projetos_scrum');
-    const { scrum } = responseScrum.data;
-    setQtdScrum(scrum);
-    ////
-    const responseOrdensAtrasadas = await api.get('/notificacoes/ordensAtradas/1');
-    const { ordensAtradas } = responseOrdensAtrasadas.data;
-    SetQtdOrdensAtrasadas(ordensAtradas);
-    setCarregandoNotificacoes(false);
+    try {
+      const responseOrdens = await api.get('/notificacoes/ordens');
+      const { ordens } = responseOrdens.data;
+      setQtdOs(ordens);
+      ////
+      const responseOcorrencias = await api.get('/notificacoes/ocorrencias');
+      const { ocorrencias } = responseOcorrencias.data;
+      setQtdOcorrencias(ocorrencias);
+      ////
+      const responseScrum = await api.get('/notificacoes/projetos_scrum');
+      const { scrum } = responseScrum.data;
+      setQtdScrum(scrum);
+      ////
+      const responseOrdensAtrasadas = await api.get('/notificacoes/ordensAtradas/1');
+      const { ordensAtradas } = responseOrdensAtrasadas.data;
+      SetQtdOrdensAtrasadas(ordensAtradas);
+    } catch (error) {
+      console.error("Erro ao buscar notificações:", error);
+    } finally {
+      setCarregandoNotificacoes(false);
+    }
   }
 
   async function filtrarPorUsuario() {
     if (!filtrado) {
-      let lista = await listaOcorrencias.filter((ocorrencia) => {
-        return (ocorrencia.atendente === cod_funcionario)
+      let lista = listaOcorrencias.filter((ocorrencia) => {
+        return (ocorrencia.atendente === cod_funcionario);
       });
       setListaOcorrencias(lista);
       setFiltrado(true);
@@ -142,59 +160,142 @@ function Ocorrencias() {
 
   const handleClickContrassenhaVencer = () => {
     history.push({ pathname: '/licencas', state: { licencasVencer: contrassenhasVencer } });
-  }
+  };
 
   return (
-    <div className="flex flex-col h-full gap-6 w-full max-w-7xl mx-auto p-4">
+    <div className="flex flex-col h-full gap-4 w-full max-w-7xl mx-auto p-4 sm:p-6 transition-colors">
       
       {/* Action Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-        <h2 className="text-xl font-bold text-slate-800">Painel de Ocorrências</h2>
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-slate-900 p-3.5 sm:p-4 rounded-lg shadow-2xs border border-slate-200/80 dark:border-slate-800/80 mb-2">
+        <div>
+          <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 tracking-tight">Painel de Ocorrências</h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Acompanhe e atenda os chamados em aberto</p>
+        </div>
         <div className="flex flex-wrap items-center gap-2">
           {contrassenhasVencer.length > 0 && (
-            <Button Icon={MdAccountBox} nome={`Licenças a Vencer: ${contrassenhasVencer.length}`} color={'#F00'} click={handleClickContrassenhaVencer} />
+            <Button 
+              variant="destructive"
+              size="default"
+              Icon={AlertTriangle} 
+              nome={`Licenças a Vencer: ${contrassenhasVencer.length}`} 
+              onClick={handleClickContrassenhaVencer} 
+            />
           )}
-          <Button Icon={MdAccountBox} nome={'Filtrar'} color={'black'} click={() => filtrarPorUsuario()} />
-          <Button Icon={MdCheckCircle} nome={'Finalizar Não Atendidas'} color={'#27ae60'} click={() => finalizarOcorrenciasNaoAtendidas()} />
-          <Button Icon={MdAssessment} nome={'Chat'} color={'#1976d2'} click={() => setChatOpen(!chatOpen)} />
-          <Button Icon={MdAdd} nome={'Nova Ocorrência'} color={'black'} click={() => history.push('/create')} />
+          <Button 
+            variant={filtrado ? "indigo" : "outline"}
+            size="default"
+            Icon={Filter} 
+            nome={filtrado ? "Filtrado (Usuário)" : "Filtrar por Usuário"} 
+            onClick={filtrarPorUsuario} 
+          />
+          <Button 
+            variant="outline"
+            size="default"
+            Icon={CheckCheck} 
+            nome="Finalizar Não Atendidas" 
+            onClick={finalizarOcorrenciasNaoAtendidas} 
+          />
+          <Button 
+            variant="outline"
+            size="default"
+            Icon={MessageSquare} 
+            nome="Assistente IA" 
+            onClick={() => setChatOpen(!chatOpen)} 
+          />
+          <Button 
+            variant="indigo"
+            size="default"
+            Icon={Plus} 
+            nome="Nova Ocorrência" 
+            onClick={() => history.push('/create')} 
+          />
         </div>
       </div>
       
-      {carregandoNotificacoes ?
-        <div className="flex justify-center items-center py-10">
-          <h1 className="text-slate-500 animate-pulse font-medium">Carregando métricas...</h1>
-        </div> :
-        (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Etiqueta key="1" click={() => history.push('/ordensAndamento')} percentual={qtdOs} texto="Ordens" cor="rgb(98, 150, 138)" corTexto="#000"><MdAlarm size={24} /></Etiqueta>
-            <Etiqueta key="2" click={() => history.push('/')} percentual={qtdOcorrencias} texto="Ocorrências" cor="rgb(255, 92, 89)" corTexto="#000"><MdAccountCircle size={24} /></Etiqueta>
-            <Etiqueta key="3" click={() => history.push('/scrum')} percentual={qtdScrum} texto="Projetos Scrum" cor="rgb(45, 98, 147)" corTexto="#000"><MdAssessment size={24} /></Etiqueta>
-            <Etiqueta key="4" click={() => history.push('/ordensAndamento')} percentual={qtdOrdensAtrasadas} texto="Ordens Atrasadas" cor="rgb(153, 0, 0)" corTexto="#FFF"><MdTimelapse size={24} /></Etiqueta>
+      {/* Grid de Métricas */}
+      {carregandoNotificacoes ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-2">
+          {[1, 2, 3, 4].map((n) => (
+            <div key={n} className="h-24 bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800/80 p-4 animate-pulse flex flex-col justify-between">
+              <div className="flex justify-between items-center">
+                <div className="w-20 h-3.5 bg-slate-200 dark:bg-slate-800 rounded"></div>
+                <div className="w-5 h-5 bg-slate-200 dark:bg-slate-800 rounded"></div>
+              </div>
+              <div className="w-12 h-6 bg-slate-200 dark:bg-slate-800 rounded"></div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-2">
+          <Etiqueta 
+            key="1" 
+            onClick={() => history.push('/ordensAndamento')} 
+            percentual={qtdOs} 
+            texto="Ordens"
+          >
+            <Clock className="w-4 h-4" />
+          </Etiqueta>
+          <Etiqueta 
+            key="2" 
+            onClick={() => history.push('/')} 
+            percentual={qtdOcorrencias} 
+            texto="Ocorrências"
+          >
+            <Inbox className="w-4 h-4" />
+          </Etiqueta>
+          <Etiqueta 
+            key="3" 
+            onClick={() => history.push('/scrum')} 
+            percentual={qtdScrum} 
+            texto="Projetos Scrum"
+          >
+            <Layers className="w-4 h-4" />
+          </Etiqueta>
+          <Etiqueta 
+            key="4" 
+            onClick={() => history.push('/ordensAndamento')} 
+            percentual={qtdOrdensAtrasadas} 
+            texto="Ordens Atrasadas"
+          >
+            <AlertCircle className="w-4 h-4 text-rose-500 dark:text-rose-400" />
+          </Etiqueta>
+        </div>
+      )}
+        
+      {/* Feed de Cards */}
+      <div className="flex flex-col items-center gap-3 w-full pb-20">
+        {carregando ? (
+          <div className="flex flex-col items-center justify-center py-16 gap-3 text-slate-500 dark:text-slate-400">
+            <Loader2 className="w-6 h-6 animate-spin text-indigo-600 dark:text-indigo-400" />
+            <span className="text-xs font-medium">Aguarde, carregando ocorrências...</span>
+          </div>
+        ) : listaOcorrencias.length > 0 ? (
+          listaOcorrencias.map((oco) => (
+            <Card 
+              key={oco.codigo}
+              cliente={oco.cli_nome}
+              contrato={oco.contrato}
+              projeto_id={oco.projeto_scrum}
+              ocorrencia={oco.obs}
+              atendente={oco.atendente}
+              nomeAtendente={oco.fun_atendente}
+              cod_ocorrencia={oco.codigo}
+              data={oco.data}
+            />
+          ))
+        ) : (
+          <div className="flex flex-col items-center justify-center py-14 px-4 text-center bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800/80 w-full max-w-4xl shadow-2xs">
+            <div className="p-3 bg-slate-100 dark:bg-slate-800 rounded-lg mb-3 text-slate-400 dark:text-slate-500">
+              <Inbox className="w-6 h-6" />
+            </div>
+            <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1">Nenhuma ocorrência encontrada</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md">
+              Não há chamados pendentes no momento. Clique em "Nova Ocorrência" para cadastrar um atendimento.
+            </p>
           </div>
         )}
-        
-      <div className="flex flex-col items-center gap-4 w-full pb-20">
-        {
-          listaOcorrencias.length > 0 ?
-            listaOcorrencias.map(
-              oco => <Card key={oco.codigo}
-                cliente={oco.cli_nome}
-                contrato={oco.contrato}
-                projeto_id={oco.projeto_scrum}
-                ocorrencia={oco.obs}
-                atendente={oco.atendente}
-                nomeAtendente={oco.fun_atendente}
-                cod_ocorrencia={oco.codigo}
-                data={oco.data}
-              />
-            )
-            :
-            carregando ?
-              <h1 className="text-slate-500 mt-10">Aguarde Carregando Ocorrencias...</h1>
-              : <h1 className="text-slate-500 mt-10">Nenhuma ocorrencia encontrada</h1>
-        }
       </div>
+
       <PortalIA isOpen={chatOpen} onClose={() => setChatOpen(false)} />
     </div>
   );
