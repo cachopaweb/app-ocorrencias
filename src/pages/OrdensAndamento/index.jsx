@@ -1,17 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import api from '../../services/api';
-import { MdAssignment, MdSave, MdAlarmAdd } from 'react-icons/md';
+import { 
+  Calendar, 
+  Clock, 
+  AlertTriangle, 
+  CheckCircle2, 
+  Save, 
+  Filter, 
+  Layers, 
+  Eye, 
+  Flame
+} from 'lucide-react';
 
+import api from '../../services/api';
 import { useUsuario } from '../../context/UsuarioContext';
 import Button from '../../componentes/Button';
-import swal from '@sweetalert/with-react';
-import DatePicker, { registerLocale } from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import pt_br from 'date-fns/locale/pt-BR';
+import Badge from '../../componentes/Badge';
+import { Textarea } from '../../componentes/Input';
 import Modal from '../../componentes/Modal';
+import swal from '@/lib/feedback';
+import DatePicker from '../../componentes/DatePicker';
 import OrdemDetalhe from '../OrdemDetalhe';
-
-registerLocale('pt-BR', pt_br);
 
 function OrdensAndamento() {
     const [ordens, SetOrdens] = useState([]);
@@ -28,10 +36,16 @@ function OrdensAndamento() {
     const [motivo, setMotivo] = useState('');
 
     async function CarregaDadosOrdens() {
-        let response = await api.get('/Ordens');
-        SetOrdens(response.data);
-        setOrdensFiltrada(response.data)
-        filtrarOrdens(response.data)
+        try {
+            let response = await api.get('/Ordens');
+            SetOrdens(response.data || []);
+            setOrdensFiltrada(response.data || []);
+            filtrarOrdens(response.data || []);
+        } catch (error) {
+            console.error("Erro ao carregar ordens:", error);
+            SetOrdens([]);
+            setOrdensFiltrada([]);
+        }
     }
 
     function changePrazoEntrega(data) {
@@ -40,217 +54,376 @@ function OrdensAndamento() {
 
     function modalPrazoEntrega(ord_codigo, prazoAnterior) {
         setOrdCodigo(ord_codigo);
-        setDataAntiga(new Date(prazoAnterior).toLocaleDateString());
-        setModalAtivo(true)
+        setDataAntiga(prazoAnterior ? new Date(prazoAnterior).toLocaleDateString('pt-BR') : '');
+        setModalAtivo(true);
     }
 
     async function atualizarPrazoEntrega(e) {
         e.preventDefault();
-        if (ordCodigo === 0) { swal('Codigo da Ordem é obrigatório!', 'Click em uma ordem de serviço', 'warning'); return; }
+        if (ordCodigo === 0) {
+            swal('Código da Ordem é obrigatório!', 'Clique em uma ordem de serviço', 'warning');
+            return;
+        }
         let data = {
             Funcionario: cod_funcionario,
             Ordem: ordCodigo,
             PrazoAnterior: dataAntiga,
-            PrazoNovo: dataPrazoEntrega.toLocaleDateString(),
+            PrazoNovo: dataPrazoEntrega.toLocaleDateString('pt-BR'),
             Motivo: motivo
-        }
-        let response = await api.put(`/Ordens/${ordCodigo}`, data);
-        if (response.status === 201) {
-            swal('Prazo entrega atualizado com sucesso!', `Código histórico ${response.data.Historico}`, 'success')
-            setDadosAlterados(true)
-        } else {
-            swal('Erro ao atualizar prazo de entrega!', `erro ${response.data.error}`, 'error')
+        };
+        try {
+            let response = await api.put(`/Ordens/${ordCodigo}`, data);
+            if (response.status === 201 || response.status === 200) {
+                swal('Prazo de entrega atualizado com sucesso!', `Código histórico ${response.data?.Historico || ''}`, 'success');
+                setDadosAlterados(true);
+                setModalAtivo(false);
+                setMotivo('');
+            } else {
+                swal('Erro ao atualizar prazo de entrega!', `Erro: ${response.data?.error || 'desconhecido'}`, 'error');
+            }
+        } catch (error) {
+            swal('Erro ao atualizar prazo de entrega!', `Erro: ${error.message}`, 'error');
         }
     }
-
 
     useEffect(() => {
         CarregaDadosOrdens();
         setModalAtivo(false);
         setModalDetalhesAtivo(false);
-        setDadosAlterados(false)
-    }, [dadosAlterados])
+        setDadosAlterados(false);
+    }, [dadosAlterados]);
 
     const filtrarOrdens = (_ordens) => {
-        if (_ordens.length === 0) return;
+        if (!_ordens || _ordens.length === 0) {
+            setOrdensFiltrada([]);
+            return;
+        }
         var filtrada = [];
         if (filtroOrdens === 'minhas_os') {
-            if (fun_categoria.substring(0, 8) === 'PROGRAMA') {
+            if (fun_categoria && fun_categoria.substring(0, 8) === 'PROGRAMA') {
                 filtrada = _ordens.filter((ordem) => (
-                    ordem.programador.substring(0, 5) === login.substring(0, 5)
+                    ordem.programador && login && ordem.programador.substring(0, 5) === login.substring(0, 5)
                 ));
             } else {
                 filtrada = _ordens.filter((ordem) => (
-                    ordem.fun_teste.substring(0, 5) === login.substring(0, 5)
+                    ordem.fun_teste && login && ordem.fun_teste.substring(0, 5) === login.substring(0, 5)
                 ));
             }
             setOrdensFiltrada(filtrada);
         } else {
             setOrdensFiltrada(_ordens);
         }
-    }
+    };
 
     useEffect(() => {
-        filtrarOrdens(ordens)
-    }, [ordens, filtroOrdens])
+        filtrarOrdens(ordens);
+    }, [ordens, filtroOrdens]);
 
     const SelecionaOrdem = (ordem) => {
-        setModalDetalhesAtivo(true)
-        setOrdemSelecionada(ordem)
-    }
+        setModalDetalhesAtivo(true);
+        setOrdemSelecionada(ordem);
+    };
 
     const corLinhaDestaqueSuporte = (estado) => {
         const estadoCores = { 'PROGRAMADA': '#900', 'TESTADA': '#008080', 'DEFAULT': '#FFF' };
         return estadoCores[estado] ?? estadoCores['DEFAULT'];
-    }
+    };
 
     const corLinhaDestaqueProgramacao = (estado) => {
         const estadoCores = { 'ANALISADA': '#900', 'PROGRAMADA': '#008080', 'DEFAULT': '#FFF' };
         return estadoCores[estado] ?? estadoCores['DEFAULT'];
-    }
+    };
 
     const ordemEmAtraso = (data) => {
+        if (!data) return false;
         const dataHoje = new Date();
         const dataOS = new Date(data);
         return dataOS <= dataHoje;
-    }
+    };
 
     const verificaDataHoje = (data) => {
+        if (!data) return false;
         const dataHoje = new Date();
         const dataOS = new Date(data);
         return dataOS.getDate() === dataHoje.getDate()
             && dataOS.getMonth() === dataHoje.getMonth()
-            && dataOS.getFullYear() === dataHoje.getFullYear()
-    }
+            && dataOS.getFullYear() === dataHoje.getFullYear();
+    };
+
+    const getPriorityBadge = (prioridade) => {
+        if (!prioridade) return null;
+        const p = prioridade.toUpperCase().trim();
+        if (p === 'ALTA' || p === 'URGENTE' || p === 'CRITICA' || p === 'CRÍTICA') {
+            return <Badge variant="destructive" size="sm" dot={true}>{prioridade}</Badge>;
+        }
+        if (p === 'MEDIA' || p === 'MÉDIA' || p === 'NORMAL') {
+            return <Badge variant="warning" size="sm" dot={true}>{prioridade}</Badge>;
+        }
+        if (p === 'BAIXA') {
+            return <Badge variant="secondary" size="sm" dot={true}>{prioridade}</Badge>;
+        }
+        return <Badge variant="outline" size="sm" dot={true}>{prioridade}</Badge>;
+    };
+
+    const getStatusBadge = (estado) => {
+        if (!estado) return null;
+        const e = estado.toUpperCase().trim();
+        if (e === 'TESTADA' || e === 'ENTREGUE' || e === 'FINALIZADA') {
+            return <Badge variant="success" size="sm" dot={true}>{estado}</Badge>;
+        }
+        if (e === 'PROGRAMADA' || e === 'EM ANDAMENTO' || e === 'DESENVOLVIMENTO') {
+            return <Badge variant="indigo" size="sm" dot={true}>{estado}</Badge>;
+        }
+        if (e === 'ANALISADA' || e === 'PENDENTE' || e === 'ABERTA') {
+            return <Badge variant="warning" size="sm" dot={true}>{estado}</Badge>;
+        }
+        return <Badge variant="secondary" size="sm" dot={true}>{estado}</Badge>;
+    };
 
     return (
-        <>
-            <style>{`
-                @keyframes colorNoDia {
-                    0% { background-color: #47B071; }
-                    50% { background-color: #FFFFFF; }
-                    100% { background-color: #47B071; }
-                }
-                @keyframes colorAtrasada {
-                    0% { background-color: #F77777; }
-                    50% { background-color: #FFFFFF; }
-                    100% { background-color: #F77777; }
-                }
-                .animate-hoje { animation: colorNoDia 2s infinite; }
-                .animate-atrasada { animation: colorAtrasada 2s infinite; }
-                .react-datepicker-wrapper { width: 100%; }
-            `}</style>
-            <Modal activate={modalAtivo} setActivate={setModalAtivo}>
-                <div className="flex justify-center items-center w-full pb-[30px] overflow-y-auto">
-                    <div className="p-2 bg-white mt-[50px] rounded-lg shadow-[0px_2px_2px_2px_rgba(0,0,0,0.15),_0px_10px_20px_-10px_rgba(0,0,0,0.1)] text-black max-w-[1200px] w-full mx-4">
-                        <form id="form" className="py-5 m-0 w-full" onSubmit={atualizarPrazoEntrega}>
-                            <div className="flex flex-col mb-2.5">
-                                <label className="mb-1" htmlFor="prazo-entrega">Novo prazo de Entrega</label>
-                                <div>
-                                    <DatePicker className="w-full text-[1.1em] my-1 h-5" dateFormat="dd/MM/yyyy" locale='pt-BR' selected={dataPrazoEntrega} onChange={changePrazoEntrega} />
-                                    <textarea className="h-[150px] w-full my-1.5" name="motivo" id="motivo" onChange={(e) => setMotivo(e.target.value)}></textarea><br />
-                                    <Button color="black" corTexto="white" nome="Salvar" Icon={MdSave} tamanho_icone={20} borderRadius="10px" />
-                                </div>
-                            </div>
-                        </form>
+        <div className="flex flex-col h-full gap-4 w-full max-w-7xl mx-auto p-4 sm:p-6 transition-colors">
+            {/* Modal Novo Prazo */}
+            <Modal activate={modalAtivo} setActivate={setModalAtivo} className="max-w-md w-full">
+                <div className="flex flex-col gap-4">
+                    <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100 dark:border-slate-800">
+                        <div className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400">
+                            <Calendar className="w-5 h-5" />
+                        </div>
+                        <div>
+                            <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">Atualizar Prazo de Entrega</h3>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 font-mono">#OS-{ordCodigo} &bull; Prazo Anterior: {dataAntiga || 'Não definido'}</p>
+                        </div>
                     </div>
+
+                    <form onSubmit={atualizarPrazoEntrega} className="flex flex-col gap-4">
+                        <div>
+                            <label className="block font-mono text-[11px] font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5" htmlFor="prazo-entrega">
+                                Novo Prazo de Entrega
+                            </label>
+                            <div className="w-full">
+                                <DatePicker
+                                    className="flex h-8 w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-1.5 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-transparent transition-colors"
+                                    dateFormat="dd/MM/yyyy"
+                                    locale="pt-BR"
+                                    selected={dataPrazoEntrega}
+                                    onChange={changePrazoEntrega}
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block font-mono text-[11px] font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5" htmlFor="motivo">
+                                Motivo da Alteração
+                            </label>
+                            <Textarea
+                                id="motivo"
+                                name="motivo"
+                                placeholder="Descreva o motivo da alteração do prazo..."
+                                value={motivo}
+                                onChange={(e) => setMotivo(e.target.value)}
+                                rows={4}
+                            />
+                        </div>
+
+                        <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                nome="Cancelar"
+                                onClick={() => setModalAtivo(false)}
+                            />
+                            <Button
+                                type="submit"
+                                variant="indigo"
+                                Icon={Save}
+                                nome="Salvar Prazo"
+                            />
+                        </div>
+                    </form>
                 </div>
             </Modal>
 
-            <Modal activate={modalDetalhesAtivo} setActivate={setModalDetalhesAtivo} altura={'auto'} largura={'auto'}>
+            {/* Modal Detalhes da Ordem */}
+            <Modal activate={modalDetalhesAtivo} setActivate={setModalDetalhesAtivo} className="max-w-4xl w-full">
                 {modalDetalhesAtivo && <OrdemDetalhe ordem={ordemSelecionada} SetDadosAlterados={setDadosAlterados} />}
             </Modal>
 
-            <div className="flex justify-center items-center w-full pb-[30px] overflow-y-auto">
-                <div className="p-2 bg-white mt-[50px] rounded-lg shadow-[0px_2px_2px_2px_rgba(0,0,0,0.15),_0px_10px_20px_-10px_rgba(0,0,0,0.1)] text-black max-w-[1200px] w-full mx-4">
-                    <h1 className="text-2xl font-bold mb-4">Ordens de Serviço em Andamento</h1>
-                    <div className="form">
-                        <form id="form" className="py-5 m-0 w-full bg-white rounded-lg shadow-[0px_2px_2px_2px_rgba(0,0,0,0.15),_0px_10px_20px_-10px_rgba(0,0,0,0.1)] p-5 mb-4">
-                            <div className="flex mb-2.5">
-                                <div className="p-1.5 text-base flex items-center mr-4">
-                                    <label className="mb-1 mr-2" htmlFor="minhas_os">Minhas Ordens</label>
-                                    <input className="text-[1.1em] my-1" type="radio" name="filtro" id="minhas_os" value={filtroOrdens} onChange={() => setFiltroOrdens('minhas_os')} checked={filtroOrdens === 'minhas_os'} />
-                                </div>
-                                <div className="p-1.5 text-base flex items-center">
-                                    <label className="mb-1 mr-2" htmlFor="todas">Todas</label>
-                                    <input className="text-[1.1em] my-1" type="radio" name="filtro" id="todas" value={filtroOrdens} onChange={() => setFiltroOrdens('todas')} checked={filtroOrdens === 'todas'} />
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden border border-gray-300 border-collapse">
-                            <thead className="bg-black text-white">
-                                <tr>
-                                    <th className="py-2 px-4 text-left font-semibold text-sm">Data Entrega</th>
-                                    <th className="py-2 px-4 text-left font-semibold text-sm">Ordem</th>
-                                    <th className="py-2 px-4 text-left font-semibold text-sm">Cliente</th>
-                                    <th className="py-2 px-4 text-left font-semibold text-sm">Data Abertura</th>
-                                    <th className="py-2 px-4 text-left font-semibold text-sm">Situação</th>
-                                    <th className="py-2 px-4 text-left font-semibold text-sm">Prioridade</th>
-                                    <th className="py-2 px-4 text-left font-semibold text-sm">Programador</th>
-                                    <th className="py-2 px-4 text-left font-semibold text-sm">Quem Abriu</th>
-                                    <th className="py-2 px-4 text-left font-semibold text-sm">Quem Testará</th>
-                                    <th className="py-2 px-4 text-left font-semibold text-sm">Quem Entregará</th>
-                                    <th className="py-2 px-4 text-left font-semibold text-sm">Ação</th>
-                                    {(fun_categoria.substring(0, 8) === 'ADM') && <th className="py-2 px-4 text-left font-semibold text-sm">Novo Prazo</th>}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {
-                                    ordensFiltrada.length > 0 ?
-                                        ordensFiltrada.map((ordem, index) => {
-                                            const isAtraso = ordemEmAtraso(ordem.novo_prazoe);
-                                            const trClass = isAtraso 
-                                                ? (verificaDataHoje(ordem.novo_prazoe) ? 'animate-hoje' : 'animate-atrasada') 
-                                                : (index % 2 === 0 ? "bg-gray-100" : "bg-white hover:bg-gray-50");
-                                            
-                                            return (
-                                                <tr key={ordem.ord_codigo} className={trClass}>
-                                                    <td className="py-2 px-4 text-sm">{new Date(ordem.novo_prazoe).toLocaleDateString()}</td>
-                                                    <td className="py-2 px-4 text-sm">{ordem.ord_codigo}</td>
-                                                    <td className="py-2 px-4 text-sm">{ordem.cli_nome}</td>
-                                                    <td className="py-2 px-4 text-sm">{new Date(ordem.dataAbertura).toLocaleDateString()}</td>
-                                                    {((fun_categoria.substring(0, 8) === 'PROGRAMA')) &&
-                                                        <td 
-                                                            className="rounded-lg text-center flex justify-center items-center h-[50px] self-center py-2 px-4 text-sm"
-                                                            style={{ 
-                                                                backgroundColor: corLinhaDestaqueProgramacao(ordem.estado), 
-                                                                color: ordem.estado === 'ANALISADA' || ordem.estado === 'PROGRAMADA' ? '#FFF' : '#000' 
-                                                            }}
-                                                        >
-                                                            {ordem.estado}
-                                                        </td>
-                                                    }
-                                                    {((fun_categoria.substring(0, 7) === 'SUPORTE') || (fun_categoria.substring(0, 8) === 'ADM')) &&
-                                                        <td 
-                                                            className="rounded-lg text-center flex justify-center items-center h-[50px] self-center py-2 px-4 text-sm"
-                                                            style={{ 
-                                                                backgroundColor: corLinhaDestaqueSuporte(ordem.estado), 
-                                                                color: ordem.estado === 'PROGRAMADA' || ordem.estado === 'TESTADA' ? '#FFF' : '#000' 
-                                                            }}
-                                                        >
-                                                            {ordem.estado}
-                                                        </td>
-                                                    }
-                                                    <td className="py-2 px-4 text-sm">{ordem.prioridade}</td>
-                                                    <td className="py-2 px-4 text-sm">{ordem.programador}</td>
-                                                    <td className="py-2 px-4 text-sm">{ordem.quemAbriu}</td>
-                                                    <td className="py-2 px-4 text-sm">{ordem.fun_teste}</td>
-                                                    <td className="py-2 px-4 text-sm">{ordem.fun_entrega}</td>
-                                                    <td className="py-2 px-4 text-sm"><Button nome="Ver Detalhes" borderRadius="10px" color="#000" corTexto="#FFF" Icon={MdAssignment} click={() => SelecionaOrdem(ordem)} /></td>
-                                                    {(fun_categoria.substring(0, 8) === 'ADM') && <td className="py-2 px-4 text-sm"><Button click={() => modalPrazoEntrega(ordem.ord_codigo, ordem.prazoEntrega)} Icon={MdAlarmAdd} nome="Novo Prazo" borderRadius={"18px"} color={"black"} corTexto={"white"} /></td>}
-                                                </tr>
-                                            )
-                                        })
-                                        : <tr><td colSpan="12" className="py-4 text-center font-bold">Carregando Ordens...</td></tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
+            {/* Header */}
+            <div className="flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 rounded-lg shadow-2xs border border-slate-200/80 dark:border-slate-800/80">
+                <div>
+                    <h1 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight flex items-center gap-2">
+                        <Layers className="w-5 h-5 text-indigo-600 dark:text-indigo-400 shrink-0" />
+                        Ordens de Serviço em Andamento
+                    </h1>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                        Monitore prazos, prioridades e equipe responsável
+                    </p>
                 </div>
             </div>
-        </>
+
+            {/* Barra de Filtros */}
+            <div className="flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-slate-900 p-3 rounded-lg border border-slate-200/80 dark:border-slate-800/80 shadow-2xs">
+                <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+                        <Filter className="w-3.5 h-3.5" />
+                        <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Filtrar:</span>
+                    </div>
+                    <div className="inline-flex rounded-lg bg-slate-100 dark:bg-slate-800 p-0.5 border border-slate-200/80 dark:border-slate-700/80">
+                        <button
+                            type="button"
+                            id="minhas_os"
+                            onClick={() => setFiltroOrdens('minhas_os')}
+                            className={`px-3 py-1 text-xs font-medium rounded-md transition-all cursor-pointer ${
+                                filtroOrdens === 'minhas_os'
+                                    ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-2xs font-semibold'
+                                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                            }`}
+                        >
+                            Minhas Ordens
+                        </button>
+                        <button
+                            type="button"
+                            id="todas"
+                            onClick={() => setFiltroOrdens('todas')}
+                            className={`px-3 py-1 text-xs font-medium rounded-md transition-all cursor-pointer ${
+                                filtroOrdens === 'todas'
+                                    ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-2xs font-semibold'
+                                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                            }`}
+                        >
+                            Todas
+                        </button>
+                    </div>
+                </div>
+                <div className="text-xs text-slate-500 dark:text-slate-400 font-mono">
+                    Total: <span className="font-semibold text-slate-800 dark:text-slate-200 tabular-nums">{ordensFiltrada.length}</span> {ordensFiltrada.length === 1 ? 'ordem' : 'ordens'}
+                </div>
+            </div>
+
+            {/* Tabela de Dados */}
+            <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800/80 shadow-2xs overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                        <thead className="bg-slate-50/80 dark:bg-slate-900/60 font-mono text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
+                            <tr>
+                                <th className="py-2.5 px-3">Data Entrega</th>
+                                <th className="py-2.5 px-3">Ordem</th>
+                                <th className="py-2.5 px-3">Cliente</th>
+                                <th className="py-2.5 px-3">Data Abertura</th>
+                                <th className="py-2.5 px-3 text-center">Situação</th>
+                                <th className="py-2.5 px-3 text-center">Prioridade</th>
+                                <th className="py-2.5 px-3">Programador</th>
+                                <th className="py-2.5 px-3">Quem Abriu</th>
+                                <th className="py-2.5 px-3">Quem Testará</th>
+                                <th className="py-2.5 px-3">Quem Entregará</th>
+                                <th className="py-2.5 px-3 text-center">Ação</th>
+                                {fun_categoria && fun_categoria.substring(0, 8) === 'ADM' && (
+                                    <th className="py-2.5 px-3 text-center">Novo Prazo</th>
+                                )}
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
+                            {ordensFiltrada.length > 0 ? (
+                                ordensFiltrada.map((ordem, index) => {
+                                    const isAtraso = ordemEmAtraso(ordem.novo_prazoe);
+                                    const isHoje = verificaDataHoje(ordem.novo_prazoe);
+                                    
+                                    const rowHighlight = isAtraso && !isHoje
+                                        ? "border-l-2 border-l-rose-500 bg-rose-50/20 dark:bg-rose-950/10"
+                                        : isAtraso && isHoje
+                                        ? "border-l-2 border-l-amber-500 bg-amber-50/20 dark:bg-amber-950/10"
+                                        : "border-l-2 border-l-transparent";
+
+                                    return (
+                                        <tr
+                                            key={ordem.ord_codigo || index}
+                                            className={`hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors text-slate-800 dark:text-slate-200 ${rowHighlight}`}
+                                        >
+                                            <td className="py-2 px-3 text-xs whitespace-nowrap">
+                                                <div className="flex flex-col sm:flex-row sm:items-center gap-1.5">
+                                                    <span className="font-mono text-[11px]">{ordem.novo_prazoe ? new Date(ordem.novo_prazoe).toLocaleDateString('pt-BR') : '-'}</span>
+                                                    {isAtraso && !isHoje && (
+                                                        <Badge variant="destructive" size="sm" dot={true}>
+                                                            Atrasada
+                                                        </Badge>
+                                                    )}
+                                                    {isAtraso && isHoje && (
+                                                        <Badge variant="warning" size="sm" dot={true}>
+                                                            Entrega Hoje
+                                                        </Badge>
+                                                    )}
+                                                </div>
+                                            </td>
+                                            <td className="py-2 px-3 text-xs font-mono font-semibold text-slate-400 whitespace-nowrap">
+                                                #OS-{ordem.ord_codigo}
+                                            </td>
+                                            <td className="py-2 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 max-w-[200px] truncate" title={ordem.cli_nome}>
+                                                {ordem.cli_nome}
+                                            </td>
+                                            <td className="py-2 px-3 text-xs font-mono text-[11px] text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                                                {ordem.dataAbertura ? new Date(ordem.dataAbertura).toLocaleDateString('pt-BR') : '-'}
+                                            </td>
+                                            <td className="py-2 px-3 text-xs text-center whitespace-nowrap">
+                                                {getStatusBadge(ordem.estado)}
+                                            </td>
+                                            <td className="py-2 px-3 text-xs text-center whitespace-nowrap">
+                                                {getPriorityBadge(ordem.prioridade)}
+                                            </td>
+                                            <td className="py-2 px-3 text-xs text-slate-600 dark:text-slate-400 whitespace-nowrap">
+                                                {ordem.programador || '-'}
+                                            </td>
+                                            <td className="py-2 px-3 text-xs text-slate-600 dark:text-slate-400 whitespace-nowrap">
+                                                {ordem.quemAbriu || '-'}
+                                            </td>
+                                            <td className="py-2 px-3 text-xs text-slate-600 dark:text-slate-400 whitespace-nowrap">
+                                                {ordem.fun_teste || '-'}
+                                            </td>
+                                            <td className="py-2 px-3 text-xs text-slate-600 dark:text-slate-400 whitespace-nowrap">
+                                                {ordem.fun_entrega || '-'}
+                                            </td>
+                                            <td className="py-2 px-3 text-xs text-center whitespace-nowrap">
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    Icon={Eye}
+                                                    tamanho_icone={13}
+                                                    nome="Detalhes"
+                                                    onClick={() => SelecionaOrdem(ordem)}
+                                                />
+                                            </td>
+                                            {fun_categoria && fun_categoria.substring(0, 8) === 'ADM' && (
+                                                <td className="py-2 px-3 text-xs text-center whitespace-nowrap">
+                                                    <Button
+                                                        variant="indigo"
+                                                        size="sm"
+                                                        Icon={Calendar}
+                                                        tamanho_icone={13}
+                                                        nome="Novo Prazo"
+                                                        onClick={() => modalPrazoEntrega(ordem.ord_codigo, ordem.prazoEntrega || ordem.novo_prazoe)}
+                                                    />
+                                                </td>
+                                            )}
+                                        </tr>
+                                    );
+                                })
+                            ) : (
+                                <tr>
+                                    <td
+                                        colSpan={fun_categoria && fun_categoria.substring(0, 8) === 'ADM' ? 12 : 11}
+                                        className="py-12 text-center text-xs text-slate-500 dark:text-slate-400"
+                                    >
+                                        <div className="flex flex-col items-center justify-center gap-2">
+                                            <Clock className="w-6 h-6 text-slate-400" />
+                                            <span className="font-medium">Nenhuma ordem de serviço em andamento encontrada</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     );
 }
 

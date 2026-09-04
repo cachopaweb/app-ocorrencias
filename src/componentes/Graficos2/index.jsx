@@ -1,159 +1,206 @@
-import React, { useState } from 'react';
-import './../../tail.css'
-import { Chart, Doughnut } from 'chart.js';
-import { useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Chart } from 'chart.js';
 
-const widhtDonut = 10;
-const heightDonut = 10;
+function DonutTiposOcorrencias({ data }) {
+  const canvasRef = useRef(null);
+  const chartInstanceRef = useRef(null);
 
-function DonutTiposOcorrencias({data}){
-    function renderChart() {
-        var ctx = document.getElementById('donutUm').getContext('2d');
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: data,
-            options: {
-                elements: {
-                    rectangle: {
-                        borderWidth: 2,
-                    }
-                },
-                responsive: true,
-                legend: {
-                    position: 'bottom',
-                },
-                title: {
-                    display: true,
-                    text: 'Ocorrencias'
-                }
-            }
-        });
+  useEffect(() => {
+    if (!canvasRef.current || !data || !data.datasets) return;
+
+    if (chartInstanceRef.current) {
+      chartInstanceRef.current.destroy();
     }
 
+    const ctx = canvasRef.current.getContext('2d');
+    chartInstanceRef.current = new Chart(ctx, {
+      type: 'doughnut',
+      data: data,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        elements: {
+          rectangle: {
+            borderWidth: 2,
+          }
+        },
+        legend: {
+          position: 'bottom',
+          labels: {
+            boxWidth: 12,
+            fontSize: 11
+          }
+        },
+        title: {
+          display: true,
+          text: 'Ocorrências por Tipo',
+          fontSize: 14,
+          fontStyle: 'bold'
+        }
+      }
+    });
 
-    useEffect(() => {
-        renderChart();
-    },[data])
+    return () => {
+      if (chartInstanceRef.current) {
+        chartInstanceRef.current.destroy();
+        chartInstanceRef.current = null;
+      }
+    };
+  }, [data]);
 
-    return(
-        <canvas
-            id="donutUm"
-            width={widhtDonut}
-            height={heightDonut} />
-    )
-
+  return (
+    <div className="relative w-full h-[300px] flex items-center justify-center">
+      <canvas ref={canvasRef} id="donutUm" />
+    </div>
+  );
 }
 
-function DonutTiposOrdemOcorrencia({data}){
-    function renderChart() {
-        var ctx = document.getElementById('donutDois').getContext('2d');
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: data,
-            options: {
-                elements: {
-                    rectangle: {
-                        borderWidth: 2,
-                    }
-                },
-                responsive: true,
-                legend: {
-                    position: 'bottom',
-                },
-                title: {
-                    display: true,
-                    text: 'Ordens'
-                }
-            }
-        });
+function DonutTiposOrdemOcorrencia({ data }) {
+  const canvasRef = useRef(null);
+  const chartInstanceRef = useRef(null);
+
+  useEffect(() => {
+    if (!canvasRef.current || !data || !data.datasets) return;
+
+    if (chartInstanceRef.current) {
+      chartInstanceRef.current.destroy();
     }
 
+    const ctx = canvasRef.current.getContext('2d');
+    chartInstanceRef.current = new Chart(ctx, {
+      type: 'doughnut',
+      data: data,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        elements: {
+          rectangle: {
+            borderWidth: 2,
+          }
+        },
+        legend: {
+          position: 'bottom',
+          labels: {
+            boxWidth: 12,
+            fontSize: 11
+          }
+        },
+        title: {
+          display: true,
+          text: 'Ordens por Tipo',
+          fontSize: 14,
+          fontStyle: 'bold'
+        }
+      }
+    });
 
-    useEffect(() => {
-        renderChart();
-    },[data])
+    return () => {
+      if (chartInstanceRef.current) {
+        chartInstanceRef.current.destroy();
+        chartInstanceRef.current = null;
+      }
+    };
+  }, [data]);
 
-    return(
-        <canvas
-            id="donutDois"
-            width={widhtDonut}
-            height={heightDonut} />
-    )
-
+  return (
+    <div className="relative w-full h-[300px] flex items-center justify-center">
+      <canvas ref={canvasRef} id="donutDois" />
+    </div>
+  );
 }
 
-function Tabela({data}) {
+function Tabela({ data }) {
+  const ocorrencias = data?.ocorrencias || 0;
+  const ordens = data?.ordens || 0;
+  const porcentagemOrdens = ocorrencias > 0 ? ((ordens / ocorrencias) * 100).toFixed(1) : '0.0';
 
-    const [loading, setLoading] = useState();
-    const [porcentagemOrdens, setPorcentagemOrdens] = useState(0);
-
-    useEffect(() => {
-        setLoading(true);
-        const porcentagem = (data.ordens / data.ocorrencias) * 100;
-        setPorcentagemOrdens(porcentagem);
-        setLoading(false);
-    }, [])
-
-    return (
-        <div className='self-center place-items-center w-96 flex-col bg-white shadow-md rounded-lg'>
-                <table className="leading-normal min-w-72">
-                    <thead className='px-5 text-lg py-3 border-b-2 border-gray-200 bg-gray-100 text-left font-semibold text-gray-600 uppercase tracking-wider'>
-                        <tr >
-                            <th>Tipo</th>
-                            <th >Quantidade</th>
-                            <th >Percentual</th>
-                        </tr>
-                    </thead>
-                    <tbody className="px-5 py-5 border-b border-gray-200 bg-white text-base font-bold">
-                        <tr>
-                            <td>Ocorrencia</td>
-                            <td>{data.ocorrencias}</td>
-                            <td>100%</td>
-                        </tr>
-                        <tr>
-                            <td>Ordens</td>
-                            <td>{data.ordens}</td>
-                            <td>{porcentagemOrdens} %</td>
-                        </tr>
-                    </tbody>
-                </table>
-        </div>
-    )
+  return (
+    <div className="w-full overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
+      <table className="w-full text-left border-collapse">
+        <thead className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700/60 text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+          <tr>
+            <th className="px-4 py-3">Tipo</th>
+            <th className="px-4 py-3">Quantidade</th>
+            <th className="px-4 py-3">Percentual</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-200 dark:divide-slate-800 text-sm font-medium">
+          <tr className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors">
+            <td className="px-4 py-3 text-slate-900 dark:text-slate-100 font-semibold">Ocorrências</td>
+            <td className="px-4 py-3 text-slate-700 dark:text-slate-300">{ocorrencias}</td>
+            <td className="px-4 py-3">
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 border border-indigo-200/50 dark:border-indigo-800/50">
+                100%
+              </span>
+            </td>
+          </tr>
+          <tr className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors">
+            <td className="px-4 py-3 text-slate-900 dark:text-slate-100 font-semibold">Ordens de Serviço</td>
+            <td className="px-4 py-3 text-slate-700 dark:text-slate-300">{ordens}</td>
+            <td className="px-4 py-3">
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 border border-indigo-200/50 dark:border-indigo-800/50">
+                {porcentagemOrdens}%
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
 }
 
 function Graficos({ titulo, tipo = 'horizontalBar', data }) {
-    function renderChart() {
-        var ctx = document.getElementById('canvas').getContext('2d');
-        new Chart(ctx, {
-            type: tipo,
-            data: data,
-            options: {
-                elements: {
-                    rectangle: {
-                        borderWidth: 2,
-                    }
-                },
-                responsive: true,
-                legend: {
-                    position: 'bottom',
-                },
-                title: {
-                    display: true,
-                    text: titulo
-                }
-            }
-        });
+  const canvasRef = useRef(null);
+  const chartInstanceRef = useRef(null);
+
+  useEffect(() => {
+    if (!canvasRef.current || !data || !data.datasets) return;
+
+    if (chartInstanceRef.current) {
+      chartInstanceRef.current.destroy();
     }
 
-    useEffect(() => {
-        renderChart();
-    }, [data])
+    const ctx = canvasRef.current.getContext('2d');
+    chartInstanceRef.current = new Chart(ctx, {
+      type: tipo,
+      data: data,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        elements: {
+          rectangle: {
+            borderWidth: 1,
+          }
+        },
+        legend: {
+          position: 'bottom',
+          labels: {
+            boxWidth: 12,
+            fontSize: 11
+          }
+        },
+        title: {
+          display: true,
+          text: titulo,
+          fontSize: 14,
+          fontStyle: 'bold'
+        }
+      }
+    });
 
-    return (
-        <canvas
-            id="canvas"
-            width={400}
-            height={400} />);
+    return () => {
+      if (chartInstanceRef.current) {
+        chartInstanceRef.current.destroy();
+        chartInstanceRef.current = null;
+      }
+    };
+  }, [data, tipo, titulo]);
+
+  return (
+    <div className="relative w-full h-[300px] flex items-center justify-center">
+      <canvas ref={canvasRef} id="canvas" />
+    </div>
+  );
 }
 
 export { Graficos, Tabela, DonutTiposOcorrencias, DonutTiposOrdemOcorrencia };

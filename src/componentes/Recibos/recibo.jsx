@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import './recibo.css'
-import './../../tail.css'
 import { Impressao } from './printRecibo';
 
 export default function Recibo({ recibo }) {

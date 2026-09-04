@@ -1,7 +1,4 @@
-import React, { createContext, useState, useContext } from 'react';
-
-import { lightTheme, darkTheme } from '../styles/theme';
-import { ThemeProvider } from 'styled-components';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 
 export const UsuarioContext = createContext();
 
@@ -25,38 +22,46 @@ export default function UsuarioProvider({ children }) {
     const [fun_categoria, setFunCategoria] = useState(categoria);
     const [isDarkTheme, setIsDarkTheme] = useState(darkTheme_local);
 
+    useEffect(() => {
+        if (isDarkTheme) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    }, [isDarkTheme]);
+
+    useEffect(() => {
+        if (usu_codigo > 0) {
+            const usuario_logado = {
+                codigo: usu_codigo,
+                nome: login,
+                fun_logado: cod_funcionario,
+                fun_categoria: fun_categoria,
+                darkTheme: isDarkTheme
+            };
+            localStorage.setItem('usuario_logado', JSON.stringify(usuario_logado));
+        }
+    }, [usu_codigo, login, cod_funcionario, fun_categoria, isDarkTheme]);
+
     return (
-        <ThemeProvider theme={isDarkTheme ? darkTheme : lightTheme} >
-            <UsuarioContext.Provider value={{
-                usu_codigo,
-                setUsu_codigo,
-                login,
-                setLogin,
-                cod_funcionario,
-                setCod_funcionario,
-                fun_categoria,
-                setFunCategoria,
-                isDarkTheme,
-                setIsDarkTheme
-            }}>
-                {children}
-            </UsuarioContext.Provider>
-        </ThemeProvider>
+        <UsuarioContext.Provider value={{
+            usu_codigo,
+            setUsu_codigo,
+            login,
+            setLogin,
+            cod_funcionario,
+            setCod_funcionario,
+            fun_categoria,
+            setFunCategoria,
+            isDarkTheme,
+            setIsDarkTheme
+        }}>
+            {children}
+        </UsuarioContext.Provider>
     );
 }
 
 export function useUsuario() {
     const context = useContext(UsuarioContext);
-    const { usu_codigo, setUsu_codigo, login, setLogin, cod_funcionario, setCod_funcionario, fun_categoria, setFunCategoria, isDarkTheme, setIsDarkTheme } = context;
-    if (usu_codigo > 0) {
-        let usuario_logado = {
-            codigo: usu_codigo,
-            nome: login,
-            fun_logado: cod_funcionario,
-            fun_categoria: fun_categoria,
-            darkTheme: isDarkTheme
-        }
-        localStorage.setItem('usuario_logado', JSON.stringify(usuario_logado))
-    }
-    return { usu_codigo, setUsu_codigo, login, setLogin, cod_funcionario, setCod_funcionario, fun_categoria, setFunCategoria, isDarkTheme, setIsDarkTheme };
+    return context;
 }
