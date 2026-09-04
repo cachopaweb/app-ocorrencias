@@ -32,7 +32,7 @@ function OrdensAndamento() {
     const [modalDetalhesAtivo, setModalDetalhesAtivo] = useState(false);
     const [ordCodigo, setOrdCodigo] = useState(0);
     const [dataAntiga, setDataAntiga] = useState('');
-    const [filtroOrdens, setFiltroOrdens] = useState('minhas_os');
+    const [filtroOrdens, setFiltroOrdens] = useState('todas');
     const [motivo, setMotivo] = useState('');
 
     async function CarregaDadosOrdens() {
@@ -180,8 +180,21 @@ function OrdensAndamento() {
         return <Badge variant="secondary" size="sm" dot={true}>{estado}</Badge>;
     };
 
+    function abreviaNome(nomeCompleto) {
+        if (!nomeCompleto) return '-';
+        const partes = String(nomeCompleto).trim().split(/\s+/);
+        if (partes.length <= 2) return nomeCompleto;
+        return `${partes[0]} ${partes[partes.length - 1]}`;
+    }
+
+    function primeiroNome(nomeCompleto) {
+        if (!nomeCompleto) return '-';
+        const partes = String(nomeCompleto).trim().split(/\s+/);
+        return partes[0] || '-';
+    }
+
     return (
-        <div className="flex flex-col h-full gap-4 w-full max-w-7xl mx-auto p-4 sm:p-6 transition-colors">
+        <div className="flex flex-col min-h-full gap-4 w-full max-w-full mx-auto p-4 sm:p-6 pb-12 transition-colors">
             {/* Modal Novo Prazo */}
             <Modal activate={modalAtivo} setActivate={setModalAtivo} className="max-w-md w-full">
                 <div className="flex flex-col gap-4">
@@ -261,40 +274,61 @@ function OrdensAndamento() {
                 </div>
             </div>
 
-            {/* Barra de Filtros */}
+            {/* Barra de Filtros e Legenda */}
             <div className="flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-slate-900 p-3 rounded-lg border border-slate-200/80 dark:border-slate-800/80 shadow-2xs">
-                <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
-                        <Filter className="w-3.5 h-3.5" />
-                        <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Filtrar:</span>
+                <div className="flex flex-wrap items-center gap-4">
+                    {/* Filtro */}
+                    <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+                            <Filter className="w-3.5 h-3.5" />
+                            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Filtrar:</span>
+                        </div>
+                        <div className="inline-flex rounded-lg bg-slate-100 dark:bg-slate-800 p-0.5 border border-slate-200/80 dark:border-slate-700/80">
+                            <button
+                                type="button"
+                                id="todas"
+                                onClick={() => setFiltroOrdens('todas')}
+                                className={`px-3 py-1 text-xs font-medium rounded-md transition-all cursor-pointer ${
+                                    filtroOrdens === 'todas'
+                                        ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-2xs font-semibold'
+                                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                                }`}
+                            >
+                                Todas
+                            </button>
+                            <button
+                                type="button"
+                                id="minhas_os"
+                                onClick={() => setFiltroOrdens('minhas_os')}
+                                className={`px-3 py-1 text-xs font-medium rounded-md transition-all cursor-pointer ${
+                                    filtroOrdens === 'minhas_os'
+                                        ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-2xs font-semibold'
+                                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                                }`}
+                            >
+                                Minhas Ordens
+                            </button>
+                        </div>
                     </div>
-                    <div className="inline-flex rounded-lg bg-slate-100 dark:bg-slate-800 p-0.5 border border-slate-200/80 dark:border-slate-700/80">
-                        <button
-                            type="button"
-                            id="minhas_os"
-                            onClick={() => setFiltroOrdens('minhas_os')}
-                            className={`px-3 py-1 text-xs font-medium rounded-md transition-all cursor-pointer ${
-                                filtroOrdens === 'minhas_os'
-                                    ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-2xs font-semibold'
-                                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-                            }`}
-                        >
-                            Minhas Ordens
-                        </button>
-                        <button
-                            type="button"
-                            id="todas"
-                            onClick={() => setFiltroOrdens('todas')}
-                            className={`px-3 py-1 text-xs font-medium rounded-md transition-all cursor-pointer ${
-                                filtroOrdens === 'todas'
-                                    ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-2xs font-semibold'
-                                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-                            }`}
-                        >
-                            Todas
-                        </button>
+
+                    {/* Separador vertical */}
+                    <div className="hidden md:block h-4 w-px bg-slate-200 dark:bg-slate-700" />
+
+                    {/* Legenda Equipe */}
+                    <div className="flex items-center gap-2 flex-wrap text-xs text-slate-600 dark:text-slate-400">
+                        <span className="font-semibold text-slate-700 dark:text-slate-300 text-[11px] uppercase font-mono">Equipe:</span>
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700">
+                            <span className="font-bold text-indigo-600 dark:text-indigo-400 mr-1">A:</span> Quem Abriu
+                        </span>
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700">
+                            <span className="font-bold text-amber-600 dark:text-amber-400 mr-1">T:</span> Quem Testará
+                        </span>
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700">
+                            <span className="font-bold text-emerald-600 dark:text-emerald-400 mr-1">E:</span> Quem Entregará
+                        </span>
                     </div>
                 </div>
+
                 <div className="text-xs text-slate-500 dark:text-slate-400 font-mono">
                     Total: <span className="font-semibold text-slate-800 dark:text-slate-200 tabular-nums">{ordensFiltrada.length}</span> {ordensFiltrada.length === 1 ? 'ordem' : 'ordens'}
                 </div>
@@ -304,7 +338,7 @@ function OrdensAndamento() {
             <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800/80 shadow-2xs overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
-                        <thead className="bg-slate-50/80 dark:bg-slate-900/60 font-mono text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
+                        <thead className="bg-slate-50/90 dark:bg-slate-900/90 font-mono text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
                             <tr>
                                 <th className="py-2.5 px-3">Data Entrega</th>
                                 <th className="py-2.5 px-3">Ordem</th>
@@ -313,13 +347,8 @@ function OrdensAndamento() {
                                 <th className="py-2.5 px-3 text-center">Situação</th>
                                 <th className="py-2.5 px-3 text-center">Prioridade</th>
                                 <th className="py-2.5 px-3">Programador</th>
-                                <th className="py-2.5 px-3">Quem Abriu</th>
-                                <th className="py-2.5 px-3">Quem Testará</th>
-                                <th className="py-2.5 px-3">Quem Entregará</th>
-                                <th className="py-2.5 px-3 text-center">Ação</th>
-                                {fun_categoria && fun_categoria.substring(0, 8) === 'ADM' && (
-                                    <th className="py-2.5 px-3 text-center">Novo Prazo</th>
-                                )}
+                                <th className="py-2.5 px-3">Equipe</th>
+                                <th className="py-2.5 px-3 text-center">Ações</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
@@ -327,19 +356,25 @@ function OrdensAndamento() {
                                 ordensFiltrada.map((ordem, index) => {
                                     const isAtraso = ordemEmAtraso(ordem.novo_prazoe);
                                     const isHoje = verificaDataHoje(ordem.novo_prazoe);
-                                    
-                                    const rowHighlight = isAtraso && !isHoje
-                                        ? "border-l-2 border-l-rose-500 bg-rose-50/20 dark:bg-rose-950/10"
-                                        : isAtraso && isHoje
-                                        ? "border-l-2 border-l-amber-500 bg-amber-50/20 dark:bg-amber-950/10"
-                                        : "border-l-2 border-l-transparent";
 
                                     return (
                                         <tr
                                             key={ordem.ord_codigo || index}
-                                            className={`hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors text-slate-800 dark:text-slate-200 ${rowHighlight}`}
+                                            className={`hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors text-slate-800 dark:text-slate-200 border-b border-slate-200/70 dark:border-slate-800/80 ${
+                                                isAtraso && !isHoje
+                                                    ? 'bg-rose-50/25 dark:bg-rose-950/15'
+                                                    : isAtraso && isHoje
+                                                    ? 'bg-amber-50/25 dark:bg-amber-950/15'
+                                                    : ''
+                                            }`}
                                         >
-                                            <td className="py-2 px-3 text-xs whitespace-nowrap">
+                                            <td className={`py-2 px-3 text-xs whitespace-nowrap ${
+                                                isAtraso && !isHoje
+                                                    ? 'border-l-4 border-l-rose-500'
+                                                    : isAtraso && isHoje
+                                                    ? 'border-l-4 border-l-amber-500'
+                                                    : 'border-l-4 border-l-transparent'
+                                            }`}>
                                                 <div className="flex flex-col sm:flex-row sm:items-center gap-1.5">
                                                     <span className="font-mono text-[11px]">{ordem.novo_prazoe ? new Date(ordem.novo_prazoe).toLocaleDateString('pt-BR') : '-'}</span>
                                                     {isAtraso && !isHoje && (
@@ -357,7 +392,7 @@ function OrdensAndamento() {
                                             <td className="py-2 px-3 text-xs font-mono font-semibold text-slate-400 whitespace-nowrap">
                                                 #OS-{ordem.ord_codigo}
                                             </td>
-                                            <td className="py-2 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 max-w-[200px] truncate" title={ordem.cli_nome}>
+                                            <td className="py-2 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 max-w-[220px] truncate" title={ordem.cli_nome}>
                                                 {ordem.cli_nome}
                                             </td>
                                             <td className="py-2 px-3 text-xs font-mono text-[11px] text-slate-500 dark:text-slate-400 whitespace-nowrap">
@@ -369,47 +404,72 @@ function OrdensAndamento() {
                                             <td className="py-2 px-3 text-xs text-center whitespace-nowrap">
                                                 {getPriorityBadge(ordem.prioridade)}
                                             </td>
-                                            <td className="py-2 px-3 text-xs text-slate-600 dark:text-slate-400 whitespace-nowrap">
-                                                {ordem.programador || '-'}
+                                            <td className="py-2 px-3 text-xs text-slate-700 dark:text-slate-300 whitespace-nowrap font-medium" title={`Programador: ${ordem.programador || 'Não atribuído'}`}>
+                                                {primeiroNome(ordem.programador)}
                                             </td>
-                                            <td className="py-2 px-3 text-xs text-slate-600 dark:text-slate-400 whitespace-nowrap">
-                                                {ordem.quemAbriu || '-'}
-                                            </td>
-                                            <td className="py-2 px-3 text-xs text-slate-600 dark:text-slate-400 whitespace-nowrap">
-                                                {ordem.fun_teste || '-'}
-                                            </td>
-                                            <td className="py-2 px-3 text-xs text-slate-600 dark:text-slate-400 whitespace-nowrap">
-                                                {ordem.fun_entrega || '-'}
+                                            <td className="py-2 px-3 text-xs whitespace-nowrap">
+                                                <div className="flex items-center gap-1.5 flex-wrap">
+                                                    {ordem.quemAbriu && (
+                                                        <span
+                                                            className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/80 cursor-help"
+                                                            title={`Quem Abriu: ${ordem.quemAbriu}`}
+                                                        >
+                                                            <span className="font-bold text-indigo-600 dark:text-indigo-400 mr-1">A:</span>
+                                                            {primeiroNome(ordem.quemAbriu)}
+                                                        </span>
+                                                    )}
+                                                    {ordem.fun_teste && (
+                                                        <span
+                                                            className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/80 cursor-help"
+                                                            title={`Quem Testará: ${ordem.fun_teste}`}
+                                                        >
+                                                            <span className="font-bold text-amber-600 dark:text-amber-400 mr-1">T:</span>
+                                                            {primeiroNome(ordem.fun_teste)}
+                                                        </span>
+                                                    )}
+                                                    {ordem.fun_entrega && (
+                                                        <span
+                                                            className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/80 cursor-help"
+                                                            title={`Quem Entregará: ${ordem.fun_entrega}`}
+                                                        >
+                                                            <span className="font-bold text-emerald-600 dark:text-emerald-400 mr-1">E:</span>
+                                                            {primeiroNome(ordem.fun_entrega)}
+                                                        </span>
+                                                    )}
+                                                    {!ordem.quemAbriu && !ordem.fun_teste && !ordem.fun_entrega && (
+                                                        <span className="text-slate-400 text-xs">-</span>
+                                                    )}
+                                                </div>
                                             </td>
                                             <td className="py-2 px-3 text-xs text-center whitespace-nowrap">
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    Icon={Eye}
-                                                    tamanho_icone={13}
-                                                    nome="Detalhes"
-                                                    onClick={() => SelecionaOrdem(ordem)}
-                                                />
-                                            </td>
-                                            {fun_categoria && fun_categoria.substring(0, 8) === 'ADM' && (
-                                                <td className="py-2 px-3 text-xs text-center whitespace-nowrap">
+                                                <div className="flex items-center justify-center gap-1.5">
                                                     <Button
-                                                        variant="indigo"
+                                                        variant="outline"
                                                         size="sm"
-                                                        Icon={Calendar}
+                                                        Icon={Eye}
                                                         tamanho_icone={13}
-                                                        nome="Novo Prazo"
-                                                        onClick={() => modalPrazoEntrega(ordem.ord_codigo, ordem.prazoEntrega || ordem.novo_prazoe)}
+                                                        nome="Detalhes"
+                                                        onClick={() => SelecionaOrdem(ordem)}
                                                     />
-                                                </td>
-                                            )}
+                                                    {fun_categoria && fun_categoria.substring(0, 8) === 'ADM' && (
+                                                        <Button
+                                                            variant="indigo"
+                                                            size="sm"
+                                                            Icon={Calendar}
+                                                            tamanho_icone={13}
+                                                            nome="Novo Prazo"
+                                                            onClick={() => modalPrazoEntrega(ordem.ord_codigo, ordem.prazoEntrega || ordem.novo_prazoe)}
+                                                        />
+                                                    )}
+                                                </div>
+                                            </td>
                                         </tr>
                                     );
                                 })
                             ) : (
                                 <tr>
                                     <td
-                                        colSpan={fun_categoria && fun_categoria.substring(0, 8) === 'ADM' ? 12 : 11}
+                                        colSpan={9}
                                         className="py-12 text-center text-xs text-slate-500 dark:text-slate-400"
                                     >
                                         <div className="flex flex-col items-center justify-center gap-2">
