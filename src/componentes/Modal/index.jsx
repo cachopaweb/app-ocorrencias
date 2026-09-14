@@ -1,6 +1,28 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 import { cn } from '../../lib/utils';
+
+const FOCUSABLE_SELECTOR = [
+  'button:not([disabled])',
+  '[href]',
+  'input:not([disabled])',
+  'select:not([disabled])',
+  'textarea:not([disabled])',
+  '[tabindex]:not([tabindex="-1"]):not([disabled])',
+].join(', ');
+
+const getFocusableElements = (container) => {
+  if (!container) return [];
+  const elements = Array.from(container.querySelectorAll(FOCUSABLE_SELECTOR));
+  return elements.filter((el) => {
+    if (el.getAttribute('aria-hidden') === 'true') return false;
+    if (typeof window !== 'undefined' && window.getComputedStyle) {
+      const style = window.getComputedStyle(el);
+      if (style.display === 'none' || style.visibility === 'hidden') return false;
+    }
+    return true;
+  });
+};
 
 function CustomModal({
   activate,
@@ -15,25 +37,88 @@ function CustomModal({
   contentClassName = '',
   showCloseButton = true,
   left = 0,
+  ariaLabelledby,
+  'aria-labelledby': ariaLabelledByProp,
+  ariaLabel,
+  'aria-label': ariaLabelProp,
   ...props
 }) {
   const isModalOpen = activate !== undefined ? Boolean(activate) : (open !== undefined ? Boolean(open) : Boolean(isOpen));
+  const ariaLabelledBy = ariaLabelledByProp || ariaLabelledby || props['aria-labelledby'];
+  const resolvedAriaLabel = ariaLabelProp || ariaLabel || props['aria-label'];
+
+  const modalRef = useRef(null);
+  const previousActiveElementRef = useRef(null);
 
   const handleClose = () => {
     if (setActivate) setActivate(false);
     if (onClose) onClose();
   };
 
-  // Close on Escape key press
+  const handleCloseRef = useRef(handleClose);
+  handleCloseRef.current = handleClose;
+
+  // Focus trap & Escape key handling
   useEffect(() => {
     if (!isModalOpen) return;
+
+    previousActiveElementRef.current = document.activeElement;
+
+    // Focus first focusable element inside modal, or modal container itself
+    const initialFocusTimer = setTimeout(() => {
+      if (!modalRef.current) return;
+      const focusables = getFocusableElements(modalRef.current);
+      if (focusables.length > 0) {
+        focusables[0].focus();
+      } else {
+        modalRef.current.focus();
+      }
+    }, 0);
+
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
-        handleClose();
+        handleCloseRef.current();
+        return;
+      }
+
+      if (e.key === 'Tab') {
+        if (!modalRef.current) return;
+        const focusables = getFocusableElements(modalRef.current);
+
+        if (focusables.length === 0) {
+          e.preventDefault();
+          modalRef.current.focus();
+          return;
+        }
+
+        const firstElement = focusables[0];
+        const lastElement = focusables[focusables.length - 1];
+
+        if (e.shiftKey) {
+          if (document.activeElement === firstElement || !modalRef.current.contains(document.activeElement)) {
+            e.preventDefault();
+            lastElement.focus();
+          }
+        } else {
+          if (document.activeElement === lastElement || !modalRef.current.contains(document.activeElement)) {
+            e.preventDefault();
+            firstElement.focus();
+          }
+        }
       }
     };
+
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+
+    return () => {
+      clearTimeout(initialFocusTimer);
+      window.removeEventListener('keydown', handleKeyDown);
+      try {
+        if (previousActiveElementRef.current && typeof previousActiveElementRef.current.focus === 'function') {
+          previousActiveElementRef.current.focus();
+        }
+      } catch (_) {}
+    };
   }, [isModalOpen]);
 
   if (!isModalOpen) return null;
@@ -49,10 +134,14 @@ function CustomModal({
       onClick={handleClose}
       role="dialog"
       aria-modal="true"
+      aria-labelledby={ariaLabelledBy}
+      aria-label={resolvedAriaLabel}
     >
       <div
+        ref={modalRef}
+        tabIndex={-1}
         className={cn(
-          "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl p-6 relative max-w-full max-h-[90vh] overflow-y-auto flex flex-col text-slate-900 dark:text-slate-100 zoom-in-95 animate-in duration-200",
+          "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl p-6 relative max-w-full max-h-[90vh] overflow-y-auto flex flex-col text-slate-900 dark:text-slate-100 zoom-in-95 animate-in duration-200 outline-none",
           className
         )}
         style={styleObj}

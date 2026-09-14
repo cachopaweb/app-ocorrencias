@@ -20,10 +20,12 @@ import { tipo_erro } from '../../constants';
 
 function CreateOcorrencias({ codigo_projeto_scrum = 0, retornarPara = null }) {
   const [projetos_scrum, setProjetosScrum] = useState([]);
-  const [erro, setErro] = useState('Erro de Sistema');
-  const [cod_projeto_scrum, setCod_projeto_scrum] = useState(codigo_projeto_scrum);
+  const [selectedProjetoId, setSelectedProjetoId] = useState(codigo_projeto_scrum ? String(codigo_projeto_scrum) : '');
+  const [tipoErro, setTipoErro] = useState('Erro de Sistema');
+  const [dataOcorrencia, setDataOcorrencia] = useState(new Date());
+  const [descricao, setDescricao] = useState('');
+  const [salvando, setSalvando] = useState(false);
   const { cod_funcionario } = useUsuario();
-  const [data, setData] = useState(new Date());
   const history = useHistory();
 
   function dataAtualFormatadaAmericano(aData) {
@@ -38,42 +40,57 @@ function CreateOcorrencias({ codigo_projeto_scrum = 0, retornarPara = null }) {
 
   async function insereOcorrencia(event) {
     event.preventDefault();
-    const select = document.querySelector('#projetos_scrum');
-    if (!select || select.selectedIndex < 0) {
+
+    if (!selectedProjetoId) {
       swal('Selecione um cliente!', 'Escolha um cliente válido', 'warning');
       return;
     }
-    const cliente = select.options[select.selectedIndex]?.innerText || '';
-    const ocorrencia = document.querySelector('#ocorrencia');
-    if (!ocorrencia || ocorrencia.value.trim() === '') {
+
+    const selectedItem = projetos_scrum.find(
+      (p) => String(p.ps_codigo) === String(selectedProjetoId)
+    );
+
+    if (!selectedItem) {
+      swal('Selecione um cliente!', 'Escolha um cliente válido', 'warning');
+      return;
+    }
+
+    if (!descricao || descricao.trim() === '') {
       swal('Texto da Ocorrência obrigatório!', 'Preencha a ocorrência', 'warning');
       return;
     }
 
-    const selectedItem = projetos_scrum[select.selectedIndex];
     const create = {
-      Data: dataAtualFormatadaAmericano(data),
+      Data: dataAtualFormatadaAmericano(dataOcorrencia),
       Finalizada: null,
       Funcionario: cod_funcionario,
       Modulo_Sistema: 1,
-      Obs: ocorrencia.value,
-      Ocorrencia: erro.toUpperCase(),
-      contrato: selectedItem ? selectedItem.contrato : '',
-      cli_nome: cliente,
+      Obs: descricao.trim(),
+      Ocorrencia: tipoErro.toUpperCase(),
+      contrato: selectedItem.contrato || '',
+      cli_nome: selectedItem.cli_nome || '',
       codigo: 0,
-      projeto_scrum: cod_projeto_scrum
+      projeto_scrum: selectedItem.ps_codigo || 0
     };
 
-    const response = await api.post('/Ocorrencias', create);
-    if (!response.error) {
-      swal('Ocorrência aberta com sucesso!', 'Bom trabalho', 'success');
-      if (!retornarPara) {
-        history.push('/');
+    setSalvando(true);
+    try {
+      const response = await api.post('/Ocorrencias', create);
+      if (response.data && response.data.error) {
+        swal('Algo deu errado!', response.data.error, 'error');
       } else {
-        retornarPara();
+        swal('Ocorrência aberta com sucesso!', 'Bom trabalho', 'success');
+        if (!retornarPara) {
+          history.push('/');
+        } else {
+          retornarPara();
+        }
       }
-    } else {
-      swal('Algo deu errado!', response.error, 'error');
+    } catch (error) {
+      const errorMsg = error.response?.data?.message || error.response?.data?.error || error.message || 'Erro ao cadastrar ocorrência';
+      swal('Algo deu errado!', errorMsg, 'error');
+    } finally {
+      setSalvando(false);
     }
   }
 
@@ -86,8 +103,8 @@ function CreateOcorrencias({ codigo_projeto_scrum = 0, retornarPara = null }) {
       const response = await api.get('/projetos_scrum');
       const data = response.data || [];
       setProjetosScrum(data);
-      if (data.length > 0 && !cod_projeto_scrum) {
-        setCod_projeto_scrum(data[0].ps_codigo);
+      if (data.length > 0 && !selectedProjetoId) {
+        setSelectedProjetoId(String(data[0].ps_codigo));
       }
     } catch (err) {
       console.error('Erro ao buscar projetos scrum:', err);
@@ -100,10 +117,6 @@ function CreateOcorrencias({ codigo_projeto_scrum = 0, retornarPara = null }) {
     } else {
       retornarPara();
     }
-  }
-
-  function changeData(date) {
-    setData(date);
   }
 
   return (
@@ -143,11 +156,12 @@ function CreateOcorrencias({ codigo_projeto_scrum = 0, retornarPara = null }) {
                 id="projetos_scrum"
                 name="projetos_scrum"
                 autoFocus={true}
-                value={cod_projeto_scrum}
-                onChange={(e) => setCod_projeto_scrum(e.target.value)}
+                value={selectedProjetoId}
+                onChange={(e) => setSelectedProjetoId(e.target.value)}
               >
+                <option value="">-- Selecione um cliente --</option>
                 {projetos_scrum.map((projetos) => (
-                  <option key={projetos.contrato} value={projetos.ps_codigo}>
+                  <option key={projetos.contrato || projetos.ps_codigo} value={projetos.ps_codigo}>
                     {projetos.cli_nome}
                   </option>
                 ))}
@@ -155,7 +169,7 @@ function CreateOcorrencias({ codigo_projeto_scrum = 0, retornarPara = null }) {
             ) : (
               <div className="flex items-center gap-2 p-3 text-sm text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-800">
                 <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
-                <span>Carregando projetos_scrum...</span>
+                <span>Carregando projetos scrum...</span>
               </div>
             )}
           </div>
@@ -172,8 +186,8 @@ function CreateOcorrencias({ codigo_projeto_scrum = 0, retornarPara = null }) {
             <Select
               id="erro"
               name="erro"
-              value={erro}
-              onChange={(e) => setErro(e.target.value)}
+              value={tipoErro}
+              onChange={(e) => setTipoErro(e.target.value)}
             >
               {tipo_erro.map((item) => (
                 <option key={item.id} value={item.tipo}>
@@ -196,8 +210,8 @@ function CreateOcorrencias({ codigo_projeto_scrum = 0, retornarPara = null }) {
               id="data"
               dateFormat="dd/MM/yyyy"
               locale="pt-BR"
-              selected={data}
-              onChange={changeData}
+              selected={dataOcorrencia}
+              onChange={(date) => setDataOcorrencia(date)}
               className="flex h-10 w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-transparent transition-colors disabled:cursor-not-allowed disabled:opacity-50"
               wrapperClassName="w-full"
             />
@@ -216,7 +230,10 @@ function CreateOcorrencias({ codigo_projeto_scrum = 0, retornarPara = null }) {
               id="ocorrencia"
               name="ocorrencia"
               rows={5}
+              value={descricao}
+              onChange={(e) => setDescricao(e.target.value)}
               placeholder="Descreva detalhadamente a ocorrência informada pelo cliente..."
+              required
             />
           </div>
         </div>
@@ -228,13 +245,15 @@ function CreateOcorrencias({ codigo_projeto_scrum = 0, retornarPara = null }) {
             variant="outline"
             Icon={X}
             onClick={cancelar}
+            disabled={salvando}
             nome="Cancelar"
           />
           <Button
             type="submit"
             variant="indigo"
             Icon={Save}
-            nome="Salvar Ocorrência"
+            disabled={salvando}
+            nome={salvando ? "Salvando..." : "Salvar Ocorrência"}
           />
         </div>
       </form>

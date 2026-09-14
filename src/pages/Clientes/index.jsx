@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Search, Users } from 'lucide-react';
 import api from '../../services/api';
 import DetalhesCliente from '../../componentes/DetalhesCliente';
@@ -6,8 +6,8 @@ import Input from '../../componentes/Input';
 
 function Clientes() {
   const [clientes, setClientes] = useState([]);
-  const [clientesFiltrados, setClientesFiltrados] = useState([]);
   const [busca, setBusca] = useState('');
+  const [debouncedBusca, setDebouncedBusca] = useState('');
   const [carregando, setCarregando] = useState(true);
 
   async function fetchData() {
@@ -16,11 +16,9 @@ function Clientes() {
       const response = await api.get('/Clientes');
       const data = response.data || [];
       setClientes(data);
-      setClientesFiltrados(data);
     } catch (error) {
       console.error('Erro ao buscar clientes:', error);
       setClientes([]);
-      setClientesFiltrados([]);
     } finally {
       setCarregando(false);
     }
@@ -30,20 +28,27 @@ function Clientes() {
     fetchData();
   }, []);
 
-  function filtrarPorCliente(termoBusca) {
-    setBusca(termoBusca);
-    if (!termoBusca || termoBusca.trim() === '') {
-      setClientesFiltrados(clientes);
-      return;
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedBusca(busca);
+    }, 300);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [busca]);
+
+  const clientesFiltrados = useMemo(() => {
+    if (!debouncedBusca || debouncedBusca.trim() === '') {
+      return clientes;
     }
-    const termo = termoBusca.toUpperCase();
-    const result = clientes.filter((cliente) =>
+    const termo = debouncedBusca.trim().toUpperCase();
+    return clientes.filter((cliente) =>
       (cliente.nome && cliente.nome.toUpperCase().includes(termo)) ||
       (cliente.razao && cliente.razao.toUpperCase().includes(termo)) ||
       (cliente.cnpj_cpf && cliente.cnpj_cpf.toUpperCase().includes(termo))
     );
-    setClientesFiltrados(result);
-  }
+  }, [clientes, debouncedBusca]);
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto p-4 sm:p-6 transition-colors">
@@ -73,7 +78,7 @@ function Clientes() {
             type="text"
             placeholder="Busca por cliente, razão social ou CNPJ..."
             value={busca}
-            onChange={(e) => filtrarPorCliente(e.target.value)}
+            onChange={(e) => setBusca(e.target.value)}
             className="pl-10 h-11"
           />
         </div>

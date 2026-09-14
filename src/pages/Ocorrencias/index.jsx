@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useHistory } from 'react-router-dom';
 import { 
   Filter, 
@@ -86,18 +86,15 @@ function Ocorrencias() {
     }
   }
 
-  async function filtrarPorUsuario() {
-    if (!filtrado) {
-      let lista = listaOcorrencias.filter((ocorrencia) => {
-        return (ocorrencia.atendente === cod_funcionario);
-      });
-      setListaOcorrencias(lista);
-      setFiltrado(true);
-    } else {
-      setFiltrado(false);
-      fetchData();
-    }
+  function filtrarPorUsuario() {
+    setFiltrado((prev) => !prev);
   }
+
+  const ocorrenciasVisiveis = useMemo(() => {
+    return filtrado
+      ? listaOcorrencias.filter((ocorrencia) => ocorrencia.atendente === cod_funcionario)
+      : listaOcorrencias;
+  }, [listaOcorrencias, filtrado, cod_funcionario]);
 
   async function finalizarOcorrenciasNaoAtendidas() {
     const ocorrenciasNaoAtendidas = listaOcorrencias.filter((oco) => oco.atendente === 0 || oco.atendente === null);
@@ -116,44 +113,55 @@ function Ocorrencias() {
     }).then(async (willDelete) => {
       if (willDelete) {
         setCarregando(true);
+
+        const tasks = ocorrenciasNaoAtendidas.map(async (ocorrencia) => {
+          // Primeiro atende a ocorrência
+          const requestAtender = {
+            fun_codigo: cod_funcionario
+          };
+          await api.put(`/Ocorrencias/${ocorrencia.codigo}`, JSON.stringify(requestAtender));
+
+          // Depois finaliza com 10 minutos
+          const requestFinalizar = {
+            fun_codigo: cod_funcionario,
+            finalizada: 'S',
+            tempoAtendimento: 10
+          };
+          const response = await api.put(`/Ocorrencias/${ocorrencia.codigo}`, JSON.stringify(requestFinalizar));
+
+          if (response.data && response.data.fun_codigo > 0) {
+            return ocorrencia.codigo;
+          }
+          throw new Error(`Falha ao finalizar ocorrência ${ocorrencia.codigo}`);
+        });
+
+        const results = await Promise.allSettled(tasks);
+        const finalizadasComSucesso = new Set();
         let sucessos = 0;
         let erros = 0;
 
-        for (const ocorrencia of ocorrenciasNaoAtendidas) {
-          try {
-            // Primeiro atende a ocorrência
-            const requestAtender = {
-              fun_codigo: cod_funcionario
-            };
-            await api.put(`/Ocorrencias/${ocorrencia.codigo}`, JSON.stringify(requestAtender));
-
-            // Depois finaliza com 10 minutos
-            const requestFinalizar = {
-              fun_codigo: cod_funcionario,
-              finalizada: 'S',
-              tempoAtendimento: 10
-            };
-            const response = await api.put(`/Ocorrencias/${ocorrencia.codigo}`, JSON.stringify(requestFinalizar));
-            
-            if (response.data.fun_codigo > 0) {
-              sucessos++;
-            } else {
-              erros++;
-            }
-          } catch (error) {
+        results.forEach((res) => {
+          if (res.status === 'fulfilled') {
+            sucessos++;
+            finalizadasComSucesso.add(res.value);
+          } else {
             erros++;
-            console.error(`Erro ao finalizar ocorrência ${ocorrencia.codigo}:`, error);
+            console.error(res.reason);
           }
-        }
+        });
 
         setCarregando(false);
+
+        if (finalizadasComSucesso.size > 0) {
+          setListaOcorrencias((prev) => prev.filter((oco) => !finalizadasComSucesso.has(oco.codigo)));
+          fetchNotificacoes();
+        }
+
         swal(
           `Processo Concluído!`,
           `${sucessos} ocorrência(s) finalizada(s) com sucesso. ${erros > 0 ? `${erros} erro(s) encontrado(s).` : ''}`,
           sucessos > 0 ? "success" : "error"
-        ).then(() => {
-          window.location.reload();
-        });
+        );
       }
     });
   }
@@ -269,8 +277,8 @@ function Ocorrencias() {
             <Loader2 className="w-6 h-6 animate-spin text-indigo-600 dark:text-indigo-400" />
             <span className="text-xs font-medium">Aguarde, carregando ocorrências...</span>
           </div>
-        ) : listaOcorrencias.length > 0 ? (
-          listaOcorrencias.map((oco) => (
+        ) : ocorrenciasVisiveis.length > 0 ? (
+          ocorrenciasVisiveis.map((oco) => (
             <Card 
               key={oco.codigo}
               cliente={oco.cli_nome}
