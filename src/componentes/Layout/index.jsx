@@ -24,7 +24,8 @@ import {
   Layers,
   ChevronRight,
   PanelLeftClose,
-  PanelLeftOpen
+  PanelLeftOpen,
+  LayoutDashboard
 } from 'lucide-react';
 import { useUsuario } from '../../context/UsuarioContext';
 import useContrassenhaVencer from '../../Hooks/useContrassenha';
@@ -34,6 +35,7 @@ const navGroups = [
   {
     title: 'Atendimento',
     items: [
+      { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
       { name: 'Ocorrências', path: '/', icon: MessageSquare },
       { name: 'Nova Ocorrência', path: '/create', icon: PlusCircle },
       { name: 'Finalizadas', path: '/ocorrenciasFinalizadas', icon: CheckCheck },
@@ -74,6 +76,7 @@ const navGroups = [
 
 const getPageTitle = (pathname) => {
   const titles = {
+    '/dashboard': 'Dashboard de Ocorrências',
     '/': 'Painel de Ocorrências',
     '/create': 'Nova Ocorrência',
     '/ocorrenciasFinalizadas': 'Ocorrências Finalizadas',
