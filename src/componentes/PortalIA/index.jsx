@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { MdClose, MdAttachFile, MdSend, MdSearch, MdMic } from 'react-icons/md';
+import React, { useState, useEffect, useRef } from 'react';
+import { X, Paperclip, Send, Search, Mic } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -7,28 +7,59 @@ const PortalIA = ({ isOpen, onClose }) => {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [chatHistory, setChatHistory] = useState([]);
-  const [currentTypingMessage, setCurrentTypingMessage] = useState(null);
 
-  // Função para simular digitação gradual
-  const typeMessage = async (fullMessage, messageId) => {
-    const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
-    let currentText = '';
-    
-    // Divide a mensagem em palavras
-    const words = fullMessage.split(' ');
-    
-    for (let i = 0; i < words.length; i++) {
-      currentText += (i > 0 ? ' ' : '') + words[i];
-      setChatHistory(prev => 
-        prev.map(msg => 
-          msg.id === messageId 
-            ? { ...msg, content: currentText }
-            : msg
-        )
-      );
-      // Atraso aleatório entre 50ms e 150ms por palavra
-      await delay(Math.random() * 100 + 50);
+  const typingTimerRef = useRef(null);
+  const isMountedRef = useRef(true);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+      if (typingTimerRef.current) {
+        clearTimeout(typingTimerRef.current);
+        typingTimerRef.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen && typingTimerRef.current) {
+      clearTimeout(typingTimerRef.current);
+      typingTimerRef.current = null;
     }
+  }, [isOpen]);
+
+  // Função para simular digitação gradual com cancelamento e cleanup seguro
+  const typeMessage = (fullMessage, messageId) => {
+    if (typingTimerRef.current) {
+      clearTimeout(typingTimerRef.current);
+      typingTimerRef.current = null;
+    }
+
+    const words = String(fullMessage || '').split(' ');
+    let currentText = '';
+    let i = 0;
+
+    const typeNextWord = () => {
+      if (!isMountedRef.current) return;
+      if (i < words.length) {
+        currentText += (i > 0 ? ' ' : '') + words[i];
+        setChatHistory(prev => 
+          prev.map(msg => 
+            msg.id === messageId 
+              ? { ...msg, content: currentText }
+              : msg
+          )
+        );
+        i++;
+        const delay = Math.random() * 100 + 50;
+        typingTimerRef.current = setTimeout(typeNextWord, delay);
+      } else {
+        typingTimerRef.current = null;
+      }
+    };
+
+    typeNextWord();
   };
 
   const handleSendMessage = async () => {
@@ -42,6 +73,7 @@ const PortalIA = ({ isOpen, onClose }) => {
         body: JSON.stringify({ mensagem: message })
       });
       const data = await res.json();
+      if (!isMountedRef.current) return;
       
       // Adiciona mensagem do usuário
       const messageId = Date.now();
@@ -52,21 +84,25 @@ const PortalIA = ({ isOpen, onClose }) => {
       setMessage('');
       
       // Inicia a digitação da resposta
-      const response = data[0].output || JSON.stringify(data);
+      const response = data[0]?.output || JSON.stringify(data);
       typeMessage(response, messageId + 1);
     } catch (err) {
+      if (!isMountedRef.current) return;
       const messageId = Date.now();
       setChatHistory(prev => [...prev, 
         { type: 'user', content: message, id: messageId },
         { type: 'assistant', content: '', id: messageId + 1 }
       ]);
       typeMessage("Desculpe, ocorreu um erro ao processar sua mensagem.", messageId + 1);
+    } finally {
+      if (isMountedRef.current) {
+        setLoading(false);
+      }
     }
-    setLoading(false);
   };
 
   const handleFileUpload = async (event) => {
-    const file = event.target.files[0];
+    const file = event.target.files?.[0];
     if (!file) return;
 
     setLoading(true);
@@ -80,6 +116,7 @@ const PortalIA = ({ isOpen, onClose }) => {
           body: JSON.stringify({ imagem: base64 })
         });
         const data = await res.json();
+        if (!isMountedRef.current) return;
         const messageId = Date.now();
         setChatHistory(prev => [...prev,
           { type: 'user', content: 'Imagem enviada', id: messageId },
@@ -87,17 +124,21 @@ const PortalIA = ({ isOpen, onClose }) => {
         ]);
         
         // Inicia a digitação da resposta
-        const response = data[0].output || JSON.stringify(data);
+        const response = data[0]?.output || JSON.stringify(data);
         typeMessage(response, messageId + 1);
       } catch (err) {
+        if (!isMountedRef.current) return;
         const messageId = Date.now();
         setChatHistory(prev => [...prev,
           { type: 'user', content: 'Imagem enviada', id: messageId },
           { type: 'assistant', content: '', id: messageId + 1 }
         ]);
         typeMessage("Desculpe, ocorreu um erro ao processar sua imagem.", messageId + 1);
+      } finally {
+        if (isMountedRef.current) {
+          setLoading(false);
+        }
       }
-      setLoading(false);
     };
     reader.readAsDataURL(file);
   };
@@ -129,7 +170,9 @@ const PortalIA = ({ isOpen, onClose }) => {
       }}>
         <h2 style={{ margin: 0 }}>Bem vindo a PortaIA, Como posso ajudar?</h2>
         <button
+          type="button"
           onClick={onClose}
+          aria-label="Fechar"
           style={{
             background: 'none',
             border: 'none',
@@ -137,7 +180,7 @@ const PortalIA = ({ isOpen, onClose }) => {
             padding: 5
           }}
         >
-          <MdClose size={24} />
+          <X size={24} />
         </button>
       </div>
 
@@ -195,8 +238,8 @@ const PortalIA = ({ isOpen, onClose }) => {
           onChange={handleFileUpload}
           accept="image/*"
         />
-        <label htmlFor="file-upload" style={{ cursor: 'pointer' }}>
-          <MdAttachFile size={24} color="#666" />
+        <label htmlFor="file-upload" style={{ cursor: 'pointer' }} aria-label="Anexar arquivo">
+          <Paperclip size={24} color="#666" />
         </label>
 
         <div style={{
@@ -228,6 +271,8 @@ const PortalIA = ({ isOpen, onClose }) => {
             }}
           />
           <button
+            type="button"
+            aria-label="Pesquisar"
             onClick={() => window.open('https://www.google.com', '_blank')}
             style={{
               background: 'none',
@@ -236,9 +281,11 @@ const PortalIA = ({ isOpen, onClose }) => {
               padding: 5
             }}
           >
-            <MdSearch size={20} color="#666" />
+            <Search size={20} color="#666" />
           </button>
           <button
+            type="button"
+            aria-label="Microfone"
             style={{
               background: 'none',
               border: 'none',
@@ -246,11 +293,13 @@ const PortalIA = ({ isOpen, onClose }) => {
               padding: 5
             }}
           >
-            <MdMic size={20} color="#666" />
+            <Mic size={20} color="#666" />
           </button>
         </div>
 
         <button
+          type="button"
+          aria-label="Enviar mensagem"
           onClick={handleSendMessage}
           disabled={loading || !message.trim()}
           style={{
@@ -261,7 +310,7 @@ const PortalIA = ({ isOpen, onClose }) => {
             opacity: loading || !message.trim() ? 0.5 : 1
           }}
         >
-          <MdSend size={24} color="#007AFF" />
+          <Send size={24} color="#007AFF" />
         </button>
       </div>
     </div>

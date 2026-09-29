@@ -5,6 +5,7 @@ import { useUsuario } from '../context/UsuarioContext';
 import Layout from '../componentes/Layout';
 
 const Login = lazy(() => import('../pages/Login'));
+const DashboardOcorrencias = lazy(() => import('../pages/DashboardOcorrencias'));
 const Ocorrencia = lazy(() => import('../pages/Ocorrencias'));
 const createOcorrencia = lazy(() => import('../pages/CreateOcorrencias'));
 const Clientes = lazy(() => import('../pages/Clientes'));
@@ -93,7 +94,8 @@ function Routes() {
                   <ErrorBoundary>
                     <Suspense fallback={<PageLoader />}>
                       <Switch>
-                    <Route exact path="/" component={Ocorrencia} />
+                        <Route path="/dashboard" component={DashboardOcorrencias} />
+                        <Route exact path="/" component={Ocorrencia} />
                     <Route path="/create" component={createOcorrencia} />
                     <Route path="/clientes" component={Clientes} />
                     <Route path="/clientesSemOcorrencias" component={ClientesSemOcorrencias} />

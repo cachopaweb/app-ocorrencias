@@ -1,19 +1,22 @@
 import React from 'react';
 import { cn } from '../../lib/utils';
 
-export default function Etiqueta({ texto, percentual, cor, corTexto, click, onClick, children, className = '' }) {
+export default function Etiqueta({ texto, percentual, cor, corTexto, click, onClick, children, className = '', ...props }) {
   const handleClick = onClick || click;
   const displayVal = percentual !== undefined && percentual !== null && !isNaN(percentual)
     ? parseFloat(percentual).toFixed(0)
     : '0';
 
   return (
-    <div 
+    <button
+      type="button"
       className={cn(
-        "rounded-lg border border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-slate-900 p-4 shadow-2xs flex flex-col justify-between hover:border-slate-400/80 dark:hover:border-slate-600 transition-colors group cursor-pointer w-full",
+        "w-full text-left rounded-lg border border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-slate-900 p-4 shadow-2xs flex flex-col justify-between hover:border-slate-400/80 dark:hover:border-slate-600 transition-colors group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500",
         className
       )}
       onClick={handleClick}
+      aria-label={`${texto}: ${displayVal}`}
+      {...props}
     >
       <div className="flex justify-between items-center mb-2">
         <span className="font-mono text-[11px] uppercase tracking-wider text-slate-500 dark:text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors">
@@ -30,6 +33,6 @@ export default function Etiqueta({ texto, percentual, cor, corTexto, click, onCl
           {displayVal}
         </span>
       </div>
-    </div>
+    </button>
   );
 }

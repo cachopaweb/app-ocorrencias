@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import swal from '@/lib/feedback';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -22,6 +22,48 @@ import api from '../../services/api';
 import { useUsuario } from '../../context/UsuarioContext';
 import { cn } from '../../lib/utils';
 
+// Sub-componente de item de checklist com estado isolado e callback para o pai
+function CheckboxItem({ item, onToggle }) {
+  const [isChecked, setIsChecked] = useState(false);
+
+  const handleToggle = () => {
+    const nextChecked = !isChecked;
+    setIsChecked(nextChecked);
+    if (onToggle) {
+      onToggle(nextChecked);
+    }
+  };
+
+  return (
+    <div className="checkbox flex items-center gap-2 text-slate-700 dark:text-slate-300">
+      <label className="flex items-center cursor-pointer">
+        <input 
+          type="checkbox" 
+          checked={isChecked} 
+          onChange={handleToggle}
+          className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+        />
+      </label>
+      {!isChecked ? (
+        <span>{item}</span>
+      ) : (
+        <span className="line-through text-slate-400 dark:text-slate-500">{item}</span>
+      )}
+    </div>
+  );
+}
+
+// Função utilitária pura para separar ocorrências em itens de checklist
+function addSeparator(ocorrencia, onToggle) {
+  if (!ocorrencia || typeof ocorrencia !== 'string') return [];
+  return ocorrencia
+    .split('\n\n')
+    .filter((item) => item.trim().length > 0)
+    .map((item, index) => (
+      <CheckboxItem key={index} item={item} onToggle={onToggle} />
+    ));
+}
+
 function Card({ cliente, contrato, projeto_id, ocorrencia, atendente = 0, nomeAtendente, cod_ocorrencia, data, showActions = true, children }) {
   const [funAtendente, setFunAtendente] = useState(atendente);
   const [nome_atendente, setNome_Atendente] = useState(nomeAtendente);
@@ -34,7 +76,22 @@ function Card({ cliente, contrato, projeto_id, ocorrencia, atendente = 0, nomeAt
   const [clientes, setClientes] = useState([]);
   const [clienteSelecionado, setClienteSelecionado] = useState(null);
   const [modalTrocarClienteAberto, setModalTrocarClienteAberto] = useState(false);
-  let num_tarefas = 0;
+
+  // Parsing declarativo de itens de checklist e cálculo de progresso purely via data state
+  const checklistItems = useMemo(() => {
+    if (!ocorrencia || typeof ocorrencia !== 'string') return [];
+    return ocorrencia
+      .split('\n\n')
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0);
+  }, [ocorrencia]);
+
+  const totalTarefas = checklistItems.length;
+
+  const progresso = useMemo(() => {
+    if (totalTarefas === 0) return 0;
+    return Math.min(100, Math.max(0, Math.round((num_tarefas_realizadas / totalTarefas) * 100)));
+  }, [num_tarefas_realizadas, totalTarefas]);
 
   async function Atender() {
     const request = {
@@ -145,35 +202,6 @@ function Card({ cliente, contrato, projeto_id, ocorrencia, atendente = 0, nomeAt
     });
   }
 
-  //esta função coloca um checkbox ao lado de cada item da ocorrencia
-  function AddCheckbox(item) {
-    const [isChecked, setChecked] = useState(false);
-
-    const checar = () => {
-      setChecked(!isChecked);
-      setNum_tarefas_realizadas(isChecked ? num_tarefas_realizadas + 1 : num_tarefas_realizadas - 1);
-    };
-
-    return (
-      <div className="checkbox flex items-center gap-2 text-slate-700 dark:text-slate-300">
-        <label>
-          <input type="checkbox" checked={isChecked} onChange={() => checar()} />
-        </label>
-        {!isChecked ? item : <span className="line-through text-slate-400 dark:text-slate-500">{item}</span>}
-      </div>
-    );
-  }
-
-  //esta função separa as ocorrencias com espaços em branco
-  function addSeparator(ocorrencia) {
-    return ocorrencia.split('\n\n').map((item) => item.length > 0 ? AddCheckbox(item + '\n\n') : item);
-  }
-
-  function contaCheckBox() {
-    const num_check = document.querySelectorAll('.checkbox input').length;
-    num_tarefas = num_check;
-  }
-
   return fechada ? null : (
     <>
       <div 
@@ -203,15 +231,13 @@ function Card({ cliente, contrato, projeto_id, ocorrencia, atendente = 0, nomeAt
             </div>
           </div>
 
-          {contaCheckBox()}
-
-          {!showActions ? (
+          {!showActions && totalTarefas > 0 ? (
             <div className="w-full h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
               <div 
                 className="bg-emerald-600 dark:bg-emerald-500 h-full flex items-center justify-center text-[10px] text-white transition-all" 
-                style={{ width: `${Math.min(100, Math.max(0, ((num_tarefas_realizadas / (num_tarefas || 1)) * 100) * -1))}%` }}
+                style={{ width: `${progresso}%` }}
               >
-                {parseFloat(((num_tarefas_realizadas / (num_tarefas || 1)) * 100) * -1).toFixed(0)}%
+                {progresso}%
               </div>
             </div>
           ) : null}
@@ -246,13 +272,19 @@ function Card({ cliente, contrato, projeto_id, ocorrencia, atendente = 0, nomeAt
               onClick={finalizar} 
               nome="Fechar Ocorrência" 
             />
-            <Link to={{ pathname: '/quadroScrum', state: { cliente: clienteAtual, projeto_id: projetoAtual, contrato: contratoAtual, ocorrencia: cod_ocorrencia } }}>
-              <Button 
-                variant="indigo"
-                size="default"
-                Icon={Layers} 
-                nome="Abrir Scrum" 
-              />
+            <Link 
+              to={{ 
+                pathname: '/quadroScrum', 
+                state: { cliente: clienteAtual, projeto_id: projetoAtual, contrato: contratoAtual, ocorrencia: cod_ocorrencia } 
+              }}
+              className={cn(
+                "inline-flex items-center justify-center rounded-md font-medium transition-all duration-150 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 focus-visible:ring-offset-1 cursor-pointer select-none",
+                "bg-indigo-600 text-white hover:bg-indigo-500 active:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-500 border border-indigo-700/40 shadow-xs",
+                "h-8 px-3 text-xs gap-1.5"
+              )}
+            >
+              <Layers size={14} className="shrink-0" />
+              <span>Abrir Scrum</span>
             </Link>
           </div>
         ) : children}
@@ -323,4 +355,5 @@ function Card({ cliente, contrato, projeto_id, ocorrencia, atendente = 0, nomeAt
   );
 }
 
+export { CheckboxItem };
 export default React.memo(Card);

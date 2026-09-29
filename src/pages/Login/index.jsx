@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
-import { Lock, User, LogIn, ShieldCheck, Sparkles } from 'lucide-react';
+import { Lock, User, LogIn, ShieldCheck, Sparkles, AlertCircle, X } from 'lucide-react';
 
 import Logo from '../../assets/Icone_Portal.png';
 import api from '../../services/api';
@@ -14,6 +14,7 @@ function Login() {
   const [usuarioLogin, setUsuarioLogin] = useState(usu_codigo);
   const [senha, SetSenha] = useState('');
   const [carregando, setCarregando] = useState(false);
+  const [erroMensagem, setErroMensagem] = useState('');
   const history = useHistory();
 
   async function getUsuarios() {
@@ -25,6 +26,7 @@ function Login() {
       }
     } catch (error) {
       console.error('Erro ao buscar usuários:', error);
+      setErroMensagem('Não foi possível carregar a lista de usuários.');
     }
   }
 
@@ -34,26 +36,34 @@ function Login() {
 
   async function fazerLogin(event) {
     event.preventDefault();
-    const elUsuarios = document.getElementById('usuarios');
-    const indexUsuario = elUsuarios ? elUsuarios.selectedIndex : 0;
+    setErroMensagem('');
     
-    if (!usuarios || usuarios.length === 0 || !usuarios[indexUsuario]) {
-      alert('Nenhum usuário selecionado ou lista de usuários vazia.');
+    if (!usuarios || usuarios.length === 0) {
+      setErroMensagem('Lista de usuários vazia ou não carregada.');
       return;
     }
 
-    const login_usu = usuarios[indexUsuario].login;
-    const codigoUsu = parseInt(usuarios[indexUsuario].usu_codigo, 10);
-    const fun_codigo = parseInt(usuarios[indexUsuario].codigo, 10);
-    const categoria = usuarios[indexUsuario].categoria;
-    const login = {
+    const usuarioSelecionado = usuarios.find(
+      (u) => String(u.usu_codigo) === String(usuarioLogin)
+    );
+
+    if (!usuarioSelecionado) {
+      setErroMensagem('Nenhum usuário selecionado.');
+      return;
+    }
+
+    const login_usu = usuarioSelecionado.login;
+    const codigoUsu = parseInt(usuarioSelecionado.usu_codigo, 10);
+    const fun_codigo = parseInt(usuarioSelecionado.codigo, 10);
+    const categoria = usuarioSelecionado.categoria;
+    const loginPayload = {
       login: login_usu,
       senha: senha,
     };
 
     setCarregando(true);
     try {
-      const response = await api.post('/login', JSON.stringify(login));
+      const response = await api.post('/login', JSON.stringify(loginPayload));
       if (!response.data.error) {
         // Guarda no local storage
         const usuario = {
@@ -69,12 +79,11 @@ function Login() {
         setLogin(login_usu);
         history.push('/');
       } else {
-        alert('Usuário não permitido ou senha inválida!');
-        history.replace('/login');
+        setErroMensagem(response.data.message || 'Usuário não permitido ou senha inválida!');
       }
     } catch (error) {
-      alert('Erro ao realizar login. Verifique sua conexão e tente novamente.');
-      history.replace('/login');
+      const msg = error.response?.data?.message || error.message || 'Erro ao realizar login. Verifique sua conexão e tente novamente.';
+      setErroMensagem(msg);
     } finally {
       setCarregando(false);
     }
@@ -105,6 +114,27 @@ function Login() {
           </p>
         </div>
 
+        {/* Mensagem de Erro Inline */}
+        {erroMensagem && (
+          <div 
+            role="alert" 
+            className="w-full mb-4 p-3 rounded-xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900/60 flex items-start gap-2.5 text-rose-700 dark:text-rose-300 text-xs transition-all animate-in fade-in slide-in-from-top-1 duration-200"
+          >
+            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-500" />
+            <div className="flex-1 font-medium leading-relaxed">
+              {erroMensagem}
+            </div>
+            <button
+              type="button"
+              onClick={() => setErroMensagem('')}
+              className="text-rose-400 hover:text-rose-600 dark:hover:text-rose-200 cursor-pointer p-0.5 rounded transition-colors"
+              aria-label="Fechar mensagem de erro"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        )}
+
         {/* Formulário */}
         <form onSubmit={fazerLogin} className="w-full flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
@@ -119,7 +149,10 @@ function Login() {
               name="usuarios"
               id="usuarios"
               value={usuarioLogin}
-              onChange={(e) => setUsuarioLogin(e.target.value)}
+              onChange={(e) => {
+                setUsuarioLogin(e.target.value);
+                if (erroMensagem) setErroMensagem('');
+              }}
               className="h-11 text-sm bg-slate-50 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700"
             >
               {usuarios.length ? (
@@ -147,7 +180,10 @@ function Login() {
               type="password"
               placeholder="Digite sua senha..."
               value={senha}
-              onChange={(e) => SetSenha(e.target.value)}
+              onChange={(e) => {
+                SetSenha(e.target.value);
+                if (erroMensagem) setErroMensagem('');
+              }}
               className="h-11 text-sm bg-slate-50 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700"
               required
             />
