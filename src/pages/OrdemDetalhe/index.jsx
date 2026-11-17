@@ -128,6 +128,13 @@ function OrdemDetalhe({ ordem: propOrdem, SetDadosAlterados, location }) {
         tipo_entrega: tipo_entrega
       });
       if (response.status === 200) {
+        if (ordem.sprint && Number(ordem.sprint) > 0) {
+          try {
+            await api.put(`/sprint/${ordem.sprint}`, { Estado: 'ENTREGUE' });
+          } catch (sprintErr) {
+            console.warn('Aviso ao sincronizar data de entrega da sprint:', sprintErr);
+          }
+        }
         swal('Ordem entregue com sucesso!', 'Tudo ok', 'success');
         setEmEdicao(false);
         setEntregarOS(false);

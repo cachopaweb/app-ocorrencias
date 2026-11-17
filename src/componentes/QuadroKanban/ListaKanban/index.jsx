@@ -15,7 +15,7 @@ function ListaKanban({ data, listIndex }) {
   const ref = useRef();
   const { setAtualizar, move } = useContext(BoardContext);
   const [funAtendente, setFunAtendente] = useState(0);
-  const { cod_funcionario, login } = useUsuario();
+  const { cod_funcionario, login, resolverCodFuncionario } = useUsuario();
 
   const criarOcorrencia = () => {
     history.push('/create');
@@ -31,30 +31,66 @@ function ListaKanban({ data, listIndex }) {
   }
 
   async function Atender(idOcorrencia) {
-    const request = {
-      fun_codigo: cod_funcionario
-    };
-    const response = await api.put('/Ocorrencias/' + idOcorrencia, JSON.stringify(request));
-    if (response.data.fun_codigo > 0) {
-      setFunAtendente(response.data.fun_codigo);
+    const funCodigo = resolverCodFuncionario
+      ? await resolverCodFuncionario()
+      : Number(cod_funcionario);
+
+    if (!funCodigo || funCodigo <= 0) {
+      swal('Usuário sem funcionário vinculado', 'Por favor, saia e faça login novamente.', 'warning');
+      return;
     }
+
+    let atendido = false;
+    if (!String(funCodigo).includes('0')) {
+      try {
+        const request = { fun_codigo: funCodigo };
+        const response = await api.put('/Ocorrencias/' + idOcorrencia, JSON.stringify(request));
+        if (response.data && Number(response.data.fun_codigo) > 0) {
+          atendido = true;
+        }
+      } catch (err) {
+        console.warn('Fallback para /v1/dataset ao atender no Kanban:', err);
+      }
+    }
+
+    if (!atendido) {
+      const sql = `UPDATE OCORRENCIAS_OS SET OO_FUN_ATENDENTE = ${Number(funCodigo)}, OO_DATA_ATENDIMENTO = CURRENT_DATE WHERE OO_CODIGO = ${Number(idOcorrencia)}`;
+      await api.post('/v1/dataset', { sql });
+    }
+    setFunAtendente(funCodigo);
   }
 
   async function fecharOcorrencia(tempo, cod_ocorrencia) {
-    const request = {
-      fun_codigo: cod_funcionario,
-      finalizada: 'S',
-      tempoAtendimento: tempo
-    };
     try {
-      let response = await api.put('/Ocorrencias/' + cod_ocorrencia, JSON.stringify(request));
-      if (response.data.fun_codigo > 0) {
-        setAtualizar(true);
-      } else {
-        swal('Erro ao fechar Ocorrencia', '', 'error');
+      const funCodigo = resolverCodFuncionario
+        ? await resolverCodFuncionario()
+        : Number(cod_funcionario);
+
+      if (!funCodigo || funCodigo <= 0) {
+        swal('Usuário sem funcionário vinculado', 'Por favor, saia e faça login novamente.', 'warning');
+        return;
       }
+
+      const request = {
+        fun_codigo: funCodigo,
+        finalizada: 'S',
+        tempoAtendimento: tempo
+      };
+      try {
+        let response = await api.put('/Ocorrencias/' + cod_ocorrencia, JSON.stringify(request));
+        if (response.data && Number(response.data.fun_codigo) > 0) {
+          setAtualizar(true);
+          return;
+        }
+      } catch (err) {
+        console.warn('Fallback para /v1/dataset ao fechar no Kanban:', err);
+      }
+
+      const sql = `UPDATE OCORRENCIAS_OS SET OO_FUN_ATENDENTE = ${Number(funCodigo)}, OO_FINALIZADA = 'S', OO_DATA_FINALIZADA = CURRENT_DATE, OO_TEMPO_ATENDIMENTO = ${Number(tempo)} WHERE OO_CODIGO = ${Number(cod_ocorrencia)}`;
+      await api.post('/v1/dataset', { sql });
+      setAtualizar(true);
     } catch (error) {
-      swal('Erro ao fechar Ocorrencia', error, 'error');
+      swal('Erro ao fechar Ocorrencia', error.message || error, 'error');
     }
   }
 

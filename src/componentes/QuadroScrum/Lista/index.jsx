@@ -21,9 +21,11 @@ export default function Lista({ data, index: listIndex, cliente, projeto_id, con
   }
 
   async function AtualizarEstadoSprint(codigo, estado){
-    let response = await api.put(`/sprint/${codigo}`, {Estado: estado});
-    if (response.data.NOVO_ESTADO !== ''){
+    try {
+      await api.put(`/sprint/${codigo}`, { Estado: estado });
       setAtualizar(true);
+    } catch (err) {
+      console.error('Erro ao atualizar estado da sprint:', err);
     }
   }
 
@@ -46,7 +48,6 @@ export default function Lista({ data, index: listIndex, cliente, projeto_id, con
     drop(item, monitor) {        
       if (listIndex === 0) return;
       AtualizarEstadoSprint(item.data.id, indexToEstado(listIndex));
-      setAtualizar(true);
     },
   });
 

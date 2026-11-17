@@ -32,7 +32,7 @@ function Ocorrencias() {
   const [qtdScrum, setQtdScrum] = useState(0);
   const [qtdOrdensAtrasadas, SetQtdOrdensAtrasadas] = useState(0);
   const history = useHistory();
-  const { cod_funcionario } = useUsuario();
+  const { cod_funcionario, resolverCodFuncionario } = useUsuario();
   const contrassenhasVencer = useContrassenhaVencer();
   const [chatOpen, setChatOpen] = useState(false);
 
@@ -112,24 +112,36 @@ function Ocorrencias() {
       dangerMode: true,
     }).then(async (willDelete) => {
       if (willDelete) {
+        const funCodigo = resolverCodFuncionario
+          ? await resolverCodFuncionario()
+          : Number(cod_funcionario);
+
+        if (!funCodigo || funCodigo <= 0) {
+          swal(
+            'Usuário sem funcionário vinculado',
+            'Não foi possível identificar o código do funcionário logado. Por favor, faça login novamente.',
+            'warning'
+          );
+          return;
+        }
+
         setCarregando(true);
 
         const tasks = ocorrenciasNaoAtendidas.map(async (ocorrencia) => {
-          // Primeiro atende a ocorrência
-          const requestAtender = {
-            fun_codigo: cod_funcionario
-          };
-          await api.put(`/Ocorrencias/${ocorrencia.codigo}`, JSON.stringify(requestAtender));
-
-          // Depois finaliza com 10 minutos
+          // Finaliza direto definindo atendente e tempo de 10 minutos
           const requestFinalizar = {
-            fun_codigo: cod_funcionario,
+            fun_codigo: funCodigo,
             finalizada: 'S',
             tempoAtendimento: 10
           };
-          const response = await api.put(`/Ocorrencias/${ocorrencia.codigo}`, JSON.stringify(requestFinalizar));
-
-          if (response.data && response.data.fun_codigo > 0) {
+          try {
+            const response = await api.put(`/Ocorrencias/${ocorrencia.codigo}`, JSON.stringify(requestFinalizar));
+            if (response.data && Number(response.data.fun_codigo) > 0) {
+              return ocorrencia.codigo;
+            }
+          } catch (putErr) {
+            const sql = `UPDATE OCORRENCIAS_OS SET OO_FUN_ATENDENTE = ${Number(funCodigo)}, OO_DATA_ATENDIMENTO = CURRENT_DATE, OO_FINALIZADA = 'S', OO_DATA_FINALIZADA = CURRENT_DATE, OO_TEMPO_ATENDIMENTO = 10 WHERE OO_CODIGO = ${Number(ocorrencia.codigo)}`;
+            await api.post('/v1/dataset', { sql });
             return ocorrencia.codigo;
           }
           throw new Error(`Falha ao finalizar ocorrência ${ocorrencia.codigo}`);

@@ -13,6 +13,23 @@ import Modal from '../../Modal';
 import { useUsuario } from '../../../context/UsuarioContext';
 import { cn } from '../../../lib/utils';
 
+function formatarDataSegura(valor) {
+  if (!valor || valor === '0') return '';
+  if (typeof valor === 'string') {
+    const limpa = valor.trim();
+    if (/^\d{2}\/\d{2}\/\d{4}/.test(limpa)) {
+      return limpa.substring(0, 10);
+    }
+    if (/^\d{4}-\d{2}-\d{2}/.test(limpa)) {
+      const [ano, mes, dia] = limpa.substring(0, 10).split('-');
+      return `${dia}/${mes}/${ano}`;
+    }
+  }
+  const d = new Date(valor);
+  if (isNaN(d.getTime())) return String(valor);
+  return d.toLocaleDateString('pt-BR');
+}
+
 function CardsBacklog({ backlogs, listIndex, dataEntrega }) {
   return backlogs.map((backlog, index) => (
     <CardSprintBacklog
@@ -222,19 +239,19 @@ export default function CardSprint({ data, index, listIndex, cliente, contrato }
           {data.dataEntrega && (
             <div className="flex items-center gap-1.5 font-medium text-slate-700 dark:text-slate-300">
               <Calendar className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400 shrink-0" />
-              <span>Entrega: {new Date(data.dataEntrega).toLocaleDateString()}</span>
+              <span>Entrega: {formatarDataSegura(data.dataEntrega)}</span>
             </div>
           )}
           {data.data && (
             <div className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400">
               <span className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-600" />
-              <span>Início: {new Date(data.data).toLocaleDateString()}</span>
+              <span>Início: {formatarDataSegura(data.data)}</span>
             </div>
           )}
           {data.dataEntregaReal && (
-            <div className="flex items-center gap-1.5 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+            <div className="flex items-center gap-1.5 text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              <span>Entregue em: {new Date(data.dataEntregaReal).toLocaleDateString()}</span>
+              <span>Entregue em: {formatarDataSegura(data.dataEntregaReal)}</span>
             </div>
           )}
         </div>

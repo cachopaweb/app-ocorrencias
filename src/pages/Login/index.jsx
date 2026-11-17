@@ -65,10 +65,12 @@ function Login() {
     try {
       const response = await api.post('/login', JSON.stringify(loginPayload));
       if (!response.data.error) {
-        // Guarda no local storage
+        // Guarda no local storage completo já com o funcionário vinculado
         const usuario = {
           codigo: codigoUsu,
           nome: login_usu,
+          fun_logado: fun_codigo,
+          fun_categoria: categoria,
         };
         localStorage.setItem('usuario_logado', JSON.stringify(usuario));
 

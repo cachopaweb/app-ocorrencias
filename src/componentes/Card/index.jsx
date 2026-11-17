@@ -70,7 +70,7 @@ function Card({ cliente, contrato, projeto_id, ocorrencia, atendente = 0, nomeAt
   const [clienteAtual, setClienteAtual] = useState(cliente);
   const [contratoAtual, setContratoAtual] = useState(contrato);
   const [projetoAtual, setProjetoAtual] = useState(projeto_id);
-  const { cod_funcionario, login } = useUsuario();
+  const { cod_funcionario, login, resolverCodFuncionario } = useUsuario();
   const [fechada, setFechada] = useState(false);
   const [num_tarefas_realizadas, setNum_tarefas_realizadas] = useState(0);
   const [clientes, setClientes] = useState([]);
@@ -94,33 +94,81 @@ function Card({ cliente, contrato, projeto_id, ocorrencia, atendente = 0, nomeAt
   }, [num_tarefas_realizadas, totalTarefas]);
 
   async function Atender() {
-    const request = {
-      fun_codigo: cod_funcionario
-    };
     try {
-      const response = await api.put('/Ocorrencias/' + cod_ocorrencia, JSON.stringify(request));
-      if (response.data.fun_codigo > 0) {
-        setFunAtendente(response.data.fun_codigo);
-        setNome_Atendente(login);
+      const funCodigo = resolverCodFuncionario
+        ? await resolverCodFuncionario()
+        : Number(cod_funcionario);
+
+      if (!funCodigo || funCodigo <= 0) {
+        swal(
+          'Usuário sem funcionário vinculado',
+          'Não foi possível identificar o código do funcionário logado. Por favor, saia e faça login novamente.',
+          'warning'
+        );
+        return;
       }
+
+      // No servidor Delphi em produção há uma condição `if not fun_codigo.Contains('0')` que falha para códigos como 10, 20, 30.
+      // Por isso, se o código contiver o dígito '0', atualizamos diretamente via /v1/dataset; caso contrário usamos PUT com fallback.
+      let atendidoComSucesso = false;
+      if (!String(funCodigo).includes('0')) {
+        try {
+          const request = { fun_codigo: funCodigo };
+          const response = await api.put('/Ocorrencias/' + cod_ocorrencia, JSON.stringify(request));
+          if (response.data && Number(response.data.fun_codigo) > 0) {
+            atendidoComSucesso = true;
+          }
+        } catch (putErr) {
+          console.warn('Fallback para /v1/dataset ao atender ocorrência:', putErr);
+        }
+      }
+
+      if (!atendidoComSucesso) {
+        const sql = `UPDATE OCORRENCIAS_OS SET OO_FUN_ATENDENTE = ${Number(funCodigo)}, OO_DATA_ATENDIMENTO = CURRENT_DATE WHERE OO_CODIGO = ${Number(cod_ocorrencia)}`;
+        await api.post('/v1/dataset', { sql });
+      }
+
+      setFunAtendente(funCodigo);
+      setNome_Atendente(login);
     } catch (error) {
-      swal('Erro ao atender ocorrência', error.message, 'error');
+      swal('Erro ao atender ocorrência', error.message || 'Falha ao comunicar com o servidor', 'error');
     }
   }
 
   async function fecharOcorrencia(tempo) {
-    const request = {
-      fun_codigo: cod_funcionario,
-      finalizada: 'S',
-      tempoAtendimento: tempo
-    };
     try {
-      let response = await api.put('/Ocorrencias/' + cod_ocorrencia, JSON.stringify(request));
-      if (response.data.fun_codigo > 0) {
-        setFechada(true);
-      } else {
-        swal('Erro ao fechar Ocorrencia', '', 'error');
+      const funCodigo = resolverCodFuncionario
+        ? await resolverCodFuncionario()
+        : Number(cod_funcionario) || Number(funAtendente);
+
+      if (!funCodigo || funCodigo <= 0) {
+        swal(
+          'Usuário sem funcionário vinculado',
+          'Não foi possível identificar o código do funcionário logado. Por favor, saia e faça login novamente.',
+          'warning'
+        );
+        return;
       }
+
+      const request = {
+        fun_codigo: funCodigo,
+        finalizada: 'S',
+        tempoAtendimento: tempo
+      };
+
+      try {
+        let response = await api.put('/Ocorrencias/' + cod_ocorrencia, JSON.stringify(request));
+        if (response.data && Number(response.data.fun_codigo) > 0) {
+          setFechada(true);
+          return;
+        }
+      } catch (putErr) {
+        console.warn('Fallback para /v1/dataset ao fechar ocorrência:', putErr);
+      }
+
+      const sql = `UPDATE OCORRENCIAS_OS SET OO_FUN_ATENDENTE = ${Number(funCodigo)}, OO_FINALIZADA = 'S', OO_DATA_FINALIZADA = CURRENT_DATE, OO_TEMPO_ATENDIMENTO = ${Number(tempo)} WHERE OO_CODIGO = ${Number(cod_ocorrencia)}`;
+      await api.post('/v1/dataset', { sql });
+      setFechada(true);
     } catch (error) {
       swal('Erro ao fechar Ocorrencia', error.message || error, 'error');
     }
